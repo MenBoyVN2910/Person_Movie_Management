@@ -25,11 +25,19 @@ namespace Person_Movie_Management.Forms
             this.txtMovieCode = new Guna.UI2.WinForms.Guna2TextBox();
             this.cboSourceType = new Guna.UI2.WinForms.Guna2ComboBox();
             this.txtMediaUrl = new Guna.UI2.WinForms.Guna2TextBox();
-            this.txtNote = new Guna.UI2.WinForms.Guna2TextBox();
+            this.btnFetchUrl = new Guna.UI2.WinForms.Guna2GradientButton();
+            this.btnFetchTMDB = new Guna.UI2.WinForms.Guna2GradientButton();
+            this.pnlNoteContainer = new Guna.UI2.WinForms.Guna2Panel();
+            this.txtNote = new System.Windows.Forms.RichTextBox();
             this.btnSave = new Guna.UI2.WinForms.Guna2GradientButton();
             this.btnCancel = new Guna.UI2.WinForms.Guna2Button();
+            this.btnManageTags = new Guna.UI2.WinForms.Guna2Button();
+            this.flpTags = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnlGallery = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnAddGalleryImage = new Guna.UI2.WinForms.Guna2Button();
             this.pnlMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picCover)).BeginInit();
+            this.pnlNoteContainer.SuspendLayout();
             this.SuspendLayout();
             // 
             // guna2Elipse1
@@ -50,10 +58,17 @@ namespace Person_Movie_Management.Forms
             this.pnlMain.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(28)))), ((int)(((byte)(56)))));
             this.pnlMain.Controls.Add(this.btnCancel);
             this.pnlMain.Controls.Add(this.btnSave);
-            this.pnlMain.Controls.Add(this.txtNote);
+            this.pnlMain.Controls.Add(this.btnCancel);
+            this.pnlMain.Controls.Add(this.btnManageTags);
+            this.pnlMain.Controls.Add(this.flpTags);
+            this.pnlMain.Controls.Add(this.pnlNoteContainer);
+            this.pnlMain.Controls.Add(this.btnFetchTMDB);
+            this.pnlMain.Controls.Add(this.btnFetchUrl);
             this.pnlMain.Controls.Add(this.txtMediaUrl);
             this.pnlMain.Controls.Add(this.cboSourceType);
             this.pnlMain.Controls.Add(this.txtMovieCode);
+            this.pnlMain.Controls.Add(this.btnAddGalleryImage);
+            this.pnlMain.Controls.Add(this.pnlGallery);
             this.pnlMain.Controls.Add(this.lblCoverHint);
             this.pnlMain.Controls.Add(this.picCover);
             this.pnlMain.Controls.Add(this.lblTitle);
@@ -100,6 +115,28 @@ namespace Person_Movie_Management.Forms
             this.lblCoverHint.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblCoverHint.Click += new System.EventHandler(this.picCover_Click);
             // 
+            // pnlGallery
+            // 
+            this.pnlGallery.AutoScroll = true;
+            this.pnlGallery.BackColor = System.Drawing.Color.Transparent;
+            this.pnlGallery.Location = new System.Drawing.Point(25, 420);
+            this.pnlGallery.Name = "pnlGallery";
+            this.pnlGallery.Size = new System.Drawing.Size(220, 100);
+            this.pnlGallery.TabIndex = 10;
+            // 
+            // btnAddGalleryImage
+            // 
+            this.btnAddGalleryImage.BorderRadius = 8;
+            this.btnAddGalleryImage.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(38)))), ((int)(((byte)(72)))));
+            this.btnAddGalleryImage.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnAddGalleryImage.ForeColor = System.Drawing.Color.White;
+            this.btnAddGalleryImage.Location = new System.Drawing.Point(25, 530);
+            this.btnAddGalleryImage.Name = "btnAddGalleryImage";
+            this.btnAddGalleryImage.Size = new System.Drawing.Size(220, 30);
+            this.btnAddGalleryImage.TabIndex = 11;
+            this.btnAddGalleryImage.Text = "+ Thêm ảnh phụ";
+            this.btnAddGalleryImage.Click += new System.EventHandler(this.btnAddGalleryImage_Click);
+            // 
             // txtMovieCode
             // 
             this.txtMovieCode.BorderRadius = 10;
@@ -113,11 +150,25 @@ namespace Person_Movie_Management.Forms
             this.txtMovieCode.Margin = new System.Windows.Forms.Padding(4);
             this.txtMovieCode.Name = "txtMovieCode";
             this.txtMovieCode.PasswordChar = '\0';
-            this.txtMovieCode.PlaceholderText = "🎞️  Mã phim (VD: ABC-123)";
+            this.txtMovieCode.PlaceholderText = "🎞️  Mã/Tên phim (VD: Avengers)";
             this.txtMovieCode.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.txtMovieCode.SelectedText = "";
-            this.txtMovieCode.Size = new System.Drawing.Size(430, 42);
+            this.txtMovieCode.Size = new System.Drawing.Size(290, 42);
             this.txtMovieCode.TabIndex = 3;
+            // 
+            // btnFetchTMDB
+            // 
+            this.btnFetchTMDB.BorderRadius = 10;
+            this.btnFetchTMDB.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(72)))), ((int)(((byte)(153)))));
+            this.btnFetchTMDB.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(39)))), ((int)(((byte)(119)))));
+            this.btnFetchTMDB.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnFetchTMDB.ForeColor = System.Drawing.Color.White;
+            this.btnFetchTMDB.Location = new System.Drawing.Point(580, 80);
+            this.btnFetchTMDB.Name = "btnFetchTMDB";
+            this.btnFetchTMDB.Size = new System.Drawing.Size(130, 42);
+            this.btnFetchTMDB.TabIndex = 12;
+            this.btnFetchTMDB.Text = "🎬 TMDB API";
+            this.btnFetchTMDB.Click += new System.EventHandler(this.btnFetchTMDB_Click);
             // 
             // cboSourceType
             // 
@@ -155,28 +206,68 @@ namespace Person_Movie_Management.Forms
             this.txtMediaUrl.PlaceholderText = "🔗  Đường dẫn File hoặc Link Web";
             this.txtMediaUrl.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.txtMediaUrl.SelectedText = "";
-            this.txtMediaUrl.Size = new System.Drawing.Size(430, 42);
+            this.txtMediaUrl.Size = new System.Drawing.Size(290, 42);
             this.txtMediaUrl.TabIndex = 5;
+            // 
+            // btnFetchUrl
+            // 
+            this.btnFetchUrl.BorderRadius = 10;
+            this.btnFetchUrl.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
+            this.btnFetchUrl.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(165)))), ((int)(((byte)(250)))));
+            this.btnFetchUrl.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnFetchUrl.ForeColor = System.Drawing.Color.White;
+            this.btnFetchUrl.Location = new System.Drawing.Point(580, 200);
+            this.btnFetchUrl.Name = "btnFetchUrl";
+            this.btnFetchUrl.Size = new System.Drawing.Size(130, 42);
+            this.btnFetchUrl.TabIndex = 9;
+            this.btnFetchUrl.Text = "🔍 Lấy thông tin";
+            this.btnFetchUrl.Click += new System.EventHandler(this.btnFetchUrl_Click);
+            // 
+            // pnlNoteContainer
+            // 
+            this.pnlNoteContainer.BorderRadius = 10;
+            this.pnlNoteContainer.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
+            this.pnlNoteContainer.Location = new System.Drawing.Point(280, 260);
+            this.pnlNoteContainer.Name = "pnlNoteContainer";
+            this.pnlNoteContainer.Size = new System.Drawing.Size(430, 190);
+            this.pnlNoteContainer.TabIndex = 6;
+            this.pnlNoteContainer.Padding = new System.Windows.Forms.Padding(10);
+            this.pnlNoteContainer.Controls.Add(this.txtNote);
             // 
             // txtNote
             // 
-            this.txtNote.BorderRadius = 10;
-            this.txtNote.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtNote.DefaultText = "";
-            this.txtNote.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.txtNote.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
+            this.txtNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
+            this.txtNote.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtNote.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtNote.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.txtNote.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtNote.Location = new System.Drawing.Point(280, 260);
-            this.txtNote.Margin = new System.Windows.Forms.Padding(4);
-            this.txtNote.Multiline = true;
+            this.txtNote.Location = new System.Drawing.Point(10, 10);
             this.txtNote.Name = "txtNote";
-            this.txtNote.PasswordChar = '\0';
-            this.txtNote.PlaceholderText = "📝  Ghi chú...";
-            this.txtNote.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.txtNote.SelectedText = "";
-            this.txtNote.Size = new System.Drawing.Size(430, 190);
-            this.txtNote.TabIndex = 6;
+            this.txtNote.Size = new System.Drawing.Size(410, 170);
+            this.txtNote.TabIndex = 0;
+            this.txtNote.Text = "";
+            // 
+            // 
+            // btnManageTags
+            // 
+            this.btnManageTags.BorderRadius = 8;
+            this.btnManageTags.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
+            this.btnManageTags.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnManageTags.ForeColor = System.Drawing.Color.White;
+            this.btnManageTags.Location = new System.Drawing.Point(280, 460);
+            this.btnManageTags.Name = "btnManageTags";
+            this.btnManageTags.Size = new System.Drawing.Size(120, 35);
+            this.btnManageTags.TabIndex = 10;
+            this.btnManageTags.Text = "+ Gắn Tag";
+            this.btnManageTags.Click += new System.EventHandler(this.btnManageTags_Click);
+            // 
+            // flpTags
+            // 
+            this.flpTags.AutoScroll = true;
+            this.flpTags.Location = new System.Drawing.Point(410, 460);
+            this.flpTags.Name = "flpTags";
+            this.flpTags.Size = new System.Drawing.Size(300, 35);
+            this.flpTags.TabIndex = 11;
             // 
             // btnSave
             // 
@@ -185,7 +276,7 @@ namespace Person_Movie_Management.Forms
             this.btnSave.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(211)))), ((int)(((byte)(153)))));
             this.btnSave.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnSave.ForeColor = System.Drawing.Color.White;
-            this.btnSave.Location = new System.Drawing.Point(530, 475);
+            this.btnSave.Location = new System.Drawing.Point(530, 510);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(180, 45);
             this.btnSave.TabIndex = 7;
@@ -200,7 +291,7 @@ namespace Person_Movie_Management.Forms
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
             this.btnCancel.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(113)))), ((int)(((byte)(113)))));
             this.btnCancel.HoverState.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(330, 475);
+            this.btnCancel.Location = new System.Drawing.Point(280, 510);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(180, 45);
             this.btnCancel.TabIndex = 8;
@@ -226,15 +317,22 @@ namespace Person_Movie_Management.Forms
         }
 
         private Guna.UI2.WinForms.Guna2Elipse guna2Elipse1;
+        private Guna.UI2.WinForms.Guna2Button btnManageTags;
+        private System.Windows.Forms.FlowLayoutPanel flpTags;
         private Guna.UI2.WinForms.Guna2DragControl guna2DragControl1;
         private Guna.UI2.WinForms.Guna2GradientPanel pnlMain;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.PictureBox picCover;
         private System.Windows.Forms.Label lblCoverHint;
+        private System.Windows.Forms.FlowLayoutPanel pnlGallery;
+        private Guna.UI2.WinForms.Guna2Button btnAddGalleryImage;
         private Guna.UI2.WinForms.Guna2TextBox txtMovieCode;
         private Guna.UI2.WinForms.Guna2ComboBox cboSourceType;
         private Guna.UI2.WinForms.Guna2TextBox txtMediaUrl;
-        private Guna.UI2.WinForms.Guna2TextBox txtNote;
+        private Guna.UI2.WinForms.Guna2GradientButton btnFetchTMDB;
+        private Guna.UI2.WinForms.Guna2GradientButton btnFetchUrl;
+        private Guna.UI2.WinForms.Guna2Panel pnlNoteContainer;
+        private System.Windows.Forms.RichTextBox txtNote;
         private Guna.UI2.WinForms.Guna2GradientButton btnSave;
         private Guna.UI2.WinForms.Guna2Button btnCancel;
     }

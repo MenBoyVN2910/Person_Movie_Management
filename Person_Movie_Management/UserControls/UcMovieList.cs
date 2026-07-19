@@ -9,6 +9,7 @@ using Person_Movie_Management.Helpers;
 using Person_Movie_Management.Models;
 using Person_Movie_Management.Repositories;
 using Person_Movie_Management.Services;
+using Person_Movie_Management.Forms;
 
 namespace Person_Movie_Management.UserControls
 {
@@ -22,19 +23,24 @@ namespace Person_Movie_Management.UserControls
     public partial class UcMovieList : UserControl
     {
         private readonly MovieListMode _mode;
-        private readonly MovieRepository _movieRepo;
-        private readonly AudioRepository _audioRepo;
-        private readonly MovieService _movieService;
         private List<Movie> _allMovies = new();
         private List<Audio> _allAudios = new();
+        private List<Movie> _filteredMovies = new();
+        private List<Audio> _filteredAudios = new();
+
+        private Guna.UI2.WinForms.Guna2ComboBox cmbSort;
+        private Guna.UI2.WinForms.Guna2ComboBox cmbFilterTag;
+        private Guna.UI2.WinForms.Guna2GradientButton btnBatchImport;
+        private Guna.UI2.WinForms.Guna2GradientButton btnDeleteAll;
+        private Guna.UI2.WinForms.Guna2GradientButton btnRandom;
+        private Guna.UI2.WinForms.Guna2GradientButton btnToggleSearchFilter;
+        private Panel pnlSearchFilterPopup;
+        private ToolTip _btnToolTip;
 
         public UcMovieList(MovieListMode mode)
         {
             InitializeComponent();
             _mode = mode;
-            _movieRepo = new MovieRepository();
-            _audioRepo = new AudioRepository();
-            _movieService = new MovieService();
 
             this.BackColor = UIHelper.BgDark;
             pnlTop.BackColor = UIHelper.BgDark;
@@ -44,19 +50,149 @@ namespace Person_Movie_Management.UserControls
             lblTitle.ForeColor = UIHelper.TextPrimary;
             lblTitle.Font = UIHelper.FontH2;
 
+            pnlTop.Height = 80;
+
             // Style search box
             txtSearch.FillColor = UIHelper.BgCard;
             txtSearch.ForeColor = UIHelper.TextPrimary;
             txtSearch.BorderRadius = 12;
             txtSearch.FocusedState.BorderColor = UIHelper.AccentPrimary;
             txtSearch.Font = new Font("Segoe UI", 10F);
+            
+            // Adjust search box position and add sort combo box
+            txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            txtSearch.Size = new Size(300, 42); 
+            
+            cmbSort = new Guna.UI2.WinForms.Guna2ComboBox();
+            cmbSort.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            cmbSort.Size = new Size(250, 42);
+            cmbSort.BorderRadius = 12;
+            cmbSort.FillColor = UIHelper.BgCard;
+            cmbSort.ForeColor = UIHelper.TextPrimary;
+            cmbSort.FocusedState.BorderColor = UIHelper.AccentPrimary;
+            cmbSort.Font = new Font("Segoe UI", 10F);
+            cmbSort.Items.AddRange(new string[] { "Ngày thêm (Mới nhất)", "Ngày thêm (Cũ nhất)", "Rating (Cao -> Thấp)", "Tên (A-Z)" });
+            cmbSort.SelectedIndex = 0;
+            cmbSort.SelectedIndexChanged += (s, e) => { ApplySearchAndSort(); };
+            pnlTop.Controls.Add(cmbSort);
+
+            // Phase 2: Smart Filter by Tag
+            cmbFilterTag = new Guna.UI2.WinForms.Guna2ComboBox();
+            cmbFilterTag.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            cmbFilterTag.Size = new Size(180, 42);
+            cmbFilterTag.BorderRadius = 12;
+            cmbFilterTag.FillColor = UIHelper.BgCard;
+            cmbFilterTag.ForeColor = UIHelper.TextPrimary;
+            cmbFilterTag.FocusedState.BorderColor = UIHelper.AccentPrimary;
+            cmbFilterTag.Font = new Font("Segoe UI", 10F);
+            cmbFilterTag.Items.Add("Tất cả Thể loại");
+            cmbFilterTag.SelectedIndex = 0;
+            cmbFilterTag.SelectedIndexChanged += CmbFilterTag_SelectedIndexChanged;
+            pnlTop.Controls.Add(cmbFilterTag);
+
+            btnToggleSearchFilter = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnToggleSearchFilter.Text = "🔍";
+            btnToggleSearchFilter.Size = new Size(42, 42);
+            btnToggleSearchFilter.BorderRadius = 12;
+            btnToggleSearchFilter.FillColor = UIHelper.BgCard;
+            btnToggleSearchFilter.FillColor2 = UIHelper.BgCard;
+            btnToggleSearchFilter.ForeColor = UIHelper.TextPrimary;
+            btnToggleSearchFilter.Font = new Font("Segoe UI", 16F);
+            btnToggleSearchFilter.Visible = false;
+            btnToggleSearchFilter.Click += (s, e) => {
+                pnlSearchFilterPopup.Visible = !pnlSearchFilterPopup.Visible;
+                if (pnlSearchFilterPopup.Visible) {
+                    pnlSearchFilterPopup.Location = new Point(btnToggleSearchFilter.Left, pnlTop.Bottom);
+                    pnlSearchFilterPopup.BringToFront();
+                }
+            };
+            pnlTop.Controls.Add(btnToggleSearchFilter);
+
+            pnlSearchFilterPopup = new Panel();
+            pnlSearchFilterPopup.BackColor = UIHelper.BgDark;
+            pnlSearchFilterPopup.Size = new Size(320, 165);
+            pnlSearchFilterPopup.Visible = false;
+            pnlSearchFilterPopup.BorderStyle = BorderStyle.FixedSingle;
+            this.Controls.Add(pnlSearchFilterPopup);
+
+            // Center them initially
+            CenterFilterControls();
+            
+            pnlTop.Resize += (s, e) => {
+                CenterFilterControls();
+            };
 
             // Style action button
+            btnAction.Size = new Size(150, 42);
             btnAction.BorderRadius = 12;
             btnAction.FillColor = UIHelper.AccentPrimary;
             btnAction.FillColor2 = UIHelper.AccentTertiary;
             btnAction.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
             btnAction.Animated = true;
+
+            // Phase 1: Batch Import button
+            btnBatchImport = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnBatchImport.Text = "⚡";
+            btnBatchImport.Size = new Size(50, 42);
+            btnBatchImport.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnBatchImport.BorderRadius = 12;
+            btnBatchImport.FillColor = Color.FromArgb(139, 92, 246); // Purple
+            btnBatchImport.FillColor2 = Color.FromArgb(167, 139, 250);
+            btnBatchImport.Font = new Font("Segoe UI", 16F);
+            btnBatchImport.ForeColor = Color.White;
+            btnBatchImport.Click += BtnBatchImport_Click;
+            if (_mode == MovieListMode.Favorites) btnBatchImport.Visible = false;
+            pnlTop.Controls.Add(btnBatchImport);
+            
+            btnDeleteAll = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnDeleteAll.Text = "🗑";
+            btnDeleteAll.Size = new Size(50, 42);
+            btnDeleteAll.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnDeleteAll.BorderRadius = 12;
+            btnDeleteAll.FillColor = Color.FromArgb(239, 68, 68); // Red-500
+            btnDeleteAll.FillColor2 = Color.FromArgb(220, 38, 38); // Red-600
+            btnDeleteAll.Font = new Font("Segoe UI", 16F);
+            btnDeleteAll.ForeColor = Color.White;
+            btnDeleteAll.Visible = _mode != MovieListMode.Favorites;
+            btnDeleteAll.Click += BtnDeleteAll_Click;
+            pnlTop.Controls.Add(btnDeleteAll);
+            
+            btnRandom = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnRandom.Text = "🎲";
+            btnRandom.Size = new Size(50, 42);
+            btnRandom.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnRandom.BorderRadius = 12;
+            btnRandom.FillColor = Color.FromArgb(245, 158, 11); // Amber-500
+            btnRandom.FillColor2 = Color.FromArgb(217, 119, 6); // Amber-600
+            btnRandom.Font = new Font("Segoe UI", 16F);
+            btnRandom.ForeColor = Color.White;
+            btnRandom.Visible = _mode != MovieListMode.Favorites;
+            btnRandom.Click += BtnRandom_Click;
+            pnlTop.Controls.Add(btnRandom);
+            
+            // Adjust buttons to NOT rely on designer anchors which might cause conflict
+            btnAction.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnImport.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnExport.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnImport.Size = new Size(50, 42);
+            btnImport.Text = "📥";
+            btnImport.Font = new Font("Segoe UI", 16F);
+            btnExport.Size = new Size(50, 42);
+            btnExport.Text = "📤";
+            btnExport.Font = new Font("Segoe UI", 16F);
+
+            // Add tooltips
+            _btnToolTip = new ToolTip();
+            _btnToolTip.SetToolTip(btnBatchImport, "Thêm Nhiều Phim Nhanh");
+            _btnToolTip.SetToolTip(btnDeleteAll, "Xóa Tất Cả Phim");
+            _btnToolTip.SetToolTip(btnRandom, "Chọn Ngẫu Nhiên 5 Phim");
+            _btnToolTip.SetToolTip(btnImport, "Nhập Dữ Liệu Từ File");
+            _btnToolTip.SetToolTip(btnExport, "Xuất Dữ Liệu Ra File");
+            _btnToolTip.SetToolTip(btnAction, "Thêm Phim Mới");
+            
+            pnlTop.Resize += (s, e) => {
+                LayoutButtons();
+            };
 
             // Empty state label
             lblEmpty.ForeColor = UIHelper.TextMuted;
@@ -64,7 +200,137 @@ namespace Person_Movie_Management.UserControls
             lblEmpty.Visible = false;
 
             SetupUIForMode();
-            LoadData();
+            this.Load += async (s, e) => { await LoadDataAsync(); };
+            
+            DataCache.DataInvalidated += DataCache_DataInvalidated;
+            this.Disposed += (s, e) => { DataCache.DataInvalidated -= DataCache_DataInvalidated; };
+        }
+
+        private void DataCache_DataInvalidated()
+        {
+            if (this.IsHandleCreated && !this.IsDisposed)
+            {
+                this.Invoke((MethodInvoker)delegate {
+                    _ = LoadDataAsync();
+                });
+            }
+        }
+
+        private void LayoutButtons()
+        {
+            int currentX = pnlTop.Width - 25;
+
+            if (btnAction != null && btnAction.Visible)
+            {
+                currentX -= btnAction.Width;
+                btnAction.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnBatchImport != null && btnBatchImport.Visible)
+            {
+                currentX -= btnBatchImport.Width;
+                btnBatchImport.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnImport != null && btnImport.Visible)
+            {
+                currentX -= btnImport.Width;
+                btnImport.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnExport != null && btnExport.Visible)
+            {
+                currentX -= btnExport.Width;
+                btnExport.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnDeleteAll != null && btnDeleteAll.Visible)
+            {
+                currentX -= btnDeleteAll.Width;
+                btnDeleteAll.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnRandom != null && btnRandom.Visible)
+            {
+                currentX -= btnRandom.Width;
+                btnRandom.Location = new Point(currentX, 18);
+            }
+            
+            // Re-center filters after button layout changes
+            CenterFilterControls();
+        }
+
+        private void CenterFilterControls()
+        {
+            if (cmbSort == null || txtSearch == null || cmbFilterTag == null) return;
+            
+            int titleRight = lblTitle.Right + 30;
+            
+            // Determine leftmost button X by checking visibility from left to right
+            int leftmostButtonX = pnlTop.Width;
+            if (btnRandom != null && btnRandom.Visible) leftmostButtonX = btnRandom.Left;
+            else if (btnDeleteAll != null && btnDeleteAll.Visible) leftmostButtonX = btnDeleteAll.Left;
+            else if (btnExport != null && btnExport.Visible) leftmostButtonX = btnExport.Left;
+            else if (btnImport != null && btnImport.Visible) leftmostButtonX = btnImport.Left;
+            else if (btnBatchImport != null && btnBatchImport.Visible) leftmostButtonX = btnBatchImport.Left;
+            else if (btnAction != null && btnAction.Visible) leftmostButtonX = btnAction.Left;
+            
+            int availableSpace = leftmostButtonX - titleRight - 20; // 20px padding
+            if (availableSpace < 100) availableSpace = 100; // prevent crashing
+
+            if (btnToggleSearchFilter == null || pnlSearchFilterPopup == null) return;
+
+            int defaultWidth = 300 + 10 + 180 + 10 + 250;
+            
+            if (availableSpace < defaultWidth)
+            {
+                // Collapsed mode
+                btnToggleSearchFilter.Visible = true;
+                btnToggleSearchFilter.Location = new Point(titleRight, 18);
+                
+                if (pnlSearchFilterPopup.Visible)
+                {
+                    pnlSearchFilterPopup.Location = new Point(btnToggleSearchFilter.Left, pnlTop.Bottom);
+                }
+
+                if (txtSearch.Parent != pnlSearchFilterPopup)
+                {
+                    txtSearch.Parent = pnlSearchFilterPopup;
+                    cmbFilterTag.Parent = pnlSearchFilterPopup;
+                    cmbSort.Parent = pnlSearchFilterPopup;
+                    
+                    txtSearch.Width = 300;
+                    cmbFilterTag.Width = 300;
+                    cmbSort.Width = 300;
+                    
+                    txtSearch.Location = new Point(10, 10);
+                    cmbFilterTag.Location = new Point(10, 60);
+                    cmbSort.Location = new Point(10, 110);
+                }
+            }
+            else
+            {
+                // Expanded mode
+                btnToggleSearchFilter.Visible = false;
+                pnlSearchFilterPopup.Visible = false;
+                
+                if (txtSearch.Parent != pnlTop)
+                {
+                    txtSearch.Parent = pnlTop;
+                    cmbFilterTag.Parent = pnlTop;
+                    cmbSort.Parent = pnlTop;
+                }
+
+                txtSearch.Width = 300;
+                cmbFilterTag.Width = 180;
+                cmbSort.Width = 250;
+                int totalWidth = txtSearch.Width + 10 + cmbFilterTag.Width + 10 + cmbSort.Width;
+                int startX = titleRight + (availableSpace - totalWidth) / 2;
+                int rowY = 18;
+                txtSearch.Location = new Point(startX, rowY);
+                cmbFilterTag.Location = new Point(txtSearch.Right + 10, rowY);
+                cmbSort.Location = new Point(cmbFilterTag.Right + 10, rowY);
+            }
         }
 
         private void SetupUIForMode()
@@ -72,19 +338,23 @@ namespace Person_Movie_Management.UserControls
             if (_mode == MovieListMode.Online)
             {
                 lblTitle.Text = "🌐  Phim Online";
-                btnAction.Text = "＋  Thêm Phim";
+                btnAction.Text = "＋ Thêm";
+                btnAction.Size = new Size(130, 42);
                 btnAction.Visible = true;
                 btnExport.Visible = true;
                 btnImport.Visible = true;
-                lblEmpty.Text = "Chưa có phim Online nào.\nNhấn \"Thêm Phim\" để bắt đầu.";
+                btnBatchImport.Visible = true;
+                lblEmpty.Text = "Chưa có phim Online nào.\nNhấn \"Thêm\" để bắt đầu.";
             }
             else if (_mode == MovieListMode.Local)
             {
                 lblTitle.Text = "📁  Phim Trên Máy";
                 btnAction.Text = "📂  Quét Thư Mục";
+                btnAction.Size = new Size(180, 42);
                 btnAction.Visible = true;
                 btnExport.Visible = false;
                 btnImport.Visible = false;
+                btnBatchImport.Visible = false;
                 lblEmpty.Text = "Chưa có phim Local nào.\nNhấn \"Quét Thư Mục\" để nhập phim từ máy tính.";
             }
             else
@@ -93,55 +363,111 @@ namespace Person_Movie_Management.UserControls
                 btnAction.Visible = false;
                 btnExport.Visible = false;
                 btnImport.Visible = false;
+                btnBatchImport.Visible = false;
+                if (btnDeleteAll != null) btnDeleteAll.Visible = false;
                 lblEmpty.Text = "Chưa có phim yêu thích nào.\nNhấn vào trái tim trên thẻ phim để thêm.";
             }
+
+            LayoutButtons();
+
+            LayoutButtons();
         }
 
-        private void LoadData()
+        private async System.Threading.Tasks.Task LoadDataAsync()
         {
             if (!SessionManager.IsLoggedIn) return;
 
             int userId = SessionManager.CurrentUser!.Id;
 
-            if (_mode == MovieListMode.Online)
-                _allMovies = _movieRepo.GetAllByUser(userId, 0);
-            else if (_mode == MovieListMode.Local)
-                _allMovies = _movieRepo.GetAllByUser(userId, 1);
-            else if (_mode == MovieListMode.Favorites)
+            if (_mode == MovieListMode.Favorites)
             {
-                _allMovies = _movieRepo.GetFavorites(userId);
-                _allAudios = _audioRepo.GetFavorites(userId);
+                _allMovies = await DataCache.GetFavoriteMoviesAsync(userId);
+                _allAudios = await DataCache.GetFavoriteAudiosAsync(userId);
+            }
+            else
+            {
+                var allCached = await DataCache.GetMoviesAsync(userId);
+                int type = _mode == MovieListMode.Online ? 0 : 1;
+                _allMovies = allCached.Where(m => m.SourceType == type).ToList();
+                _allAudios = new List<Audio>();
             }
 
-            DisplayData(_allMovies, _allAudios);
+            // Dynamically update cmbFilterTag based on the loaded movies
+            string currentSelectedTag = cmbFilterTag.SelectedItem?.ToString();
+            
+            cmbFilterTag.SelectedIndexChanged -= CmbFilterTag_SelectedIndexChanged;
+            cmbFilterTag.Items.Clear();
+            cmbFilterTag.Items.Add("Tất cả Thể loại");
+
+            if (_allMovies != null && _allMovies.Count > 0)
+            {
+                var movieIds = _allMovies.Select(m => m.Id).ToList();
+                var tagsDict = await AppServices.TagRepo.GetTagsForMoviesAsync(movieIds);
+                var uniqueTags = tagsDict.Values.SelectMany(t => t).Select(t => t.TagName).Distinct().OrderBy(t => t).ToList();
+                foreach (var tag in uniqueTags)
+                {
+                    cmbFilterTag.Items.Add(tag);
+                }
+            }
+
+            if (currentSelectedTag != null && cmbFilterTag.Items.Contains(currentSelectedTag))
+            {
+                cmbFilterTag.SelectedItem = currentSelectedTag;
+            }
+            else
+            {
+                cmbFilterTag.SelectedIndex = 0;
+            }
+
+            cmbFilterTag.SelectedIndexChanged += CmbFilterTag_SelectedIndexChanged;
+
+            ApplySearchAndSort();
         }
 
-        private void DisplayData(List<Movie> movies, List<Audio> audios = null)
+        private void CmbFilterTag_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            flowLayoutPanel.Controls.Clear();
-            lblEmpty.Visible = movies.Count == 0 && (audios == null || audios.Count == 0);
+            ApplySearchAndSort();
+        }
 
-            foreach (var movie in movies)
+        private async System.Threading.Tasks.Task DisplayDataAsync(bool append = false)
+        {
+            var combinedItems = new List<object>();
+            combinedItems.AddRange(_filteredMovies);
+            combinedItems.AddRange(_filteredAudios);
+
+            lblEmpty.Visible = combinedItems.Count == 0;
+
+            if (combinedItems.Count > 0)
             {
-                var card = new UcMovieCard(movie);
-                card.MovieClicked += Card_MovieClicked;
-                card.FavoriteToggled += Card_FavoriteToggled;
-                card.EditClicked += Card_EditClicked;
-                card.DeleteClicked += Card_DeleteClicked;
-                flowLayoutPanel.Controls.Add(card);
+                var movieIds = _filteredMovies.Select(m => m.Id).ToList();
+                var tagsDict = await AppServices.TagRepo.GetTagsForMoviesAsync(movieIds);
+                
+                // Wire up events once via panel
+                flowLayoutPanel.MovieClicked -= Card_MovieClicked;
+                flowLayoutPanel.MovieFavoriteToggled -= Card_FavoriteToggled;
+                flowLayoutPanel.MovieEditClicked -= Card_EditClicked;
+                flowLayoutPanel.MovieDeleteClicked -= Card_DeleteClicked;
+                
+                flowLayoutPanel.AudioClicked -= Card_AudioClicked;
+                flowLayoutPanel.AudioFavoriteToggled -= Card_AudioFavoriteToggled;
+                flowLayoutPanel.AudioEditClicked -= Card_AudioEditClicked;
+                flowLayoutPanel.AudioDeleteClicked -= Card_AudioDeleteClicked;
+
+                flowLayoutPanel.MovieClicked += Card_MovieClicked;
+                flowLayoutPanel.MovieFavoriteToggled += Card_FavoriteToggled;
+                flowLayoutPanel.MovieEditClicked += Card_EditClicked;
+                flowLayoutPanel.MovieDeleteClicked += Card_DeleteClicked;
+                
+                flowLayoutPanel.AudioClicked += Card_AudioClicked;
+                flowLayoutPanel.AudioFavoriteToggled += Card_AudioFavoriteToggled;
+                flowLayoutPanel.AudioEditClicked += Card_AudioEditClicked;
+                flowLayoutPanel.AudioDeleteClicked += Card_AudioDeleteClicked;
+
+                flowLayoutPanel.SetData(combinedItems, tagsDict);
             }
-
-            if (audios != null)
+            else
             {
-                foreach (var audio in audios)
-                {
-                    var card = new UcAudioCard(audio);
-                    card.AudioClicked += Card_AudioClicked;
-                    card.FavoriteToggled += Card_AudioFavoriteToggled;
-                    card.EditClicked += Card_AudioEditClicked;
-                    card.DeleteClicked += Card_AudioDeleteClicked;
-                    flowLayoutPanel.Controls.Add(card);
-                }
+                flowLayoutPanel.SetData(new List<object>(), new Dictionary<int, List<Tag>>());
             }
         }
 
@@ -163,7 +489,7 @@ namespace Person_Movie_Management.UserControls
         {
             if (_mode == MovieListMode.Favorites && !movie.IsFavorite)
             {
-                LoadData();
+                _ = LoadDataAsync();
             }
         }
 
@@ -172,7 +498,7 @@ namespace Person_Movie_Management.UserControls
             Forms.FrmMovieDetail frm = new Forms.FrmMovieDetail(movie);
             if (frm.ShowDialog() == DialogResult.OK)
             {
-                LoadData();
+                _ = LoadDataAsync();
             }
         }
 
@@ -180,9 +506,10 @@ namespace Person_Movie_Management.UserControls
         {
             if (MessageBox.Show($"Bạn có chắc chắn muốn xóa phim '{movie.MovieCode}' không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (_movieRepo.Delete(movie.Id))
+                if (AppServices.MovieRepo.Delete(movie.Id))
                 {
-                    LoadData();
+                    DataCache.Invalidate();
+                    _ = LoadDataAsync();
                 }
                 else
                 {
@@ -193,7 +520,7 @@ namespace Person_Movie_Management.UserControls
 
         private void Card_AudioClicked(object? sender, Audio audio)
         {
-            var fullAudio = _audioRepo.GetById(audio.Id, true);
+            var fullAudio = AppServices.AudioRepo.GetById(audio.Id, true);
             if (fullAudio != null && fullAudio.AudioData != null && fullAudio.AudioData.Length > 0)
             {
                 try
@@ -217,7 +544,7 @@ namespace Person_Movie_Management.UserControls
         {
             if (_mode == MovieListMode.Favorites && !audio.IsFavorite)
             {
-                LoadData();
+                _ = LoadDataAsync();
             }
         }
 
@@ -226,7 +553,7 @@ namespace Person_Movie_Management.UserControls
             Forms.FrmAudioDetail frm = new Forms.FrmAudioDetail(audio);
             if (frm.ShowDialog() == DialogResult.OK)
             {
-                LoadData();
+                _ = LoadDataAsync();
             }
         }
 
@@ -234,9 +561,10 @@ namespace Person_Movie_Management.UserControls
         {
             if (MessageBox.Show($"Bạn có chắc chắn muốn xóa âm thanh '{audio.AudioCode}' không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (_audioRepo.Delete(audio.Id))
+                if (AppServices.AudioRepo.Delete(audio.Id))
                 {
-                    LoadData();
+                    DataCache.Invalidate();
+                    _ = LoadDataAsync();
                 }
                 else
                 {
@@ -245,27 +573,78 @@ namespace Person_Movie_Management.UserControls
             }
         }
 
+        private System.Windows.Forms.Timer _searchDebounceTimer;
+
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
-            string keyword = txtSearch.Text.ToLower();
-            if (string.IsNullOrWhiteSpace(keyword))
+            if (_searchDebounceTimer == null)
             {
-                DisplayData(_allMovies, _allAudios);
+                _searchDebounceTimer = new System.Windows.Forms.Timer();
+                _searchDebounceTimer.Interval = 300; // 300ms delay
+                _searchDebounceTimer.Tick += (s, ev) =>
+                {
+                    _searchDebounceTimer.Stop();
+                    ApplySearchAndSort();
+                };
             }
-            else
+            _searchDebounceTimer.Stop();
+            _searchDebounceTimer.Start();
+        }
+
+        private void ApplySearchAndSort()
+        {
+            string keyword = txtSearch.Text.Trim().ToLower();
+            string selectedTag = cmbFilterTag.SelectedIndex > 0 ? cmbFilterTag.SelectedItem.ToString() : null;
+
+            var filteredMovies = _allMovies.AsEnumerable();
+            var filteredAudios = _allAudios.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
             {
-                var filteredMovies = _allMovies.Where(m => 
+                filteredMovies = filteredMovies.Where(m => 
                     m.MovieCode.ToLower().Contains(keyword) || 
-                    (m.Note != null && m.Note.ToLower().Contains(keyword))
-                ).ToList();
+                    (m.Note != null && m.Note.ToLower().Contains(keyword)));
 
-                var filteredAudios = _allAudios.Where(a => 
+                filteredAudios = filteredAudios.Where(a => 
                     a.AudioCode.ToLower().Contains(keyword) || 
-                    (a.Note != null && a.Note.ToLower().Contains(keyword))
-                ).ToList();
-
-                DisplayData(filteredMovies, filteredAudios);
+                    (a.Note != null && a.Note.ToLower().Contains(keyword)));
             }
+
+            // Apply Tag Filter
+            if (selectedTag != null)
+            {
+                filteredMovies = filteredMovies.Where(m => 
+                {
+                    var movieTags = AppServices.TagRepo.GetTagsForMovie(m.Id);
+                    return movieTags.Any(t => t.TagName == selectedTag);
+                });
+            }
+
+            int sortMode = cmbSort?.SelectedIndex ?? 0;
+            switch (sortMode)
+            {
+                case 0: // Ngày thêm (Mới nhất)
+                    filteredMovies = filteredMovies.OrderByDescending(m => m.CreatedAt);
+                    filteredAudios = filteredAudios.OrderByDescending(a => a.CreatedAt);
+                    break;
+                case 1: // Ngày thêm (Cũ nhất)
+                    filteredMovies = filteredMovies.OrderBy(m => m.CreatedAt);
+                    filteredAudios = filteredAudios.OrderBy(a => a.CreatedAt);
+                    break;
+                case 2: // Rating (Cao -> Thấp)
+                    filteredMovies = filteredMovies.OrderByDescending(m => m.Rating);
+                    filteredAudios = filteredAudios.OrderByDescending(a => a.Rating);
+                    break;
+                case 3: // Tên (A-Z)
+                    filteredMovies = filteredMovies.OrderBy(m => m.MovieCode);
+                    filteredAudios = filteredAudios.OrderBy(a => a.AudioCode);
+                    break;
+            }
+
+            _filteredMovies = filteredMovies.ToList();
+            _filteredAudios = filteredAudios.ToList();
+            
+            _ = DisplayDataAsync(false);
         }
 
         private void btnAction_Click(object sender, EventArgs e)
@@ -277,16 +656,72 @@ namespace Person_Movie_Management.UserControls
                 {
                     if (SessionManager.IsLoggedIn)
                     {
-                        var newMovies = _movieService.AutoScanLocalFolder(SessionManager.CurrentUser!.Id, fbd.SelectedPath);
+                        var newMovies = AppServices.MovieSvc.AutoScanLocalFolder(SessionManager.CurrentUser!.Id, fbd.SelectedPath);
                         MessageBox.Show($"Đã quét và thêm {newMovies.Count} phim mới.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadData();
+                        DataCache.Invalidate();
+                        _ = LoadDataAsync();
                     }
                 }
             }
             else if (_mode == MovieListMode.Online)
             {
                 Forms.FrmMovieDetail frm = new Forms.FrmMovieDetail();
-                if (frm.ShowDialog() == DialogResult.OK) LoadData();
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    DataCache.Invalidate();
+                    _ = LoadDataAsync();
+                }
+            }
+        }
+
+        private void BtnRandom_Click(object? sender, EventArgs e)
+        {
+            if (_allMovies == null || _allMovies.Count == 0)
+            {
+                MessageBox.Show("Không có phim nào để chọn.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            
+            var rnd = new Random();
+            _filteredMovies = _allMovies.OrderBy(x => rnd.Next()).Take(5).ToList();
+            _ = DisplayDataAsync(false);
+        }
+
+        private void BtnBatchImport_Click(object? sender, EventArgs e)
+        {
+            var frm = new Forms.FrmBatchImport();
+            if (frm.ShowDialog() == DialogResult.OK)
+            {
+                DataCache.Invalidate();
+                _ = LoadDataAsync();
+            }
+        }
+
+        private void BtnDeleteAll_Click(object? sender, EventArgs e)
+        {
+            if (_filteredMovies.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var inputDialog = new FrmInputBox("Xác nhận xóa", "Nhập 'delete' để xóa TẤT CẢ mục trên trang này:");
+            if (inputDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (inputDialog.InputValue.Trim().ToLower() == "delete")
+                {
+                    if (SessionManager.IsLoggedIn)
+                    {
+                        AppServices.MovieRepo.DeleteAll(SessionManager.CurrentUser!.Id, (int)_mode);
+                        MessageBox.Show("Đã xóa tất cả thành công. Các mục này đã được đưa vào Thùng Rác.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        DataCache.Invalidate();
+                        _ = LoadDataAsync();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Xác nhận không hợp lệ. Hủy thao tác xóa.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -390,7 +825,7 @@ namespace Person_Movie_Management.UserControls
                         foreach (var movie in importedMovies)
                         {
                             // Avoid duplicates by MovieCode
-                            var existingMovie = _movieRepo.GetByCode(currentUserId, movie.MovieCode);
+                            var existingMovie = AppServices.MovieRepo.GetByCode(currentUserId, movie.MovieCode);
                             if (existingMovie == null)
                             {
                                 // Reset IDs and link to current user
@@ -399,7 +834,7 @@ namespace Person_Movie_Management.UserControls
                                 movie.CreatedAt = DateTime.Now;
                                 movie.UpdatedAt = null;
                                 
-                                _movieRepo.Insert(movie);
+                                AppServices.MovieRepo.Insert(movie);
                                 importedCount++;
                             }
                         }
@@ -423,7 +858,8 @@ namespace Person_Movie_Management.UserControls
                         }
 
                         MessageBox.Show($"Nhập dữ liệu thành công! Đã thêm {importedCount} phim mới.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadData();
+                        DataCache.Invalidate();
+                        _ = LoadDataAsync();
                     }
                     else
                     {

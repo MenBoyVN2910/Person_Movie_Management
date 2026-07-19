@@ -21,6 +21,8 @@ namespace Person_Movie_Management.UserControls
             this.contextMenu = new Guna.UI2.WinForms.Guna2ContextMenuStrip();
             this.menuEdit = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAddToPlaylist = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuUpdateProgress = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -37,24 +39,40 @@ namespace Person_Movie_Management.UserControls
             this.contextMenu.RenderStyle.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             this.contextMenu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(28)))), ((int)(((byte)(56)))));
             this.contextMenu.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.contextMenu.Size = new System.Drawing.Size(140, 52);
+            this.contextMenu.Size = new System.Drawing.Size(180, 100);
             this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuEdit,
+            this.menuUpdateProgress,
+            this.menuAddToPlaylist,
             this.menuDelete});
             // 
             // menuEdit
             // 
             this.menuEdit.Name = "menuEdit";
             this.menuEdit.Size = new System.Drawing.Size(139, 24);
-            this.menuEdit.Text = "✏️  Sửa Audio";
+            this.menuEdit.Text = "Sửa Audio";
             this.menuEdit.Click += new System.EventHandler(this.menuEdit_Click);
             // 
             // menuDelete
             // 
             this.menuDelete.Name = "menuDelete";
             this.menuDelete.Size = new System.Drawing.Size(139, 24);
-            this.menuDelete.Text = "🗑️  Xóa Audio";
+            this.menuDelete.Text = "Xóa Audio";
             this.menuDelete.Click += new System.EventHandler(this.menuDelete_Click);
+            // 
+            // menuAddToPlaylist
+            // 
+            this.menuAddToPlaylist.Name = "menuAddToPlaylist";
+            this.menuAddToPlaylist.Size = new System.Drawing.Size(180, 24);
+            this.menuAddToPlaylist.Text = "Thêm vào Playlist";
+            this.menuAddToPlaylist.Click += new System.EventHandler(this.menuAddToPlaylist_Click);
+            // 
+            // menuUpdateProgress
+            // 
+            this.menuUpdateProgress.Name = "menuUpdateProgress";
+            this.menuUpdateProgress.Size = new System.Drawing.Size(180, 24);
+            this.menuUpdateProgress.Text = "Cập nhật tiến độ (%)";
+            this.menuUpdateProgress.Click += new System.EventHandler(this.menuUpdateProgress_Click);
             // 
             // UcAudioCard
             // 
@@ -64,7 +82,7 @@ namespace Person_Movie_Management.UserControls
             this.ContextMenuStrip = this.contextMenu;
             this.Margin = new System.Windows.Forms.Padding(12);
             this.Name = "UcAudioCard";
-            this.Size = new System.Drawing.Size(320, 240);
+            this.Size = new System.Drawing.Size(360, 320);
             this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -75,5 +93,7 @@ namespace Person_Movie_Management.UserControls
         private Guna.UI2.WinForms.Guna2ContextMenuStrip contextMenu;
         private System.Windows.Forms.ToolStripMenuItem menuEdit;
         private System.Windows.Forms.ToolStripMenuItem menuDelete;
+        private System.Windows.Forms.ToolStripMenuItem menuAddToPlaylist;
+        private System.Windows.Forms.ToolStripMenuItem menuUpdateProgress;
     }
 }

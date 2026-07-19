@@ -6,17 +6,21 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>f552b9ec-27e9-4bd7-ba95-036b10309d59.ico</ApplicationIcon>
+    <ApplicationIcon>Icon_Movie_Hub.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="f552b9ec-27e9-4bd7-ba95-036b10309d59.ico" />
+    <Content Include="Icon_Movie_Hub.ico" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.8" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="14.15.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <PackageReference Include="NAudio" Version="2.3.0" />
+    <PackageReference Include="NReco.VideoConverter" Version="1.2.1" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
   </ItemGroup>
 

@@ -15,5 +15,11 @@ namespace Person_Movie_Management.Models
         public bool IsFavorite { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+        
+        // Feature 3: Watch History & Progress
+        public int WatchProgress { get; set; } = 0;
+        public DateTime? LastWatched { get; set; }
     }
 }

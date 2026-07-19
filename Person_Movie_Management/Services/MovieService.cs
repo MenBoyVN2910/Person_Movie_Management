@@ -35,12 +35,33 @@ namespace Person_Movie_Management.Services
                     var existing = _movieRepo.GetByCode(userId, fileName);
                     if (existing == null)
                     {
+                        // Extract video thumbnail using Windows Shell
+                        string? coverPath = null;
+                        try
+                        {
+                            var img = VideoThumbnailHelper.ExtractThumbnail(file);
+                            if (img != null)
+                            {
+                                FileHelper.EnsureDirectories();
+                                string safeCode = FileHelper.SanitizeFileName(fileName);
+                                string newFileName = $"{safeCode}_{Guid.NewGuid()}.jpg";
+                                string appDataPath = Path.Combine(System.Windows.Forms.Application.StartupPath, "App_Data", "CoverImages");
+                                string destPath = Path.Combine(appDataPath, newFileName);
+                                
+                                img.Save(destPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                coverPath = $"App_Data\\CoverImages\\{newFileName}";
+                                img.Dispose();
+                            }
+                        }
+                        catch { /* Ignore thumbnail extraction failures */ }
+
                         var movie = new Movie
                         {
                             UserId = userId,
                             MovieCode = fileName,
                             SourceType = 1, // Local
-                            MediaUrl = file, // Using full path temporarily, could be relative to root
+                            MediaUrl = file,
+                            CoverImage = coverPath,
                             Note = $"Tự động quét từ thư mục: {folderPath}"
                         };
                         _movieRepo.Insert(movie);

@@ -22,5 +22,23 @@ namespace Person_Movie_Management.Helpers
         {
             CurrentUser = user;
         }
+
+        public static bool IsDropWidgetEnabled
+        {
+            get
+            {
+                string path = System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "widget_pref.txt");
+                if (System.IO.File.Exists(path))
+                {
+                    return System.IO.File.ReadAllText(path).Trim() == "1";
+                }
+                return true; // Default is true
+            }
+            set
+            {
+                string path = System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "widget_pref.txt");
+                System.IO.File.WriteAllText(path, value ? "1" : "0");
+            }
+        }
     }
 }

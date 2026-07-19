@@ -25,6 +25,7 @@ namespace Person_Movie_Management.Forms
             this.btnClose = new Guna.UI2.WinForms.Guna2ControlBox();
             this.btnMaximize = new Guna.UI2.WinForms.Guna2ControlBox();
             this.btnMinimize = new Guna.UI2.WinForms.Guna2ControlBox();
+
             this.pnlContent = new System.Windows.Forms.Panel();
             this.pnlTitleBar.SuspendLayout();
             this.SuspendLayout();
@@ -89,7 +90,6 @@ namespace Person_Movie_Management.Forms
             this.btnMaximize.Name = "btnMaximize";
             this.btnMaximize.Size = new System.Drawing.Size(40, 30);
             this.btnMaximize.TabIndex = 1;
-            this.btnMaximize.Click += new System.EventHandler(this.btnMaximize_Click);
             // 
             // btnMinimize
             // 
@@ -103,7 +103,7 @@ namespace Person_Movie_Management.Forms
             this.btnMinimize.Name = "btnMinimize";
             this.btnMinimize.Size = new System.Drawing.Size(40, 30);
             this.btnMinimize.TabIndex = 2;
-            this.btnMinimize.Click += new System.EventHandler(this.btnMinimize_Click);
+
             // 
             // pnlContent
             // 
@@ -141,6 +141,7 @@ namespace Person_Movie_Management.Forms
         private Guna.UI2.WinForms.Guna2ControlBox btnClose;
         private Guna.UI2.WinForms.Guna2ControlBox btnMaximize;
         private Guna.UI2.WinForms.Guna2ControlBox btnMinimize;
+
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Panel pnlContent;
     }

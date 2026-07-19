@@ -5,18 +5,20 @@ using System.Windows.Forms;
 using Person_Movie_Management.Helpers;
 using Person_Movie_Management.Models;
 using Person_Movie_Management.Repositories;
+using Person_Movie_Management.Services;
 
 namespace Person_Movie_Management.UserControls
 {
     public partial class UcAudioCard : UserControl
     {
         private Audio _audio;
-        private readonly AudioRepository _audioRepo;
         private bool _isHovered = false;
         private int _hoverRating = 0;
         private Rectangle _starsRect;
         private Rectangle _infoRect;
         private Image? _coverImage;
+        private int _currentLoadId = 0;
+        private int _boundAudioId = -1; // Track để skip bind nếu cùng audio
         
         public event EventHandler<Audio>? AudioClicked;
         public event EventHandler<Audio>? FavoriteToggled;
@@ -26,25 +28,54 @@ namespace Person_Movie_Management.UserControls
         public UcAudioCard(Audio audio)
         {
             InitializeComponent();
-            _audio = audio;
-            _audioRepo = new AudioRepository();
             
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             this.Cursor = Cursors.Hand;
             this.BackColor = UIHelper.BgCard;
             
-            LoadCoverImage();
+            menuEdit.Image = UIHelper.CreateIcon("\uE70F", 12f);
+            menuDelete.Image = UIHelper.CreateIcon("\uE74D", 12f);
+            menuAddToPlaylist.Image = UIHelper.CreateIcon("\uE710", 12f);
+            
+            BindData(audio);
         }
 
-        private void LoadCoverImage()
+        public void BindData(Audio audio)
         {
+            // SKIP hoàn toàn nếu đang hiển thị cùng audio (cuộn lên rồi xuống lại)
+            if (_boundAudioId == audio.Id && _audio != null && _audio.Rating == audio.Rating && _audio.IsFavorite == audio.IsFavorite)
+            {
+                _audio = audio; // Cập nhật reference nhưng không bind lại UI
+                return;
+            }
+
+            _audio = audio;
+            _boundAudioId = audio.Id;
+            _coverImage = null; // Clear old image
+            LoadCoverImage();
+            this.Invalidate();
+        }
+
+        private async void LoadCoverImage()
+        {
+            int loadId = ++_currentLoadId;
             if (!string.IsNullOrEmpty(_audio.CoverImage))
             {
                 string fullPath = FileHelper.GetFullPath(_audio.CoverImage);
                 if (System.IO.File.Exists(fullPath))
                 {
-                    try { _coverImage = FileHelper.LoadImageSafe(fullPath); } catch { }
+                    try
+                    {
+                        // Dùng ImageCache.GetAsync trực tiếp (check cache trước, nếu hit thì không tạo Task)
+                        var img = await ImageCache.GetAsync(fullPath);
+                        if (img != null && !this.IsDisposed && _currentLoadId == loadId)
+                        {
+                            _coverImage = img;
+                            this.Invalidate();
+                        }
+                    }
+                    catch { }
                 }
             }
         }
@@ -91,7 +122,7 @@ namespace Person_Movie_Management.UserControls
             }
 
             // ── Cover Image Area ──
-            var imgRect = new Rectangle(6, 6, this.Width - 12, 160);
+            var imgRect = new Rectangle(6, 6, this.Width - 12, 190);
             using var imgClip = CreateRoundedRectPath(imgRect, 10);
 
             if (_coverImage != null)
@@ -138,6 +169,21 @@ namespace Person_Movie_Management.UserControls
                 Color.FromArgb(0, 0, 0, 0), Color.FromArgb(180, 0, 0, 0), 90f);
             g.SetClip(imgClip);
             g.FillRectangle(overlayBrush, gradientOverlay);
+
+            // ── Watch Progress Bar ──
+            if (_audio.WatchProgress > 0)
+            {
+                int pgbHeight = 4;
+                var pgbRect = new Rectangle(imgRect.X, imgRect.Bottom - pgbHeight, imgRect.Width, pgbHeight);
+                using var pgbBgBrush = new SolidBrush(Color.FromArgb(100, 0, 0, 0));
+                g.FillRectangle(pgbBgBrush, pgbRect);
+                
+                int pgbWidth = (int)((_audio.WatchProgress / 100f) * imgRect.Width);
+                var pgbFillRect = new Rectangle(imgRect.X, imgRect.Bottom - pgbHeight, pgbWidth, pgbHeight);
+                using var pgbFillBrush = new SolidBrush(UIHelper.AccentPrimary);
+                g.FillRectangle(pgbFillBrush, pgbFillRect);
+            }
+
             g.ResetClip();
 
             // ── Info Button ──
@@ -148,7 +194,7 @@ namespace Person_Movie_Management.UserControls
             g.DrawString("i", infoIconFont, Brushes.White, _infoRect.X + 7, _infoRect.Y + 1);
 
             // ── Audio Code ──
-            int textY = imgRect.Bottom + 12;
+            int textY = imgRect.Bottom + 16;
             using var nameFont = new Font("Segoe UI", 12F, FontStyle.Bold);
             using var nameBrush = new SolidBrush(UIHelper.TextPrimary);
             var nameRect = new RectangleF(10, textY, this.Width - 20, 28);
@@ -156,7 +202,7 @@ namespace Person_Movie_Management.UserControls
             g.DrawString(_audio.AudioCode, nameFont, nameBrush, nameRect, sf);
 
             // ── Rating Stars ──
-            int ratingY = textY + 28;
+            int ratingY = textY + 44;
             using var starFont = new Font("Segoe UI", 14F);
             
             int displayRating = _hoverRating > 0 ? _hoverRating : _audio.Rating;
@@ -263,14 +309,16 @@ namespace Person_Movie_Management.UserControls
                 clickedRating = Math.Max(1, Math.Min(5, clickedRating));
                 
                 _audio.Rating = clickedRating;
-                _audioRepo.Update(_audio);
+                AppServices.AudioRepo.Update(_audio);
+                DataCache.Invalidate();
                 this.Invalidate();
                 return;
             }
 
             if (e.X > this.Width - 45 && e.Y > 200)
             {
-                _audioRepo.ToggleFavorite(_audio.Id);
+                AppServices.AudioRepo.ToggleFavorite(_audio.Id);
+                DataCache.Invalidate();
                 _audio.IsFavorite = !_audio.IsFavorite;
                 this.Invalidate();
                 FavoriteToggled?.Invoke(this, _audio);
@@ -285,6 +333,29 @@ namespace Person_Movie_Management.UserControls
         private void menuDelete_Click(object sender, EventArgs e)
         {
             DeleteClicked?.Invoke(this, _audio);
+        }
+
+        private void menuAddToPlaylist_Click(object sender, EventArgs e)
+        {
+            int userId = _audio.UserId;
+            var frm = new Person_Movie_Management.Forms.FrmSelectPlaylist(userId, _audio.Id, Person_Movie_Management.Models.PlaylistItemType.Audio);
+            frm.ShowDialog();
+        }
+
+        private void menuUpdateProgress_Click(object sender, EventArgs e)
+        {
+            string input = UIHelper.ShowInputBox("Cập nhật tiến độ", "Nhập phần trăm đã nghe (0-100):", _audio.WatchProgress.ToString());
+            if (int.TryParse(input, out int progress))
+            {
+                if (progress < 0) progress = 0;
+                if (progress > 100) progress = 100;
+
+                _audio.WatchProgress = progress;
+                AppServices.AudioRepo.UpdateProgress(_audio.Id, progress);
+                DataCache.Invalidate();
+                this.Invalidate();
+                BindData(_audio);
+            }
         }
     }
 }

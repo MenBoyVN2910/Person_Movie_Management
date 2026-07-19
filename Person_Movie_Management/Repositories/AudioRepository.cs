@@ -25,9 +25,9 @@ namespace Person_Movie_Management.Repositories
             string dataCol = includeAudioData ? ", AudioData" : "";
             using var command = connection.CreateCommand();
             command.CommandText = $@"
-                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt {dataCol}
+                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt {dataCol}, IsDeleted, DeletedAt, WatchProgress, LastWatched
                 FROM Audios
-                WHERE UserId = @UserId
+                WHERE UserId = @UserId AND IsDeleted = 0
                 ORDER BY CreatedAt DESC
             ";
             command.Parameters.AddWithValue("@UserId", userId);
@@ -45,7 +45,11 @@ namespace Person_Movie_Management.Repositories
                     Rating = reader.IsDBNull(5) ? 0 : reader.GetInt32(5),
                     IsFavorite = reader.IsDBNull(6) ? false : reader.GetInt32(6) == 1,
                     CreatedAt = reader.GetDateTime(7),
-                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8)
+                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8),
+                    IsDeleted = reader.IsDBNull(reader.GetOrdinal("IsDeleted")) ? false : reader.GetInt32(reader.GetOrdinal("IsDeleted")) == 1,
+                    DeletedAt = reader.IsDBNull(reader.GetOrdinal("DeletedAt")) ? null : reader.GetDateTime(reader.GetOrdinal("DeletedAt")),
+                    WatchProgress = reader.IsDBNull(reader.GetOrdinal("WatchProgress")) ? 0 : reader.GetInt32(reader.GetOrdinal("WatchProgress")),
+                    LastWatched = reader.IsDBNull(reader.GetOrdinal("LastWatched")) ? null : reader.GetDateTime(reader.GetOrdinal("LastWatched"))
                 };
 
                 if (includeAudioData && !reader.IsDBNull(9))
@@ -59,17 +63,18 @@ namespace Person_Movie_Management.Repositories
             return audios;
         }
 
-        public Audio? GetById(int id, bool includeAudioData = false)
+        public Audio? GetById(int id, bool includeAudioData = false, bool includeDeleted = false)
         {
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
             string dataCol = includeAudioData ? ", AudioData" : "";
             using var command = connection.CreateCommand();
+            string condition = includeDeleted ? "Id = @Id" : "Id = @Id AND IsDeleted = 0";
             command.CommandText = $@"
-                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt {dataCol}
+                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt {dataCol}, IsDeleted, DeletedAt, WatchProgress, LastWatched
                 FROM Audios
-                WHERE Id = @Id
+                WHERE {condition}
             ";
             command.Parameters.AddWithValue("@Id", id);
 
@@ -86,7 +91,11 @@ namespace Person_Movie_Management.Repositories
                     Rating = reader.IsDBNull(5) ? 0 : reader.GetInt32(5),
                     IsFavorite = reader.IsDBNull(6) ? false : reader.GetInt32(6) == 1,
                     CreatedAt = reader.GetDateTime(7),
-                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8)
+                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8),
+                    IsDeleted = reader.IsDBNull(reader.GetOrdinal("IsDeleted")) ? false : reader.GetInt32(reader.GetOrdinal("IsDeleted")) == 1,
+                    DeletedAt = reader.IsDBNull(reader.GetOrdinal("DeletedAt")) ? null : reader.GetDateTime(reader.GetOrdinal("DeletedAt")),
+                    WatchProgress = reader.IsDBNull(reader.GetOrdinal("WatchProgress")) ? 0 : reader.GetInt32(reader.GetOrdinal("WatchProgress")),
+                    LastWatched = reader.IsDBNull(reader.GetOrdinal("LastWatched")) ? null : reader.GetDateTime(reader.GetOrdinal("LastWatched"))
                 };
 
                 if (includeAudioData && !reader.IsDBNull(9))
@@ -106,10 +115,8 @@ namespace Person_Movie_Management.Repositories
 
             using var command = connection.CreateCommand();
             command.CommandText = @"
-                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt
-                FROM Audios
-                WHERE UserId = @UserId AND AudioCode = @AudioCode
-            ";
+                SELECT * FROM Audios 
+                WHERE UserId = @UserId AND AudioCode = @AudioCode AND IsDeleted = 0;";
             command.Parameters.AddWithValue("@UserId", userId);
             command.Parameters.AddWithValue("@AudioCode", audioCode);
 
@@ -126,7 +133,11 @@ namespace Person_Movie_Management.Repositories
                     Rating = reader.IsDBNull(5) ? 0 : reader.GetInt32(5),
                     IsFavorite = reader.IsDBNull(6) ? false : reader.GetInt32(6) == 1,
                     CreatedAt = reader.GetDateTime(7),
-                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8)
+                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8),
+                    IsDeleted = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
+                    DeletedAt = reader.IsDBNull(10) ? null : reader.GetDateTime(10),
+                    WatchProgress = reader.IsDBNull(11) ? 0 : reader.GetInt32(11),
+                    LastWatched = reader.IsDBNull(12) ? null : reader.GetDateTime(12)
                 };
             }
             return null;
@@ -210,8 +221,51 @@ namespace Person_Movie_Management.Repositories
             connection.Open();
 
             using var command = connection.CreateCommand();
+            command.CommandText = "UPDATE Audios SET IsDeleted = 1, DeletedAt = datetime('now','localtime'), AudioCode = AudioCode || '_$DEL$_' || Id WHERE Id = @Id";
+            command.Parameters.AddWithValue("@Id", id);
+
+            return command.ExecuteNonQuery() > 0;
+        }
+
+        public void DeleteAll(int userId)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            
+            command.CommandText = "UPDATE Audios SET IsDeleted = 1, DeletedAt = datetime('now','localtime'), AudioCode = AudioCode || '_$DEL$_' || Id WHERE UserId = @UserId AND IsDeleted = 0";
+            command.Parameters.AddWithValue("@UserId", userId);
+            
+            command.ExecuteNonQuery();
+        }
+
+        public bool HardDelete(int id)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
             command.CommandText = "DELETE FROM Audios WHERE Id = @Id";
             command.Parameters.AddWithValue("@Id", id);
+
+            return command.ExecuteNonQuery() > 0;
+        }
+
+        public bool UpdateProgress(int audioId, int progress)
+        {
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE Audios
+                SET WatchProgress = @Progress,
+                    LastWatched = @LastWatched
+                WHERE Id = @Id
+            ";
+            command.Parameters.AddWithValue("@Progress", progress);
+            command.Parameters.AddWithValue("@LastWatched", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            command.Parameters.AddWithValue("@Id", audioId);
 
             return command.ExecuteNonQuery() > 0;
         }
@@ -240,9 +294,9 @@ namespace Person_Movie_Management.Repositories
 
             using var command = connection.CreateCommand();
             command.CommandText = @"
-                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt
+                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt, IsDeleted, DeletedAt, WatchProgress, LastWatched
                 FROM Audios
-                WHERE UserId = @UserId AND IsFavorite = 1
+                WHERE UserId = @UserId AND IsFavorite = 1 AND IsDeleted = 0
                 ORDER BY CreatedAt DESC
             ";
             command.Parameters.AddWithValue("@UserId", userId);
@@ -260,7 +314,88 @@ namespace Person_Movie_Management.Repositories
                     Rating = reader.IsDBNull(5) ? 0 : reader.GetInt32(5),
                     IsFavorite = true,
                     CreatedAt = reader.GetDateTime(7),
-                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8)
+                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8),
+                    IsDeleted = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
+                    DeletedAt = reader.IsDBNull(10) ? null : reader.GetDateTime(10),
+                    WatchProgress = reader.IsDBNull(11) ? 0 : reader.GetInt32(11),
+                    LastWatched = reader.IsDBNull(12) ? null : reader.GetDateTime(12)
+                });
+            }
+            return audios;
+        }
+
+        public async System.Threading.Tasks.Task<List<Audio>> GetFavoritesAsync(int userId)
+        {
+            var audios = new List<Audio>();
+            using var connection = new SqliteConnection(_connectionString);
+            await connection.OpenAsync();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt, IsDeleted, DeletedAt, WatchProgress, LastWatched
+                FROM Audios
+                WHERE UserId = @UserId AND IsFavorite = 1 AND IsDeleted = 0
+                ORDER BY CreatedAt DESC
+            ";
+            command.Parameters.AddWithValue("@UserId", userId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                audios.Add(new Audio
+                {
+                    Id = reader.GetInt32(0),
+                    UserId = reader.GetInt32(1),
+                    AudioCode = reader.GetString(2),
+                    CoverImage = reader.IsDBNull(3) ? null : reader.GetString(3),
+                    Note = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    Rating = reader.IsDBNull(5) ? 0 : reader.GetInt32(5),
+                    IsFavorite = true,
+                    CreatedAt = reader.GetDateTime(7),
+                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8),
+                    IsDeleted = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
+                    DeletedAt = reader.IsDBNull(10) ? null : reader.GetDateTime(10),
+                    WatchProgress = reader.IsDBNull(11) ? 0 : reader.GetInt32(11),
+                    LastWatched = reader.IsDBNull(12) ? null : reader.GetDateTime(12)
+                });
+            }
+
+            return audios;
+        }
+
+        public List<Audio> GetDeleted(int userId)
+        {
+            var audios = new List<Audio>();
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT Id, UserId, AudioCode, CoverImage, Note, Rating, IsFavorite, CreatedAt, UpdatedAt, IsDeleted, DeletedAt, WatchProgress, LastWatched
+                FROM Audios
+                WHERE UserId = @UserId AND IsDeleted = 1
+                ORDER BY DeletedAt DESC
+            ";
+            command.Parameters.AddWithValue("@UserId", userId);
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                audios.Add(new Audio
+                {
+                    Id = reader.GetInt32(0),
+                    UserId = reader.GetInt32(1),
+                    AudioCode = reader.GetString(2),
+                    CoverImage = reader.IsDBNull(3) ? null : reader.GetString(3),
+                    Note = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    Rating = reader.IsDBNull(5) ? 0 : reader.GetInt32(5),
+                    IsFavorite = reader.IsDBNull(6) ? false : reader.GetInt32(6) == 1,
+                    CreatedAt = reader.GetDateTime(7),
+                    UpdatedAt = reader.IsDBNull(8) ? null : reader.GetDateTime(8),
+                    IsDeleted = true,
+                    DeletedAt = reader.IsDBNull(10) ? null : reader.GetDateTime(10),
+                    WatchProgress = reader.IsDBNull(11) ? 0 : reader.GetInt32(11),
+                    LastWatched = reader.IsDBNull(12) ? null : reader.GetDateTime(12)
                 });
             }
 

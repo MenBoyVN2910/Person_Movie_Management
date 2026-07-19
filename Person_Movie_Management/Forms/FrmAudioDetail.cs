@@ -159,6 +159,11 @@ namespace Person_Movie_Management.Forms
                 lblSelectedAudio.Text = Path.GetFileName(_selectedAudioPath);
                 lblSelectedAudio.ForeColor = UIHelper.Success;
                 
+                if (string.IsNullOrWhiteSpace(txtAudioCode.Text))
+                {
+                    txtAudioCode.Text = Path.GetFileNameWithoutExtension(_selectedAudioPath);
+                }
+                
                 _pendingAudioData = System.IO.File.ReadAllBytes(_selectedAudioPath);
             }
         }

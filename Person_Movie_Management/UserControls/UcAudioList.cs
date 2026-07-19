@@ -9,18 +9,19 @@ using Person_Movie_Management.Helpers;
 using Person_Movie_Management.Models;
 using Person_Movie_Management.Repositories;
 using Person_Movie_Management.Services;
+using Person_Movie_Management.Forms;
 
 namespace Person_Movie_Management.UserControls
 {
     public partial class UcAudioList : UserControl
     {
-        private readonly AudioRepository _audioRepo;
         private List<Audio> _allAudios = new();
+        private Guna.UI2.WinForms.Guna2GradientButton btnDeleteAll;
+        private ToolTip _btnToolTip;
 
         public UcAudioList()
         {
             InitializeComponent();
-            _audioRepo = new AudioRepository();
 
             this.BackColor = UIHelper.BgDark;
             pnlTop.BackColor = UIHelper.BgDark;
@@ -32,6 +33,19 @@ namespace Person_Movie_Management.UserControls
             txtSearch.BorderRadius = 12;
             txtSearch.FocusedState.BorderColor = UIHelper.AccentPrimary;
             txtSearch.Font = new Font("Segoe UI", 10F);
+            
+            txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            txtSearch.Size = new Size(300, 42);
+            
+            pnlTop.Resize += (s, e) => {
+                int startX = (pnlTop.Width - txtSearch.Width) / 2;
+                if (startX < 240) startX = 240;
+                txtSearch.Location = new Point(startX, 18);
+            };
+            
+            int initStartX = (pnlTop.Width - 300) / 2;
+            if (initStartX < 240) initStartX = 240;
+            txtSearch.Location = new Point(initStartX, 18);
 
             // Style action button
             btnAction.BorderRadius = 12;
@@ -43,7 +57,119 @@ namespace Person_Movie_Management.UserControls
             lblEmpty.ForeColor = UIHelper.TextMuted;
             lblEmpty.Font = new Font("Segoe UI", 12F, FontStyle.Regular);
 
+            btnDeleteAll = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnDeleteAll.Text = "🗑";
+            btnDeleteAll.Size = new Size(50, 42);
+            btnDeleteAll.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnDeleteAll.BorderRadius = 12;
+            btnDeleteAll.FillColor = Color.FromArgb(239, 68, 68); // Red-500
+            btnDeleteAll.FillColor2 = Color.FromArgb(220, 38, 38); // Red-600
+            btnDeleteAll.Font = new Font("Segoe UI", 16F);
+            btnDeleteAll.ForeColor = Color.White;
+            btnDeleteAll.Click += BtnDeleteAll_Click;
+            pnlTop.Controls.Add(btnDeleteAll);
+            
+            // Adjust buttons to NOT rely on designer anchors which might cause conflict
+            btnAction.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnAction.Size = new Size(150, 42); // Adjust size for text
+
+            btnImport.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnExport.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnImport.Size = new Size(50, 42);
+            btnImport.Text = "📥";
+            btnImport.Font = new Font("Segoe UI", 16F);
+            btnExport.Size = new Size(50, 42);
+            btnExport.Text = "📤";
+            btnExport.Font = new Font("Segoe UI", 16F);
+
+            // Add tooltips
+            _btnToolTip = new ToolTip();
+            _btnToolTip.SetToolTip(btnDeleteAll, "Xóa Tất Cả Âm Thanh");
+            _btnToolTip.SetToolTip(btnImport, "Nhập Dữ Liệu Từ File");
+            _btnToolTip.SetToolTip(btnExport, "Xuất Dữ Liệu Ra File");
+            _btnToolTip.SetToolTip(btnAction, "Thêm Âm Thanh Mới");
+            
+            pnlTop.Resize += (s, e) => {
+                LayoutButtons();
+            };
+            
+            LayoutButtons();
+
             LoadData();
+        }
+
+        private void LayoutButtons()
+        {
+            int currentX = pnlTop.Width - 25;
+
+            if (btnAction != null && btnAction.Visible)
+            {
+                currentX -= btnAction.Width;
+                btnAction.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnImport != null && btnImport.Visible)
+            {
+                currentX -= btnImport.Width;
+                btnImport.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnExport != null && btnExport.Visible)
+            {
+                currentX -= btnExport.Width;
+                btnExport.Location = new Point(currentX, 18);
+                currentX -= 10;
+            }
+            if (btnDeleteAll != null && btnDeleteAll.Visible)
+            {
+                currentX -= btnDeleteAll.Width;
+                btnDeleteAll.Location = new Point(currentX, 18);
+            }
+            
+            // Re-center search box if needed
+            if (txtSearch != null)
+            {
+                int leftmostButtonX = pnlTop.Width;
+                if (btnDeleteAll != null && btnDeleteAll.Visible) leftmostButtonX = btnDeleteAll.Left;
+                else if (btnExport != null && btnExport.Visible) leftmostButtonX = btnExport.Left;
+                else if (btnImport != null && btnImport.Visible) leftmostButtonX = btnImport.Left;
+                else if (btnAction != null && btnAction.Visible) leftmostButtonX = btnAction.Left;
+                
+                int availableSpace = leftmostButtonX - 240;
+                if (availableSpace < 300) availableSpace = 300;
+                
+                int startX = 240 + (availableSpace - 300) / 2;
+                if (startX < 240) startX = 240;
+                
+                txtSearch.Location = new Point(startX, 18);
+            }
+        }
+
+        private void BtnDeleteAll_Click(object? sender, EventArgs e)
+        {
+            if (_allAudios.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var inputDialog = new FrmInputBox("Xác nhận xóa", "Nhập 'delete' để xóa TẤT CẢ âm thanh:");
+            if (inputDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (inputDialog.InputValue.Trim().ToLower() == "delete")
+                {
+                    if (SessionManager.IsLoggedIn)
+                    {
+                        AppServices.AudioRepo.DeleteAll(SessionManager.CurrentUser!.Id);
+                        MessageBox.Show("Đã xóa tất cả thành công. Các mục này đã được đưa vào Thùng Rác.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        LoadData();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Xác nhận không hợp lệ. Hủy thao tác xóa.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void LoadData()
@@ -51,37 +177,40 @@ namespace Person_Movie_Management.UserControls
             if (!SessionManager.IsLoggedIn) return;
 
             int userId = SessionManager.CurrentUser!.Id;
-            _allAudios = _audioRepo.GetAllByUser(userId, false); // Don't load BLOB for list view
+            _allAudios = AppServices.AudioRepo.GetAllByUser(userId, false); // Don't load BLOB for list view
             DisplayAudios(_allAudios);
         }
 
         private void DisplayAudios(List<Audio> audios)
         {
-            flowLayoutPanel.Controls.Clear();
             lblEmpty.Visible = audios.Count == 0;
+            
+            flowLayoutPanel.AudioClicked -= Card_AudioClicked;
+            flowLayoutPanel.AudioFavoriteToggled -= Card_FavoriteToggled;
+            flowLayoutPanel.AudioEditClicked -= Card_EditClicked;
+            flowLayoutPanel.AudioDeleteClicked -= Card_DeleteClicked;
+            
+            flowLayoutPanel.AudioClicked += Card_AudioClicked;
+            flowLayoutPanel.AudioFavoriteToggled += Card_FavoriteToggled;
+            flowLayoutPanel.AudioEditClicked += Card_EditClicked;
+            flowLayoutPanel.AudioDeleteClicked += Card_DeleteClicked;
 
-            foreach (var audio in audios)
-            {
-                var card = new UcAudioCard(audio);
-                card.AudioClicked += Card_AudioClicked;
-                card.FavoriteToggled += Card_FavoriteToggled;
-                card.EditClicked += Card_EditClicked;
-                card.DeleteClicked += Card_DeleteClicked;
-                flowLayoutPanel.Controls.Add(card);
-            }
+            var items = audios.Cast<object>().ToList();
+            flowLayoutPanel.SetData(items, null);
         }
 
         private void Card_AudioClicked(object? sender, Audio audio)
         {
             // Load full audio including BLOB data
-            var fullAudio = _audioRepo.GetById(audio.Id, true);
+            var fullAudio = AppServices.AudioRepo.GetById(audio.Id, true);
             if (fullAudio != null && fullAudio.AudioData != null && fullAudio.AudioData.Length > 0)
             {
                 try
                 {
-                    string tempFile = Path.Combine(Path.GetTempPath(), $"temp_audio_{Guid.NewGuid()}.mp3");
-                    File.WriteAllBytes(tempFile, fullAudio.AudioData);
-                    MediaLauncher.LaunchMedia(tempFile, 1);
+                    if (this.ParentForm is FrmMain mainForm)
+                    {
+                        mainForm.PlayGlobalAudio(fullAudio.AudioData, audio.AudioCode);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -113,15 +242,16 @@ namespace Person_Movie_Management.UserControls
 
         private void Card_DeleteClicked(object? sender, Audio audio)
         {
-            if (MessageBox.Show($"Bạn có chắc chắn muốn xóa âm thanh '{audio.AudioCode}' không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show($"Bạn có chắc chắn muốn xóa '{audio.AudioCode}' không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (_audioRepo.Delete(audio.Id))
+                if (AppServices.AudioRepo.Delete(audio.Id))
                 {
+                    DataCache.Invalidate();
                     LoadData();
                 }
                 else
                 {
-                    MessageBox.Show("Xóa âm thanh thất bại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Xóa thất bại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -166,7 +296,7 @@ namespace Person_Movie_Management.UserControls
                 {
                     // Load full data for export
                     int userId = SessionManager.CurrentUser!.Id;
-                    var audiosToExport = _audioRepo.GetAllByUser(userId, true);
+                    var audiosToExport = AppServices.AudioRepo.GetAllByUser(userId, true);
 
                     var options = new JsonSerializerOptions { WriteIndented = true };
                     string jsonString = JsonSerializer.Serialize(audiosToExport, options);
@@ -246,7 +376,7 @@ namespace Person_Movie_Management.UserControls
                         foreach (var audio in importedAudios)
                         {
                             // Avoid duplicates by AudioCode
-                            var existingAudio = _audioRepo.GetByCode(currentUserId, audio.AudioCode);
+                            var existingAudio = AppServices.AudioRepo.GetByCode(currentUserId, audio.AudioCode);
                             if (existingAudio == null)
                             {
                                 int oldId = audio.Id;
@@ -273,7 +403,7 @@ namespace Person_Movie_Management.UserControls
                                 audio.UserId = currentUserId;
                                 audio.CreatedAt = DateTime.Now;
 
-                                if (_audioRepo.Insert(audio)) importedCount++;
+                                if (AppServices.AudioRepo.Insert(audio)) importedCount++;
                             }
                         }
 

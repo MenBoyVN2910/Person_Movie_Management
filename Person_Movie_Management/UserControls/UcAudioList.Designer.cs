@@ -21,7 +21,7 @@ namespace Person_Movie_Management.UserControls
             this.btnAction = new Guna.UI2.WinForms.Guna2GradientButton();
             this.btnExport = new Guna.UI2.WinForms.Guna2GradientButton();
             this.btnImport = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanel = new Person_Movie_Management.Helpers.VirtualWrapPanel();
             this.lblEmpty = new System.Windows.Forms.Label();
             this.pnlTop.SuspendLayout();
             this.SuspendLayout();
@@ -123,7 +123,6 @@ namespace Person_Movie_Management.UserControls
             this.flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel.Location = new System.Drawing.Point(0, 80);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
-            this.flowLayoutPanel.Padding = new System.Windows.Forms.Padding(25, 10, 25, 10);
             this.flowLayoutPanel.Size = new System.Drawing.Size(950, 630);
             this.flowLayoutPanel.TabIndex = 1;
             // 
@@ -163,7 +162,7 @@ namespace Person_Movie_Management.UserControls
         private Guna.UI2.WinForms.Guna2GradientButton btnAction;
         private Guna.UI2.WinForms.Guna2GradientButton btnExport;
         private Guna.UI2.WinForms.Guna2GradientButton btnImport;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
+        private Person_Movie_Management.Helpers.VirtualWrapPanel flowLayoutPanel;
         private System.Windows.Forms.Label lblEmpty;
     }
 }

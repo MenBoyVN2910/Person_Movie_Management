@@ -21,7 +21,7 @@ namespace Person_Movie_Management.UserControls
             this.btnAction = new Guna.UI2.WinForms.Guna2GradientButton();
             this.btnExport = new Guna.UI2.WinForms.Guna2GradientButton();
             this.btnImport = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanel = new Person_Movie_Management.Helpers.VirtualWrapPanel();
             this.lblEmpty = new System.Windows.Forms.Label();
             this.pnlTop.SuspendLayout();
             this.SuspendLayout();
@@ -78,11 +78,11 @@ namespace Person_Movie_Management.UserControls
             this.btnAction.BorderRadius = 12;
             this.btnAction.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
             this.btnAction.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(72)))), ((int)(((byte)(153)))));
-            this.btnAction.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnAction.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnAction.ForeColor = System.Drawing.Color.White;
-            this.btnAction.Location = new System.Drawing.Point(790, 18);
+            this.btnAction.Location = new System.Drawing.Point(815, 18);
             this.btnAction.Name = "btnAction";
-            this.btnAction.Size = new System.Drawing.Size(130, 42);
+            this.btnAction.Size = new System.Drawing.Size(110, 42);
             this.btnAction.TabIndex = 2;
             this.btnAction.Text = "Hành Động";
             this.btnAction.Click += new System.EventHandler(this.btnAction_Click);
@@ -93,11 +93,11 @@ namespace Person_Movie_Management.UserControls
             this.btnExport.BorderRadius = 12;
             this.btnExport.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(185)))), ((int)(((byte)(129)))));
             this.btnExport.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(211)))), ((int)(((byte)(153)))));
-            this.btnExport.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnExport.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnExport.ForeColor = System.Drawing.Color.White;
-            this.btnExport.Location = new System.Drawing.Point(510, 18);
+            this.btnExport.Location = new System.Drawing.Point(575, 18);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(130, 42);
+            this.btnExport.Size = new System.Drawing.Size(110, 42);
             this.btnExport.TabIndex = 3;
             this.btnExport.Text = "📤 Xuất file";
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
@@ -108,11 +108,11 @@ namespace Person_Movie_Management.UserControls
             this.btnImport.BorderRadius = 12;
             this.btnImport.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
             this.btnImport.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(165)))), ((int)(((byte)(250)))));
-            this.btnImport.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnImport.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnImport.ForeColor = System.Drawing.Color.White;
-            this.btnImport.Location = new System.Drawing.Point(650, 18);
+            this.btnImport.Location = new System.Drawing.Point(695, 18);
             this.btnImport.Name = "btnImport";
-            this.btnImport.Size = new System.Drawing.Size(130, 42);
+            this.btnImport.Size = new System.Drawing.Size(110, 42);
             this.btnImport.TabIndex = 4;
             this.btnImport.Text = "📥 Nhập file";
             this.btnImport.Click += new System.EventHandler(this.btnImport_Click);
@@ -123,7 +123,6 @@ namespace Person_Movie_Management.UserControls
             this.flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel.Location = new System.Drawing.Point(0, 80);
             this.flowLayoutPanel.Name = "flowLayoutPanel";
-            this.flowLayoutPanel.Padding = new System.Windows.Forms.Padding(25, 10, 25, 10);
             this.flowLayoutPanel.Size = new System.Drawing.Size(950, 630);
             this.flowLayoutPanel.TabIndex = 1;
             // 
@@ -163,7 +162,7 @@ namespace Person_Movie_Management.UserControls
         private Guna.UI2.WinForms.Guna2GradientButton btnAction;
         private Guna.UI2.WinForms.Guna2GradientButton btnExport;
         private Guna.UI2.WinForms.Guna2GradientButton btnImport;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
+        private Person_Movie_Management.Helpers.VirtualWrapPanel flowLayoutPanel;
         private System.Windows.Forms.Label lblEmpty;
     }
 }

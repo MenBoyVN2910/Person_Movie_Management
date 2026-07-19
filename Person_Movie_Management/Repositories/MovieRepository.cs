@@ -15,7 +15,7 @@ namespace Person_Movie_Management.Repositories
             connection.Open();
             using var command = connection.CreateCommand();
             
-            string sql = "SELECT * FROM Movies WHERE UserId = @UserId";
+            string sql = "SELECT * FROM Movies WHERE UserId = @UserId AND IsDeleted = 0";
             if (sourceType.HasValue)
             {
                 sql += " AND SourceType = @SourceType";
@@ -37,12 +37,41 @@ namespace Person_Movie_Management.Repositories
             return movies;
         }
 
-        public Movie? GetById(int id)
+        public async System.Threading.Tasks.Task<List<Movie>> GetAllByUserAsync(int userId, int? sourceType = null)
+        {
+            var movies = new List<Movie>();
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            await connection.OpenAsync();
+            using var command = connection.CreateCommand();
+            
+            string sql = "SELECT * FROM Movies WHERE UserId = @UserId AND IsDeleted = 0";
+            if (sourceType.HasValue)
+            {
+                sql += " AND SourceType = @SourceType";
+            }
+            sql += " ORDER BY CreatedAt DESC";
+
+            command.CommandText = sql;
+            command.Parameters.AddWithValue("@UserId", userId);
+            if (sourceType.HasValue)
+            {
+                command.Parameters.AddWithValue("@SourceType", sourceType.Value);
+            }
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                movies.Add(MapMovie(reader));
+            }
+            return movies;
+        }
+
+        public Movie? GetById(int id, bool includeDeleted = false)
         {
             using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
             connection.Open();
             using var command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Movies WHERE Id = @Id";
+            command.CommandText = includeDeleted ? "SELECT * FROM Movies WHERE Id = @Id" : "SELECT * FROM Movies WHERE Id = @Id AND IsDeleted = 0";
             command.Parameters.AddWithValue("@Id", id);
 
             using var reader = command.ExecuteReader();
@@ -58,7 +87,7 @@ namespace Person_Movie_Management.Repositories
             using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
             connection.Open();
             using var command = connection.CreateCommand();
-            command.CommandText = "SELECT * FROM Movies WHERE UserId = @UserId AND MovieCode = @MovieCode";
+            command.CommandText = "SELECT * FROM Movies WHERE UserId = @UserId AND MovieCode = @MovieCode AND IsDeleted = 0";
             command.Parameters.AddWithValue("@UserId", userId);
             command.Parameters.AddWithValue("@MovieCode", movieCode);
 
@@ -77,7 +106,7 @@ namespace Person_Movie_Management.Repositories
             connection.Open();
             using var command = connection.CreateCommand();
             
-            string sql = "SELECT * FROM Movies WHERE UserId = @UserId AND (MovieCode LIKE @Keyword OR Note LIKE @Keyword)";
+            string sql = "SELECT * FROM Movies WHERE UserId = @UserId AND IsDeleted = 0 AND (MovieCode LIKE @Keyword OR Note LIKE @Keyword)";
             if (sourceType.HasValue)
             {
                 sql += " AND SourceType = @SourceType";
@@ -107,11 +136,29 @@ namespace Person_Movie_Management.Repositories
             connection.Open();
             using var command = connection.CreateCommand();
             
-            command.CommandText = "SELECT * FROM Movies WHERE UserId = @UserId AND IsFavorite = 1 ORDER BY CreatedAt DESC";
+            command.CommandText = "SELECT * FROM Movies WHERE UserId = @UserId AND IsFavorite = 1 AND IsDeleted = 0 ORDER BY CreatedAt DESC";
             command.Parameters.AddWithValue("@UserId", userId);
 
             using var reader = command.ExecuteReader();
             while (reader.Read())
+            {
+                movies.Add(MapMovie(reader));
+            }
+            return movies;
+        }
+
+        public async System.Threading.Tasks.Task<List<Movie>> GetFavoritesAsync(int userId)
+        {
+            var movies = new List<Movie>();
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            await connection.OpenAsync();
+            using var command = connection.CreateCommand();
+            
+            command.CommandText = "SELECT * FROM Movies WHERE UserId = @UserId AND IsFavorite = 1 AND IsDeleted = 0 ORDER BY CreatedAt DESC";
+            command.Parameters.AddWithValue("@UserId", userId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
             {
                 movies.Add(MapMovie(reader));
             }
@@ -148,7 +195,8 @@ namespace Person_Movie_Management.Repositories
             command.CommandText = @"
                 UPDATE Movies 
                 SET MovieCode = @MovieCode, SourceType = @SourceType, MediaUrl = @MediaUrl, CoverImage = @CoverImage, 
-                    Note = @Note, Rating = @Rating, IsFavorite = @IsFavorite, UpdatedAt = datetime('now','localtime')
+                    Note = @Note, Rating = @Rating, IsFavorite = @IsFavorite, UpdatedAt = datetime('now','localtime'),
+                    WatchProgress = @WatchProgress, LastWatched = @LastWatched
                 WHERE Id = @Id
             ";
             command.Parameters.AddWithValue("@Id", movie.Id);
@@ -159,11 +207,57 @@ namespace Person_Movie_Management.Repositories
             command.Parameters.AddWithValue("@Note", movie.Note ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@Rating", movie.Rating);
             command.Parameters.AddWithValue("@IsFavorite", movie.IsFavorite ? 1 : 0);
+            command.Parameters.AddWithValue("@WatchProgress", movie.WatchProgress);
+            command.Parameters.AddWithValue("@LastWatched", movie.LastWatched ?? (object)DBNull.Value);
+
+            return command.ExecuteNonQuery() > 0;
+        }
+
+        public bool UpdateProgress(int id, int progress)
+        {
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = "UPDATE Movies SET WatchProgress = @Progress, LastWatched = datetime('now','localtime') WHERE Id = @Id";
+            command.Parameters.AddWithValue("@Id", id);
+            command.Parameters.AddWithValue("@Progress", progress);
 
             return command.ExecuteNonQuery() > 0;
         }
 
         public bool Delete(int id)
+        {
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = "UPDATE Movies SET IsDeleted = 1, DeletedAt = datetime('now','localtime'), MovieCode = MovieCode || '_$DEL$_' || Id WHERE Id = @Id";
+            command.Parameters.AddWithValue("@Id", id);
+
+            return command.ExecuteNonQuery() > 0;
+        }
+
+        public void DeleteAll(int userId, int? sourceType = null)
+        {
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            
+            string sql = "UPDATE Movies SET IsDeleted = 1, DeletedAt = datetime('now','localtime'), MovieCode = MovieCode || '_$DEL$_' || Id WHERE UserId = @UserId AND IsDeleted = 0";
+            if (sourceType.HasValue)
+            {
+                sql += " AND SourceType = @SourceType";
+            }
+            command.CommandText = sql;
+            command.Parameters.AddWithValue("@UserId", userId);
+            if (sourceType.HasValue)
+            {
+                command.Parameters.AddWithValue("@SourceType", sourceType.Value);
+            }
+            
+            command.ExecuteNonQuery();
+        }
+
+        public bool HardDelete(int id)
         {
             using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
             connection.Open();
@@ -197,7 +291,7 @@ namespace Person_Movie_Management.Repositories
                     SUM(CASE WHEN SourceType = 1 THEN 1 ELSE 0 END) as Local,
                     SUM(CASE WHEN IsFavorite = 1 THEN 1 ELSE 0 END) as Favorites
                 FROM Movies
-                WHERE UserId = @UserId
+                WHERE UserId = @UserId AND IsDeleted = 0
             ";
             command.Parameters.AddWithValue("@UserId", userId);
 
@@ -214,6 +308,24 @@ namespace Person_Movie_Management.Repositories
             return (0, 0, 0, 0);
         }
 
+        public List<Movie> GetDeleted(int userId)
+        {
+            var movies = new List<Movie>();
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            
+            command.CommandText = "SELECT * FROM Movies WHERE UserId = @UserId AND IsDeleted = 1 ORDER BY DeletedAt DESC";
+            command.Parameters.AddWithValue("@UserId", userId);
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                movies.Add(MapMovie(reader));
+            }
+            return movies;
+        }
+
         private Movie MapMovie(SqliteDataReader reader)
         {
             return new Movie
@@ -228,7 +340,11 @@ namespace Person_Movie_Management.Repositories
                 Rating = Convert.ToInt32(reader["Rating"]),
                 IsFavorite = Convert.ToInt32(reader["IsFavorite"]) == 1,
                 CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                UpdatedAt = reader["UpdatedAt"] != DBNull.Value ? Convert.ToDateTime(reader["UpdatedAt"]) : null
+                UpdatedAt = reader["UpdatedAt"] != DBNull.Value ? Convert.ToDateTime(reader["UpdatedAt"]) : null,
+                IsDeleted = reader["IsDeleted"] != DBNull.Value ? Convert.ToInt32(reader["IsDeleted"]) == 1 : false,
+                DeletedAt = reader["DeletedAt"] != DBNull.Value ? Convert.ToDateTime(reader["DeletedAt"]) : null,
+                WatchProgress = reader["WatchProgress"] != DBNull.Value ? Convert.ToInt32(reader["WatchProgress"]) : 0,
+                LastWatched = reader["LastWatched"] != DBNull.Value ? Convert.ToDateTime(reader["LastWatched"]) : null
             };
         }
     }

@@ -108,8 +108,8 @@ namespace Person_Movie_Management.Forms
                 // Mở Form Main
                 FrmMain main = new FrmMain();
                 main.Show();
+                SessionManager.Login(user);
                 this.Hide();
-                MessageBox.Show($"Xin chào {user.DisplayName}!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
             else

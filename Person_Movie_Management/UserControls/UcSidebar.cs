@@ -22,7 +22,11 @@ namespace Person_Movie_Management.UserControls
             UIHelper.StyleMenuButton(btnLocalMovies);
             UIHelper.StyleMenuButton(btnAudio);
             UIHelper.StyleMenuButton(btnFavorites);
+            UIHelper.StyleMenuButton(btnPlaylist);
+            UIHelper.StyleMenuButton(btnRecycleBin);
             UIHelper.StyleMenuButton(btnProfile);
+            UIHelper.StyleMenuButton(btnBackup);
+            UIHelper.StyleMenuButton(btnActor);
 
             // Logout gets special danger styling
             btnLogout.FillColor = Color.Transparent;
@@ -109,7 +113,11 @@ namespace Person_Movie_Management.UserControls
             btnLocalMovies.Checked = false;
             btnAudio.Checked = false;
             btnFavorites.Checked = false;
+            btnPlaylist.Checked = false;
+            btnRecycleBin.Checked = false;
             btnProfile.Checked = false;
+            btnBackup.Checked = false;
+            btnActor.Checked = false;
         }
 
         private void MenuButton_Click(object sender, EventArgs e)

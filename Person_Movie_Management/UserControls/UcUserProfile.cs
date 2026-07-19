@@ -25,6 +25,7 @@ namespace Person_Movie_Management.UserControls
             this.BackColor = UIHelper.BgDark;
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            this.AutoScroll = true;
             
             // Style the panel
             pnlInfo.FillColor = UIHelper.BgCard;
@@ -54,6 +55,9 @@ namespace Person_Movie_Management.UserControls
             btnSavePassword.BorderRadius = 12;
             btnSavePassword.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
             btnSavePassword.Animated = true;
+
+            // Initialize toggle
+            tglWidget.Checked = SessionManager.IsDropWidgetEnabled;
 
             LoadData();
         }
@@ -189,6 +193,16 @@ namespace Person_Movie_Management.UserControls
             else
             {
                 MessageBox.Show(message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void tglWidget_CheckedChanged(object sender, EventArgs e)
+        {
+            SessionManager.IsDropWidgetEnabled = tglWidget.Checked;
+            var frmMain = this.FindForm() as Forms.FrmMain;
+            if (frmMain != null)
+            {
+                frmMain.ToggleDropWidget(tglWidget.Checked);
             }
         }
     }

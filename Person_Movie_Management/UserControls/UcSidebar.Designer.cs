@@ -25,7 +25,11 @@ namespace Person_Movie_Management.UserControls
             this.btnLocalMovies = new Guna.UI2.WinForms.Guna2Button();
             this.btnAudio = new Guna.UI2.WinForms.Guna2Button();
             this.btnFavorites = new Guna.UI2.WinForms.Guna2Button();
+            this.btnActor = new Guna.UI2.WinForms.Guna2Button();
+            this.btnPlaylist = new Guna.UI2.WinForms.Guna2Button();
+            this.btnRecycleBin = new Guna.UI2.WinForms.Guna2Button();
             this.btnProfile = new Guna.UI2.WinForms.Guna2Button();
+            this.btnBackup = new Guna.UI2.WinForms.Guna2Button();
             this.btnLogout = new Guna.UI2.WinForms.Guna2Button();
             this.pnlTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAvatar)).BeginInit();
@@ -171,6 +175,58 @@ namespace Person_Movie_Management.UserControls
             this.btnFavorites.TextOffset = new System.Drawing.Point(10, 0);
             this.btnFavorites.Click += new System.EventHandler(this.MenuButton_Click);
             // 
+            // btnActor
+            // 
+            this.btnActor.ButtonMode = Guna.UI2.WinForms.Enums.ButtonMode.RadioButton;
+            this.btnActor.BorderRadius = 10;
+            this.btnActor.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnActor.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnActor.ForeColor = System.Drawing.Color.White;
+            this.btnActor.Location = new System.Drawing.Point(0, 416);
+            this.btnActor.Name = "btnActor";
+            this.btnActor.Size = new System.Drawing.Size(230, 45);
+            this.btnActor.TabIndex = 6;
+            this.btnActor.Text = "    💃  Diễn viên";
+            this.btnActor.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.btnActor.TextOffset = new System.Drawing.Point(10, 0);
+            this.btnActor.Click += new System.EventHandler(this.MenuButton_Click);
+            // 
+            // btnPlaylist
+            // 
+            this.btnPlaylist.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnPlaylist.FillColor = System.Drawing.Color.Transparent;
+            this.btnPlaylist.BorderRadius = 10;
+            this.btnPlaylist.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnPlaylist.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.btnPlaylist.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.btnPlaylist.HoverState.ForeColor = System.Drawing.Color.White;
+            this.btnPlaylist.Location = new System.Drawing.Point(0, 310);
+            this.btnPlaylist.Name = "btnPlaylist";
+            this.btnPlaylist.Size = new System.Drawing.Size(230, 50);
+            this.btnPlaylist.TabIndex = 9;
+            this.btnPlaylist.Text = "    📋  Danh sách phát";
+            this.btnPlaylist.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.btnPlaylist.TextOffset = new System.Drawing.Point(10, 0);
+            this.btnPlaylist.Click += new System.EventHandler(this.MenuButton_Click);
+            // 
+            // btnRecycleBin
+            // 
+            this.btnRecycleBin.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnRecycleBin.FillColor = System.Drawing.Color.Transparent;
+            this.btnRecycleBin.BorderRadius = 10;
+            this.btnRecycleBin.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnRecycleBin.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.btnRecycleBin.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.btnRecycleBin.HoverState.ForeColor = System.Drawing.Color.White;
+            this.btnRecycleBin.Location = new System.Drawing.Point(0, 360);
+            this.btnRecycleBin.Name = "btnRecycleBin";
+            this.btnRecycleBin.Size = new System.Drawing.Size(230, 50);
+            this.btnRecycleBin.TabIndex = 8;
+            this.btnRecycleBin.Text = "    🗑️  Thùng rác";
+            this.btnRecycleBin.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.btnRecycleBin.TextOffset = new System.Drawing.Point(10, 0);
+            this.btnRecycleBin.Click += new System.EventHandler(this.MenuButton_Click);
+            // 
             // btnProfile
             // 
             this.btnProfile.ButtonMode = Guna.UI2.WinForms.Enums.ButtonMode.RadioButton;
@@ -186,6 +242,23 @@ namespace Person_Movie_Management.UserControls
             this.btnProfile.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
             this.btnProfile.TextOffset = new System.Drawing.Point(10, 0);
             this.btnProfile.Click += new System.EventHandler(this.MenuButton_Click);
+            // 
+            // 
+            // btnBackup
+            // 
+            this.btnBackup.ButtonMode = Guna.UI2.WinForms.Enums.ButtonMode.RadioButton;
+            this.btnBackup.BorderRadius = 10;
+            this.btnBackup.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnBackup.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnBackup.ForeColor = System.Drawing.Color.White;
+            this.btnBackup.Location = new System.Drawing.Point(0, 461);
+            this.btnBackup.Name = "btnBackup";
+            this.btnBackup.Size = new System.Drawing.Size(230, 45);
+            this.btnBackup.TabIndex = 7;
+            this.btnBackup.Text = "    💾  Sao lưu";
+            this.btnBackup.TextAlign = System.Windows.Forms.HorizontalAlignment.Left;
+            this.btnBackup.TextOffset = new System.Drawing.Point(10, 0);
+            this.btnBackup.Click += new System.EventHandler(this.MenuButton_Click);
             // 
             // btnLogout
             // 
@@ -211,7 +284,11 @@ namespace Person_Movie_Management.UserControls
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(21)))), ((int)(((byte)(42)))));
             this.Controls.Add(this.btnLogout);
+            this.Controls.Add(this.btnBackup);
             this.Controls.Add(this.btnProfile);
+            this.Controls.Add(this.btnRecycleBin);
+            this.Controls.Add(this.btnPlaylist);
+            this.Controls.Add(this.btnActor);
             this.Controls.Add(this.btnFavorites);
             this.Controls.Add(this.btnAudio);
             this.Controls.Add(this.btnLocalMovies);
@@ -237,7 +314,11 @@ namespace Person_Movie_Management.UserControls
         private Guna.UI2.WinForms.Guna2Button btnLocalMovies;
         private Guna.UI2.WinForms.Guna2Button btnAudio;
         private Guna.UI2.WinForms.Guna2Button btnFavorites;
+        private Guna.UI2.WinForms.Guna2Button btnActor;
+        private Guna.UI2.WinForms.Guna2Button btnPlaylist;
+        private Guna.UI2.WinForms.Guna2Button btnRecycleBin;
         private Guna.UI2.WinForms.Guna2Button btnProfile;
+        private Guna.UI2.WinForms.Guna2Button btnBackup;
         private Guna.UI2.WinForms.Guna2Button btnLogout;
     }
 }

@@ -12,6 +12,9 @@ namespace Person_Movie_Management
         {
             // Initialize Database
             DatabaseHelper.Initialize();
+            
+            // Load Settings and Theme
+            Person_Movie_Management.Models.AppSettings.Load();
 
             ApplicationConfiguration.Initialize();
             

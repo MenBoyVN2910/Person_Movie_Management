@@ -32,6 +32,11 @@ namespace Person_Movie_Management.UserControls
             this.txtNewPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.txtConfirmPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.btnSavePassword = new Guna.UI2.WinForms.Guna2GradientButton();
+            
+            // New DropWidget Toggle
+            this.lblToggleWidget = new System.Windows.Forms.Label();
+            this.tglWidget = new System.Windows.Forms.CheckBox();
+            
             this.pnlInfo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAvatar)).BeginInit();
             this.SuspendLayout();
@@ -56,7 +61,11 @@ namespace Person_Movie_Management.UserControls
             this.pnlInfo.Controls.Add(this.picAvatar);
             this.pnlInfo.Controls.Add(this.lblTitleInfo);
             
-            this.pnlInfo.Location = new System.Drawing.Point(40, 40);
+            // Add Toggle controls
+            this.pnlInfo.Controls.Add(this.lblToggleWidget);
+            this.pnlInfo.Controls.Add(this.tglWidget);
+            
+            this.pnlInfo.Location = new System.Drawing.Point(150, 20);
             this.pnlInfo.Name = "pnlInfo";
             this.pnlInfo.Size = new System.Drawing.Size(650, 630);
             this.pnlInfo.TabIndex = 0;
@@ -234,6 +243,28 @@ namespace Person_Movie_Management.UserControls
             this.btnSavePassword.Text = "CẬP NHẬT MẬT KHẨU";
             this.btnSavePassword.Click += new System.EventHandler(this.btnSavePassword_Click);
             // 
+            // lblToggleWidget
+            // 
+            this.lblToggleWidget.AutoSize = true;
+            this.lblToggleWidget.BackColor = System.Drawing.Color.Transparent;
+            this.lblToggleWidget.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblToggleWidget.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.lblToggleWidget.Location = new System.Drawing.Point(350, 28);
+            this.lblToggleWidget.Name = "lblToggleWidget";
+            this.lblToggleWidget.Size = new System.Drawing.Size(200, 21);
+            this.lblToggleWidget.TabIndex = 10;
+            this.lblToggleWidget.Text = "Bong bóng thả phim";
+            // 
+            // tglWidget
+            // 
+            this.tglWidget.AutoSize = true;
+            this.tglWidget.Location = new System.Drawing.Point(520, 31);
+            this.tglWidget.Name = "tglWidget";
+            this.tglWidget.Size = new System.Drawing.Size(15, 14);
+            this.tglWidget.TabIndex = 11;
+            this.tglWidget.UseVisualStyleBackColor = true;
+            this.tglWidget.CheckedChanged += new System.EventHandler(this.tglWidget_CheckedChanged);
+            // 
             // UcUserProfile
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -266,5 +297,8 @@ namespace Person_Movie_Management.UserControls
         private Guna.UI2.WinForms.Guna2TextBox txtNewPassword;
         private Guna.UI2.WinForms.Guna2TextBox txtConfirmPassword;
         private Guna.UI2.WinForms.Guna2GradientButton btnSavePassword;
+        
+        private System.Windows.Forms.Label lblToggleWidget;
+        private System.Windows.Forms.CheckBox tglWidget;
     }
 }
