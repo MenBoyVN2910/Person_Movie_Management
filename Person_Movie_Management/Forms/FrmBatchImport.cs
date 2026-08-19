@@ -1,221 +1,298 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Person_Movie_Management.Helpers;
 using Person_Movie_Management.Models;
 using Person_Movie_Management.Repositories;
-using Guna.UI2.WinForms;
+using Person_Movie_Management.Services;
 
 namespace Person_Movie_Management.Forms
 {
     public partial class FrmBatchImport : Form
     {
-        private MovieRepository _movieRepo;
-        
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, IntPtr lp);
+        private const int WM_SETREDRAW = 0x0B;
+
+        private readonly MovieRepository _movieRepo;
+        private readonly TagRepository _tagRepo;
+        private readonly MovieImageRepository _imageRepo;
+        private CancellationTokenSource? _cts;
+        private bool _isHighlighting = false;
+        private readonly System.Windows.Forms.Timer _syntaxTimer;
+
         public FrmBatchImport()
         {
             InitializeComponent();
             _movieRepo = new MovieRepository();
-            
-            var pnlTop = new Guna.UI2.WinForms.Guna2GradientPanel
-            {
-                Dock = DockStyle.Top,
-                Height = 60,
-                FillColor = UIHelper.AccentPrimary,
-                FillColor2 = UIHelper.AccentTertiary
-            };
+            _tagRepo = new TagRepository();
+            _imageRepo = new MovieImageRepository();
 
             this.BackColor = UIHelper.BgDark;
             pnlMain.FillColor = UIHelper.BgCard;
-            
-            lblTitle.ForeColor = UIHelper.TextPrimary;
-            lblTitle.Font = UIHelper.FontH2;
-            
-            txtUrls.BackColor = UIHelper.BgDark;
-            txtUrls.ForeColor = UIHelper.TextPrimary;
-            txtUrls.Padding = new Padding(8);
-            
-            btnStart.FillColor = UIHelper.GradEmerald1;
-            btnCancel.FillColor = UIHelper.GradRose1;
-            
-            progressBar.Visible = false;
-            lblStatus.ForeColor = UIHelper.TextMuted;
-            lblStatus.Text = "";
+            pnlMain.FillColor2 = UIHelper.BgCard;
+            lblTitle.BackColor = UIHelper.BgCard;
+
+            _syntaxTimer = new System.Windows.Forms.Timer();
+            _syntaxTimer.Interval = 250;
+            _syntaxTimer.Tick += (s, e) =>
+            {
+                _syntaxTimer.Stop();
+                HighlightUrls();
+            };
+
+            txtUrls.TextChanged += (s, e) =>
+            {
+                if (!_isHighlighting)
+                {
+                    _syntaxTimer.Stop();
+                    _syntaxTimer.Start();
+                }
+            };
+
+            txtUrls.KeyDown += (s, e) =>
+            {
+                if (e.Control && e.KeyCode == Keys.V)
+                {
+                    e.SuppressKeyPress = true;
+                    PasteWithAutoNewline();
+                }
+            };
+        }
+
+        private void PasteWithAutoNewline()
+        {
+            if (Clipboard.ContainsText())
+            {
+                string text = Clipboard.GetText();
+                if (!string.IsNullOrEmpty(text))
+                {
+                    string pasteText = text.TrimEnd('\r', '\n') + "\r\n";
+                    txtUrls.SelectedText = pasteText;
+                }
+            }
+        }
+
+        private void HighlightUrls()
+        {
+            if (_isHighlighting) return;
+            _isHighlighting = true;
+
+            int selStart = txtUrls.SelectionStart;
+            int selLength = txtUrls.SelectionLength;
+
+            SendMessage(txtUrls.Handle, WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);
+
+            try
+            {
+                var seenUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                int validCount = 0;
+                int duplicateCount = 0;
+                int invalidCount = 0;
+
+                int charIndex = 0;
+                string[] lines = txtUrls.Lines;
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = lines[i];
+                    int lineLen = line.Length;
+                    string trimmed = line.Trim();
+
+                    if (!string.IsNullOrEmpty(trimmed))
+                    {
+                        bool isValidUrl = Uri.TryCreate(trimmed, UriKind.Absolute, out Uri? uri) &&
+                                          (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+                        Color lineColor;
+                        if (!isValidUrl)
+                        {
+                            lineColor = UIHelper.Danger;
+                            invalidCount++;
+                        }
+                        else if (seenUrls.Contains(trimmed))
+                        {
+                            lineColor = UIHelper.Warning;
+                            duplicateCount++;
+                        }
+                        else
+                        {
+                            lineColor = UIHelper.Success;
+                            seenUrls.Add(trimmed);
+                            validCount++;
+                        }
+
+                        txtUrls.Select(charIndex, lineLen);
+                        txtUrls.SelectionColor = lineColor;
+                    }
+
+                    charIndex += lineLen + 1;
+                }
+
+                txtUrls.Select(selStart, selLength);
+                txtUrls.SelectionColor = UIHelper.TextPrimary;
+
+                lblStatus.Text = $"🟢 Hợp lệ: {validCount}  |  🟡 Trùng lặp: {duplicateCount}  |  🔴 Không hợp lệ: {invalidCount}";
+            }
+            finally
+            {
+                SendMessage(txtUrls.Handle, WM_SETREDRAW, (IntPtr)1, IntPtr.Zero);
+                txtUrls.Invalidate();
+                _isHighlighting = false;
+            }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            if (_cts != null)
+            {
+                _cts.Cancel();
+                btnCancel.Enabled = false;
+                btnCancel.Text = "Đang dừng...";
+                return;
+            }
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
         }
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
-            var lines = txtUrls.Text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                                    .Select(l => l.Trim())
-                                    .Where(l => l.StartsWith("http://") || l.StartsWith("https://"))
-                                    .Distinct()
-                                    .ToList();
+            var rawLines = txtUrls.Lines
+                .Select(l => l.Trim())
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .Distinct()
+                .ToList();
 
-            if (lines.Count == 0)
+            var validUrls = rawLines
+                .Where(u => Uri.TryCreate(u, UriKind.Absolute, out Uri? uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+                .ToList();
+
+            if (validUrls.Count == 0)
             {
-                MessageBox.Show("Vui lòng dán ít nhất 1 đường link hợp lệ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập ít nhất một đường dẫn URL hợp lệ (bắt đầu bằng http hoặc https).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             btnStart.Enabled = false;
-            txtUrls.Enabled = false;
+            txtUrls.ReadOnly = true;
+            btnCancel.Text = "Dừng lại";
             progressBar.Visible = true;
-            progressBar.Maximum = lines.Count;
+            progressBar.Maximum = validUrls.Count;
             progressBar.Value = 0;
-            
+
+            _cts = new CancellationTokenSource();
             int successCount = 0;
-            int failCount = 0;
+            int failedCount = 0;
             int userId = SessionManager.CurrentUser!.Id;
 
-            var handler = new System.Net.Http.HttpClientHandler()
+            for (int i = 0; i < validUrls.Count; i++)
             {
-                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
-                UseCookies = true
-            };
-            using var client = new System.Net.Http.HttpClient(handler);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
-            client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
-            client.Timeout = TimeSpan.FromSeconds(15);
+                if (_cts.IsCancellationRequested) break;
 
-            for (int i = 0; i < lines.Count; i++)
-            {
-                string url = lines[i];
-                lblStatus.Text = $"Đang xử lý ({i + 1}/{lines.Count}): {url}";
-                
+                string url = validUrls[i];
+                lblStatus.Text = $"Đang xử lý ({i + 1}/{validUrls.Count}): {url}";
+
                 try
                 {
-                    string html = "";
-                    try
+                    var movie = new Movie
                     {
-                        var process = new System.Diagnostics.Process();
-                        process.StartInfo.FileName = "curl.exe";
-                        process.StartInfo.Arguments = $"-s -L --max-time 20 -H \"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\" \"{url}\"";
-                        process.StartInfo.UseShellExecute = false;
-                        process.StartInfo.RedirectStandardOutput = true;
-                        process.StartInfo.StandardOutputEncoding = System.Text.Encoding.UTF8;
-                        process.StartInfo.CreateNoWindow = true;
-                        process.Start();
-                        html = await process.StandardOutput.ReadToEndAsync();
-                        await process.WaitForExitAsync();
-                    }
-                    catch { }
+                        UserId = userId,
+                        SourceType = 0,
+                        MediaUrl = url,
+                        CreatedAt = DateTime.Now
+                    };
 
-                    if (string.IsNullOrWhiteSpace(html) || html.Length < 500)
+                    string movieTitle = "";
+                    string? posterUrl = null;
+
+                    // Thử qua SiteAdapter trước (YouTube, Vimeo, Dailymotion...)
+                    var adapter = SiteAdapterRegistry.FindAdapter(url);
+                    SiteMetadata? meta = null;
+                    if (adapter != null)
                     {
-                        try { html = await client.GetStringAsync(url); }
+                        try
+                        {
+                            meta = await adapter.ExtractMetadataAsync(url, "");
+                            if (meta != null)
+                            {
+                                if (!string.IsNullOrWhiteSpace(meta.Title)) movieTitle = meta.Title;
+                                if (!string.IsNullOrWhiteSpace(meta.CoverImageUrl)) posterUrl = meta.CoverImageUrl;
+                            }
+                        }
                         catch { }
                     }
 
-                    if (string.IsNullOrWhiteSpace(html) || html.Length < 500)
+                    if (string.IsNullOrWhiteSpace(movieTitle))
                     {
-                        failCount++;
-                        continue;
-                    }
-
-                    var doc = new HtmlAgilityPack.HtmlDocument();
-                    doc.LoadHtml(html);
-
-                    string? title = doc.DocumentNode.SelectSingleNode("//meta[@property='og:title']")?.GetAttributeValue("content", null) 
-                                 ?? doc.DocumentNode.SelectSingleNode("//title")?.InnerText;
-
-                    if (!string.IsNullOrEmpty(title))
-                    {
-                        title = System.Net.WebUtility.HtmlDecode(title);
-                        
-                        // Check if already exists
-                        if (_movieRepo.GetByCode(userId, title) == null)
+                        var doc = await Task.Run(() =>
                         {
-                            var movie = new Movie
-                            {
-                                UserId = userId,
-                                MovieCode = title,
-                                SourceType = 0, // Online
-                                MediaUrl = url,
-                                Note = "Thêm hàng loạt"
-                            };
+                            var web = new HtmlAgilityPack.HtmlWeb();
+                            return web.Load(url);
+                        });
 
-                            string? imageUrl = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']")?.GetAttributeValue("content", null);
-                            if (!string.IsNullOrEmpty(imageUrl))
-                            {
-                                if (imageUrl.StartsWith("/"))
-                                {
-                                    var uri = new Uri(url);
-                                    imageUrl = $"{uri.Scheme}://{uri.Host}{imageUrl}";
-                                }
-                                
-                                string tempImagePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"temp_batch_{Guid.NewGuid()}.jpg");
-                                bool imgOk = false;
+                        var ogTitle = doc.DocumentNode.SelectSingleNode("//meta[@property='og:title']")?.GetAttributeValue("content", "");
+                        var titleTag = doc.DocumentNode.SelectSingleNode("//title")?.InnerText;
+                        movieTitle = !string.IsNullOrWhiteSpace(ogTitle) ? ogTitle : (!string.IsNullOrWhiteSpace(titleTag) ? titleTag : "Movie " + DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+                        movieTitle = System.Net.WebUtility.HtmlDecode(movieTitle).Trim();
 
-                                // Phương pháp 1: curl.exe (đáng tin nhất)
-                                try
-                                {
-                                    var process2 = new System.Diagnostics.Process();
-                                    process2.StartInfo.FileName = "curl.exe";
-                                    process2.StartInfo.Arguments = $"-s -L --max-time 15 -H \"User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36\" -H \"Referer: {url}\" -o \"{tempImagePath}\" \"{imageUrl}\"";
-                                    process2.StartInfo.UseShellExecute = false;
-                                    process2.StartInfo.CreateNoWindow = true;
-                                    process2.Start();
-                                    await process2.WaitForExitAsync();
-                                    if (System.IO.File.Exists(tempImagePath) && new System.IO.FileInfo(tempImagePath).Length > 500)
-                                        imgOk = true;
-                                }
-                                catch { }
-
-                                // Phương pháp 2: HttpClient (dự phòng)
-                                if (!imgOk)
-                                {
-                                    try
-                                    {
-                                        byte[] imageBytes = await client.GetByteArrayAsync(imageUrl);
-                                        if (imageBytes != null && imageBytes.Length > 500)
-                                        {
-                                            System.IO.File.WriteAllBytes(tempImagePath, imageBytes);
-                                            imgOk = true;
-                                        }
-                                    }
-                                    catch { }
-                                }
-                                
-                                if (imgOk)
-                                {
-                                    movie.CoverImage = FileHelper.CopyCoverImage(tempImagePath, title);
-                                    try { System.IO.File.Delete(tempImagePath); } catch { }
-                                }
-                            }
-
-                            _movieRepo.Insert(movie);
-                            successCount++;
-                        }
-                        else
+                        if (string.IsNullOrEmpty(posterUrl))
                         {
-                            failCount++;
+                            posterUrl = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']")?.GetAttributeValue("content", "");
                         }
                     }
-                    else
+
+                    if (string.IsNullOrWhiteSpace(movieTitle) || movieTitle.StartsWith("Movie 20"))
                     {
-                        failCount++;
+                        var match = Regex.Match(url, @"/([^/?#]+)[/?#]?", RegexOptions.RightToLeft);
+                        if (match.Success) movieTitle = match.Groups[1].Value.Replace("-", " ").Replace("_", " ");
                     }
+
+                    movie.MovieCode = movieTitle;
+
+                    var existing = _movieRepo.GetByCode(userId, movie.MovieCode);
+                    if (existing != null)
+                    {
+                        movie.MovieCode += " (" + DateTime.Now.ToString("HHmmss") + ")";
+                    }
+
+                    if (!string.IsNullOrEmpty(posterUrl))
+                    {
+                        try
+                        {
+                            using var client = new HttpClient();
+                            byte[] imgBytes = await client.GetByteArrayAsync(posterUrl);
+                            string tempFile = Path.Combine(Path.GetTempPath(), $"batch_poster_{Guid.NewGuid()}.jpg");
+                            await File.WriteAllBytesAsync(tempFile, imgBytes);
+                            movie.CoverImage = FileHelper.CopyCoverImage(tempFile, movie.MovieCode);
+                        }
+                        catch { }
+                    }
+
+                    int movieId = _movieRepo.Insert(movie);
+
+                    successCount++;
                 }
                 catch
                 {
-                    failCount++;
+                    failedCount++;
                 }
 
                 progressBar.Value = i + 1;
             }
 
-            lblStatus.Text = $"Hoàn tất: Thêm thành công {successCount} phim, thất bại hoặc trùng lặp {failCount} phim.";
-            btnStart.Enabled = true;
-            btnStart.Text = "Xong";
-            btnStart.Click -= btnStart_Click;
-            btnStart.Click += (s, ev) => { this.DialogResult = DialogResult.OK; this.Close(); };
-        }
+            DataCache.Invalidate();
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.Cancel;
+            MessageBox.Show($"Hoàn tất nhập hàng loạt!\nThành công: {successCount}\nThất bại/Bỏ qua: {failedCount}", "Kết quả", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            this.DialogResult = DialogResult.OK;
             this.Close();
         }
     }

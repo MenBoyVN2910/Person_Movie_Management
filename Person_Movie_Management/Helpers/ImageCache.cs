@@ -28,8 +28,8 @@ namespace Person_Movie_Management.Helpers
 
         private class CacheEntry
         {
-            public string Key;
-            public Image Image;
+            public string Key = "";
+            public Image Image = null!;
         }
 
         /// <summary>
@@ -82,6 +82,80 @@ namespace Person_Movie_Management.Helpers
             return Task.Run(() => Get(path));
         }
 
+        /// <summary>
+        /// Lấy nhanh ảnh thu nhỏ đã crop từ RAM (0ms, không I/O, không chờ async).
+        /// </summary>
+        public static bool TryGetThumbnailFromMemory(string path, int targetW, int targetH, out Image? image)
+        {
+            image = null;
+            if (string.IsNullOrEmpty(path)) return false;
+
+            string key = targetW > 0 && targetH > 0 ? $"thumb_{targetW}_{targetH}_{path}" : path;
+            lock (_lock)
+            {
+                if (_cache.TryGetValue(key, out var node))
+                {
+                    _lruList.Remove(node);
+                    _lruList.AddFirst(node);
+                    image = node.Value.Image;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Lấy thumbnail đã crop chuẩn kích thước (async). Nhanh nhất vì lưu thẳng kết quả CropToFill vào RAM.
+        /// </summary>
+        public static Task<Image?> GetThumbnailAsync(string path, int targetW, int targetH)
+        {
+            if (string.IsNullOrEmpty(path)) return Task.FromResult<Image?>(null);
+
+            if (TryGetThumbnailFromMemory(path, targetW, targetH, out var cachedImg))
+            {
+                return Task.FromResult<Image?>(cachedImg);
+            }
+
+            return Task.Run(() => GetThumbnail(path, targetW, targetH));
+        }
+
+        /// <summary>
+        /// Lấy thumbnail đã crop chuẩn kích thước (sync).
+        /// </summary>
+        public static Image? GetThumbnail(string path, int targetW, int targetH)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+
+            string key = targetW > 0 && targetH > 0 ? $"thumb_{targetW}_{targetH}_{path}" : path;
+            lock (_lock)
+            {
+                if (_cache.TryGetValue(key, out var node))
+                {
+                    _lruList.Remove(node);
+                    _lruList.AddFirst(node);
+                    return node.Value.Image;
+                }
+            }
+
+            // Cache miss: Load ảnh gốc và crop
+            var rawImg = Get(path);
+            if (rawImg == null) return null;
+
+            Image finalImg;
+            if (targetW > 0 && targetH > 0)
+            {
+                var cropped = UIHelper.CropToFill(rawImg, targetW, targetH);
+                finalImg = cropped ?? rawImg;
+            }
+            else
+            {
+                finalImg = rawImg;
+            }
+
+            Put(key, finalImg);
+            return finalImg;
+        }
+
         private static void Put(string key, Image img)
         {
             lock (_lock)
@@ -101,7 +175,6 @@ namespace Person_Movie_Management.Helpers
                     {
                         _lruList.RemoveLast();
                         _cache.Remove(oldest.Value.Key);
-                        // Không dispose ảnh vì có thể đang được hiển thị
                     }
                 }
 

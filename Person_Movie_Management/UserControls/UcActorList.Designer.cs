@@ -15,114 +15,182 @@ namespace Person_Movie_Management.UserControls
 
         private void InitializeComponent()
         {
-            this.pnlTop = new System.Windows.Forms.Panel();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.txtSearch = new Guna.UI2.WinForms.Guna2TextBox();
-            this.btnAdd = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.flowLayoutPanel = new Person_Movie_Management.Helpers.VirtualWrapPanel();
-            this.lblEmpty = new System.Windows.Forms.Label();
-            this.pnlTop.SuspendLayout();
-            this.SuspendLayout();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges5 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            pnlTop = new Panel();
+            btnAdd = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnDeleteAll = new Guna.UI2.WinForms.Guna2Button();
+            btnNationalities = new Guna.UI2.WinForms.Guna2Button();
+            txtSearch = new Guna.UI2.WinForms.Guna2TextBox();
+            lblTitle = new Label();
+            flowLayoutPanel = new Person_Movie_Management.Helpers.VirtualWrapPanel();
+            lblEmpty = new Label();
+            pnlTop.SuspendLayout();
+            SuspendLayout();
             // 
             // pnlTop
             // 
-            this.pnlTop.Controls.Add(this.btnAdd);
-            this.pnlTop.Controls.Add(this.txtSearch);
-            this.pnlTop.Controls.Add(this.lblTitle);
-            this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlTop.Location = new System.Drawing.Point(0, 0);
-            this.pnlTop.Name = "pnlTop";
-            this.pnlTop.Padding = new System.Windows.Forms.Padding(25, 20, 25, 10);
-            this.pnlTop.Size = new System.Drawing.Size(950, 80);
-            this.pnlTop.TabIndex = 0;
-            // 
-            // lblTitle
-            // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.lblTitle.Location = new System.Drawing.Point(25, 22);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(126, 30);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "💃 Diễn viên";
-            // 
-            // txtSearch
-            // 
-            this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSearch.BorderRadius = 12;
-            this.txtSearch.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtSearch.DefaultText = "";
-            this.txtSearch.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(28)))), ((int)(((byte)(56)))));
-            this.txtSearch.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtSearch.Location = new System.Drawing.Point(520, 18);
-            this.txtSearch.Margin = new System.Windows.Forms.Padding(4);
-            this.txtSearch.Name = "txtSearch";
-            this.txtSearch.PasswordChar = '\0';
-            this.txtSearch.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.txtSearch.PlaceholderText = "🔍  Tìm kiếm diễn viên...";
-            this.txtSearch.SelectedText = "";
-            this.txtSearch.Size = new System.Drawing.Size(280, 42);
-            this.txtSearch.TabIndex = 1;
-            this.txtSearch.TextChanged += new System.EventHandler(this.txtSearch_TextChanged);
+            pnlTop.Controls.Add(btnAdd);
+            pnlTop.Controls.Add(btnDeleteAll);
+            pnlTop.Controls.Add(btnNationalities);
+            pnlTop.Controls.Add(txtSearch);
+            pnlTop.Controls.Add(lblTitle);
+            pnlTop.Dock = DockStyle.Top;
+            pnlTop.Location = new Point(0, 0);
+            pnlTop.Margin = new Padding(3, 4, 3, 4);
+            pnlTop.Name = "pnlTop";
+            pnlTop.Padding = new Padding(29, 27, 29, 13);
+            pnlTop.Size = new Size(1086, 107);
+            pnlTop.TabIndex = 0;
             // 
             // btnAdd
             // 
-            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.BorderRadius = 12;
-            this.btnAdd.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.btnAdd.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(72)))), ((int)(((byte)(153)))));
-            this.btnAdd.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnAdd.ForeColor = System.Drawing.Color.White;
-            this.btnAdd.Location = new System.Drawing.Point(815, 18);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(110, 42);
-            this.btnAdd.TabIndex = 2;
-            this.btnAdd.Text = "+ Thêm mới";
-            this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAdd.BorderRadius = 12;
+            btnAdd.CustomizableEdges = customizableEdges1;
+            btnAdd.FillColor = Color.FromArgb(139, 92, 246);
+            btnAdd.FillColor2 = Color.FromArgb(236, 72, 153);
+            btnAdd.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnAdd.ForeColor = Color.White;
+            btnAdd.Location = new Point(910, 24);
+            btnAdd.Margin = new Padding(3, 4, 3, 4);
+            btnAdd.Name = "btnAdd";
+            btnAdd.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            btnAdd.Size = new Size(147, 56);
+            btnAdd.TabIndex = 3;
+            btnAdd.Text = "+ Thêm mới";
+            btnAdd.Click += btnAdd_Click;
+            // 
+            // btnDeleteAll
+            // 
+            btnDeleteAll.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnDeleteAll.BorderColor = Color.FromArgb(127, 29, 29);
+            btnDeleteAll.BorderRadius = 12;
+            btnDeleteAll.BorderThickness = 1;
+            btnDeleteAll.Cursor = Cursors.Hand;
+            btnDeleteAll.CustomizableEdges = customizableEdges3;
+            btnDeleteAll.FillColor = Color.FromArgb(60, 20, 20);
+            btnDeleteAll.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnDeleteAll.ForeColor = Color.FromArgb(252, 165, 165);
+            btnDeleteAll.HoverState.BorderColor = Color.FromArgb(239, 68, 68);
+            btnDeleteAll.HoverState.FillColor = Color.FromArgb(239, 68, 68);
+            btnDeleteAll.HoverState.ForeColor = Color.White;
+            btnDeleteAll.Location = new Point(760, 24);
+            btnDeleteAll.Margin = new Padding(3, 4, 3, 4);
+            btnDeleteAll.Name = "btnDeleteAll";
+            btnDeleteAll.ShadowDecoration.CustomizableEdges = customizableEdges4;
+            btnDeleteAll.Size = new Size(143, 56);
+            btnDeleteAll.TabIndex = 5;
+            btnDeleteAll.Text = "🗑 Xóa tất cả";
+            btnDeleteAll.Click += btnDeleteAll_Click;
+            // 
+            // btnNationalities
+            // 
+            btnNationalities.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnNationalities.BorderColor = Color.FromArgb(62, 75, 122);
+            btnNationalities.BorderRadius = 12;
+            btnNationalities.BorderThickness = 1;
+            btnNationalities.Cursor = Cursors.Hand;
+            btnNationalities.CustomizableEdges = customizableEdges5;
+            btnNationalities.FillColor = Color.FromArgb(34, 42, 78);
+            btnNationalities.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnNationalities.ForeColor = Color.FromArgb(224, 231, 255);
+            btnNationalities.HoverState.BorderColor = Color.FromArgb(139, 92, 246);
+            btnNationalities.HoverState.FillColor = Color.FromArgb(139, 92, 246);
+            btnNationalities.HoverState.ForeColor = Color.White;
+            btnNationalities.Location = new Point(583, 24);
+            btnNationalities.Margin = new Padding(3, 4, 3, 4);
+            btnNationalities.Name = "btnNationalities";
+            btnNationalities.ShadowDecoration.CustomizableEdges = customizableEdges6;
+            btnNationalities.Size = new Size(166, 56);
+            btnNationalities.TabIndex = 2;
+            btnNationalities.Text = "🌐 Sửa quốc tịch";
+            btnNationalities.Click += btnNationalities_Click;
+            // 
+            // txtSearch
+            // 
+            txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtSearch.BorderRadius = 12;
+            txtSearch.Cursor = Cursors.IBeam;
+            txtSearch.CustomizableEdges = customizableEdges7;
+            txtSearch.DefaultText = "";
+            txtSearch.FillColor = Color.FromArgb(22, 28, 56);
+            txtSearch.FocusedState.BorderColor = Color.FromArgb(139, 92, 246);
+            txtSearch.Font = new Font("Segoe UI", 10F);
+            txtSearch.ForeColor = Color.FromArgb(241, 245, 249);
+            txtSearch.Location = new Point(309, 24);
+            txtSearch.Margin = new Padding(5, 5, 5, 5);
+            txtSearch.Name = "txtSearch";
+            txtSearch.PlaceholderForeColor = Color.FromArgb(100, 116, 139);
+            txtSearch.PlaceholderText = "🔍  Tìm kiếm diễn viên...";
+            txtSearch.SelectedText = "";
+            txtSearch.ShadowDecoration.CustomizableEdges = customizableEdges8;
+            txtSearch.Size = new Size(263, 56);
+            txtSearch.TabIndex = 1;
+            txtSearch.TextChanged += txtSearch_TextChanged;
+            // 
+            // lblTitle
+            // 
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(241, 245, 249);
+            lblTitle.Location = new Point(29, 29);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(182, 37);
+            lblTitle.TabIndex = 0;
+            lblTitle.Text = "💃 Diễn viên";
             // 
             // flowLayoutPanel
             // 
-            this.flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel.Location = new System.Drawing.Point(0, 80);
-            this.flowLayoutPanel.Name = "flowLayoutPanel";
-            this.flowLayoutPanel.Padding = new System.Windows.Forms.Padding(20);
-            this.flowLayoutPanel.Size = new System.Drawing.Size(950, 520);
-            this.flowLayoutPanel.TabIndex = 1;
+            flowLayoutPanel.BackColor = Color.FromArgb(15, 23, 42);
+            flowLayoutPanel.Dock = DockStyle.Fill;
+            flowLayoutPanel.Location = new Point(0, 107);
+            flowLayoutPanel.Margin = new Padding(3, 4, 3, 4);
+            flowLayoutPanel.Name = "flowLayoutPanel";
+            flowLayoutPanel.Padding = new Padding(23, 27, 23, 27);
+            flowLayoutPanel.Size = new Size(1086, 693);
+            flowLayoutPanel.TabIndex = 1;
             // 
             // lblEmpty
             // 
-            this.lblEmpty.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblEmpty.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblEmpty.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblEmpty.Location = new System.Drawing.Point(0, 80);
-            this.lblEmpty.Name = "lblEmpty";
-            this.lblEmpty.Size = new System.Drawing.Size(950, 520);
-            this.lblEmpty.TabIndex = 2;
-            this.lblEmpty.Text = "Không có diễn viên nào. Nhấn + Thêm mới để bắt đầu.";
-            this.lblEmpty.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblEmpty.Dock = DockStyle.Fill;
+            lblEmpty.Font = new Font("Segoe UI", 14F);
+            lblEmpty.ForeColor = Color.FromArgb(100, 116, 139);
+            lblEmpty.Location = new Point(0, 107);
+            lblEmpty.Name = "lblEmpty";
+            lblEmpty.Size = new Size(1086, 693);
+            lblEmpty.TabIndex = 2;
+            lblEmpty.Text = "Không có diễn viên nào. Nhấn + Thêm mới để bắt đầu.";
+            lblEmpty.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // UcActorList
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Transparent;
-            this.Controls.Add(this.flowLayoutPanel);
-            this.Controls.Add(this.lblEmpty);
-            this.Controls.Add(this.pnlTop);
-            this.Name = "UcActorList";
-            this.Size = new System.Drawing.Size(950, 600);
-            this.pnlTop.ResumeLayout(false);
-            this.pnlTop.PerformLayout();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.Transparent;
+            Controls.Add(flowLayoutPanel);
+            Controls.Add(lblEmpty);
+            Controls.Add(pnlTop);
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "UcActorList";
+            Size = new Size(1086, 800);
+            pnlTop.ResumeLayout(false);
+            pnlTop.PerformLayout();
+            ResumeLayout(false);
 
         }
 
         private System.Windows.Forms.Panel pnlTop;
         private System.Windows.Forms.Label lblTitle;
         private Guna.UI2.WinForms.Guna2TextBox txtSearch;
+        private Guna.UI2.WinForms.Guna2Button btnNationalities;
+        private Guna.UI2.WinForms.Guna2Button btnDeleteAll;
         private Guna.UI2.WinForms.Guna2GradientButton btnAdd;
         private Person_Movie_Management.Helpers.VirtualWrapPanel flowLayoutPanel;
         private System.Windows.Forms.Label lblEmpty;

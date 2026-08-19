@@ -27,6 +27,10 @@ namespace Person_Movie_Management.Forms
             
             btnSave.FillColor = UIHelper.GradEmerald1;
             btnCancel.FillColor = UIHelper.GradRose1;
+
+            txtAudioCode.MaxLength = 50;
+            txtNote.MaxLength = 500;
+            txtNote.TextChanged += (s, e) => UpdateCharCount();
             
             if (audio == null)
             {
@@ -38,6 +42,22 @@ namespace Person_Movie_Management.Forms
                 _audio = audio;
                 lblTitle.Text = "🎵 Sửa Âm Thanh";
                 LoadAudioData();
+            }
+
+            UpdateCharCount();
+        }
+
+        private void UpdateCharCount()
+        {
+            int count = txtNote.Text.Length;
+            lblCharCount.Text = $"{count} / 500 ký tự";
+            if (count >= 500)
+            {
+                lblCharCount.ForeColor = Color.FromArgb(248, 113, 113); // Rose/Red warning
+            }
+            else
+            {
+                lblCharCount.ForeColor = Color.FromArgb(148, 163, 184); // Slate muted
             }
         }
 
@@ -74,6 +94,21 @@ namespace Person_Movie_Management.Forms
             if (string.IsNullOrWhiteSpace(newCode))
             {
                 MessageBox.Show("Vui lòng nhập tên/mã âm thanh.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtAudioCode.Focus();
+                return;
+            }
+
+            if (newCode.Length > 50)
+            {
+                MessageBox.Show("Tên âm thanh không được vượt quá 50 ký tự.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtAudioCode.Focus();
+                return;
+            }
+
+            if (txtNote.Text.Length > 500)
+            {
+                MessageBox.Show("Ghi chú không được vượt quá 500 ký tự!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtNote.Focus();
                 return;
             }
             
@@ -86,7 +121,8 @@ namespace Person_Movie_Management.Forms
             var existing = _audioRepo.GetByCode(SessionManager.CurrentUser!.Id, newCode);
             if (existing != null && existing.Id != _audio.Id)
             {
-                MessageBox.Show("Tên âm thanh này đã tồn tại trong danh sách của bạn! Vui lòng chọn tên khác.", "Trùng lặp dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"Tên âm thanh '{newCode}' đã tồn tại trong danh sách của bạn! Vui lòng chọn tên khác.", "Trùng lặp dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtAudioCode.Focus();
                 return;
             }
 
@@ -114,6 +150,7 @@ namespace Person_Movie_Management.Forms
 
             this.DialogResult = DialogResult.OK;
             this.Close();
+            
         }
 
         private void picCover_Click(object sender, EventArgs e)

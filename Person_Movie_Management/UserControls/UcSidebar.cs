@@ -97,8 +97,12 @@ namespace Person_Movie_Management.UserControls
                         try 
                         {
                             var img = FileHelper.LoadImageSafe(fullPath);
-                            picAvatar.Image = new Bitmap(img);
-                            img.Dispose();
+                            if (img != null)
+                            {
+                                picAvatar.Image?.Dispose();
+                                picAvatar.Image = new Bitmap(img);
+                                img.Dispose();
+                            }
                         } 
                         catch { }
                     }

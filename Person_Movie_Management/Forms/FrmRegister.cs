@@ -1,8 +1,10 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
 using Person_Movie_Management.Helpers;
 using Person_Movie_Management.Services;
+using System;
+using System.Drawing;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
 
 namespace Person_Movie_Management.Forms
 {
@@ -25,8 +27,13 @@ namespace Person_Movie_Management.Forms
             
             lblTitle.ForeColor = Color.White;
             lblSubtitle.ForeColor = Color.FromArgb(220, 255, 255, 255);
-            
+
             // Textboxes
+            txtUsername.MaxLength = 30;
+            txtDisplayName.MaxLength = 20;
+            txtEmail.MaxLength = 70;
+            txtPassword.MaxLength = 30;
+            txtConfirmPassword.MaxLength = 30;
             StyleTextBox(txtUsername);
             StyleTextBox(txtDisplayName);
             StyleTextBox(txtEmail);
@@ -39,6 +46,16 @@ namespace Person_Movie_Management.Forms
             btnRegister.Animated = true;
             
             lnkLogin.LinkColor = UIHelper.AccentPrimary;
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+
+            return Regex.IsMatch(email, pattern);
         }
 
         private void StyleTextBox(Guna.UI2.WinForms.Guna2TextBox txt)
@@ -64,6 +81,27 @@ namespace Person_Movie_Management.Forms
                 return;
             }
 
+            if (!string.IsNullOrWhiteSpace(txtEmail.Text))
+            {
+                if (!IsValidEmail(txtEmail.Text.Trim()))
+                {
+                    MessageBox.Show(
+                        "Email không hợp lệ!\n\n" +
+                        "Vui lòng sử dụng email như:\n" +
+                        "example@gmail.com\n" +
+                        "example@outlook.com\n" +
+                        "example@hotmail.com" +
+                        "......@.....com",
+                        "Thông báo",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+
+                    txtEmail.Focus();
+                    return;
+                }
+            }
+
             var (success, message) = _authService.Register(
                 txtUsername.Text, 
                 txtDisplayName.Text, 
@@ -78,10 +116,13 @@ namespace Person_Movie_Management.Forms
                 login.Show();
                 this.Hide();
             }
+
             else
             {
                 MessageBox.Show(message, "Đăng ký thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            
         }
 
         private void lnkLogin_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

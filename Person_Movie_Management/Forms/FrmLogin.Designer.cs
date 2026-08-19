@@ -29,6 +29,7 @@ namespace Person_Movie_Management.Forms
             this.btnLogin = new Guna.UI2.WinForms.Guna2GradientButton();
             this.lnkRegister = new System.Windows.Forms.LinkLabel();
             this.btnClose = new Guna.UI2.WinForms.Guna2ControlBox();
+            this.lblError = new System.Windows.Forms.Label();
             this.pnlLeft.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -161,11 +162,24 @@ namespace Person_Movie_Management.Forms
             this.btnLogin.Text = "ĐĂNG NHẬP";
             this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
+            // lblError
+            // 
+            this.lblError.AutoSize = false;
+            this.lblError.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblError.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
+            this.lblError.Location = new System.Drawing.Point(420, 420);
+            this.lblError.Name = "lblError";
+            this.lblError.Size = new System.Drawing.Size(400, 25);
+            this.lblError.TabIndex = 7;
+            this.lblError.Text = "";
+            this.lblError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblError.Visible = false;
+            // 
             // lnkRegister
             // 
             this.lnkRegister.AutoSize = true;
             this.lnkRegister.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lnkRegister.Location = new System.Drawing.Point(525, 430);
+            this.lnkRegister.Location = new System.Drawing.Point(525, 456);
             this.lnkRegister.Name = "lnkRegister";
             this.lnkRegister.Size = new System.Drawing.Size(189, 19);
             this.lnkRegister.TabIndex = 5;
@@ -192,6 +206,7 @@ namespace Person_Movie_Management.Forms
             this.ClientSize = new System.Drawing.Size(900, 550);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.lnkRegister);
+            this.Controls.Add(this.lblError);
             this.Controls.Add(this.chkRememberMe);
             this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.txtPassword);
@@ -221,5 +236,6 @@ namespace Person_Movie_Management.Forms
         private Guna.UI2.WinForms.Guna2CheckBox chkRememberMe;
         private System.Windows.Forms.LinkLabel lnkRegister;
         private Guna.UI2.WinForms.Guna2ControlBox btnClose;
+        private System.Windows.Forms.Label lblError;
     }
 }

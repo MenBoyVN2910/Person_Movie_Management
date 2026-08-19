@@ -31,10 +31,15 @@ namespace Person_Movie_Management.Forms
             
             btnSave.FillColor = UIHelper.GradEmerald1;
             btnCancel.FillColor = UIHelper.GradRose1;
+
+            txtMovieCode.MaxLength = 150;
+            txtNote.MaxLength = 500;
+            txtNote.TextChanged += (s, e) => UpdateNoteCount();
+            UpdateNoteCount();
             
             if (movie == null)
             {
-                _movie = new Movie { UserId = SessionManager.CurrentUser!.Id };
+                _movie = new Movie { UserId = SessionManager.CurrentUser!.Id, SourceType = 0 };
                 lblTitle.Text = "Thêm Phim Mới";
             }
             else
@@ -51,10 +56,17 @@ namespace Person_Movie_Management.Forms
             }
         }
 
+        private void UpdateNoteCount()
+        {
+            int len = txtNote.Text.Length;
+            lblNoteCount.Text = $"({len}/500)";
+            lblNoteCount.ForeColor = len >= 500 ? UIHelper.Warning : UIHelper.TextMuted;
+        }
+
         private void LoadMovieData()
         {
             txtMovieCode.Text = _movie.MovieCode;
-            cboSourceType.SelectedIndex = _movie.SourceType;
+            
             txtMediaUrl.Text = _movie.MediaUrl;
             txtNote.Text = _movie.Note;
             
@@ -153,11 +165,11 @@ namespace Person_Movie_Management.Forms
         private void btnManageTags_Click(object sender, EventArgs e)
         {
             var frm = new FrmTagManager(SessionManager.CurrentUser!.Id, _currentTagIds);
-            if (frm.ShowDialog() == DialogResult.OK)
-            {
-                _currentTagIds = frm.SelectedTagIds;
-                RenderTags();
-            }
+            // Đẩy hộp thoại Tag lên trên cùng, không bị ẩn dưới form hiện tại
+            frm.TopMost = true;
+            frm.ShowDialog(this);
+            _currentTagIds = frm.SelectedTagIds;
+            RenderTags();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -175,6 +187,12 @@ namespace Person_Movie_Management.Forms
                 return;
             }
 
+            if (newCode.Length > 151)
+            {
+                MessageBox.Show("Tên phim không được vượt quá 150 ký tự.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var existing = _movieRepo.GetByCode(SessionManager.CurrentUser!.Id, newCode);
             if (existing != null && existing.Id != _movie.Id)
             {
@@ -183,7 +201,10 @@ namespace Person_Movie_Management.Forms
             }
 
             _movie.MovieCode = newCode;
-            _movie.SourceType = cboSourceType.SelectedIndex;
+            if (_movie.Id == 0)
+            {
+                _movie.SourceType = 0; // Luôn là Online (0) nếu là phim mới tạo
+            }
             _movie.MediaUrl = txtMediaUrl.Text;
             _movie.Note = txtNote.Text;
 
@@ -295,33 +316,79 @@ namespace Person_Movie_Management.Forms
                 var doc = new HtmlAgilityPack.HtmlDocument();
                 doc.LoadHtml(html);
 
-                // Try to get og:title
-                var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:title']");
-                string? title = titleNode?.GetAttributeValue("content", null);
-                if (string.IsNullOrEmpty(title))
+                // ══════════════════════════════════════════════════════════════
+                // Phase 1: Thử Site Adapter trước (YouTube, Dailymotion, Vimeo, Bilibili, Twitch...)
+                // ══════════════════════════════════════════════════════════════
+                var siteAdapter = Helpers.SiteAdapterRegistry.FindAdapter(url);
+                Helpers.SiteMetadata? siteMeta = null;
+                if (siteAdapter != null)
                 {
-                    titleNode = doc.DocumentNode.SelectSingleNode("//title");
-                    title = titleNode?.InnerText;
+                    try
+                    {
+                        siteMeta = await siteAdapter.ExtractMetadataAsync(url, html);
+                    }
+                    catch { /* Fallback to generic */ }
                 }
 
-                if (!string.IsNullOrEmpty(title) && string.IsNullOrWhiteSpace(txtMovieCode.Text))
+                // Nếu adapter trả về title → dùng luôn
+                if (siteMeta != null && !string.IsNullOrEmpty(siteMeta.Title) && string.IsNullOrWhiteSpace(txtMovieCode.Text))
                 {
-                    txtMovieCode.Text = System.Net.WebUtility.HtmlDecode(title);
+                    txtMovieCode.Text = System.Net.WebUtility.HtmlDecode(siteMeta.Title);
                 }
+
+                // Nếu adapter trả về description → điền vào Note
+                if (siteMeta != null && !string.IsNullOrEmpty(siteMeta.Description) && string.IsNullOrWhiteSpace(txtNote.Text))
+                {
+                    txtNote.Text = siteMeta.Description;
+                }
+
+                // ══════════════════════════════════════════════════════════════
+                // Phase 2: Generic HTML parsing (bổ sung nếu adapter chưa có đủ)
+                // ══════════════════════════════════════════════════════════════
+
+                // Try to get og:title (chỉ khi adapter chưa cung cấp)
+                if (string.IsNullOrWhiteSpace(txtMovieCode.Text))
+                {
+                    var titleNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:title']");
+                    string? title = titleNode?.GetAttributeValue("content", "");
+                    if (string.IsNullOrEmpty(title))
+                    {
+                        titleNode = doc.DocumentNode.SelectSingleNode("//title");
+                        title = titleNode?.InnerText;
+                    }
+
+                    if (!string.IsNullOrEmpty(title))
+                    {
+                        txtMovieCode.Text = System.Net.WebUtility.HtmlDecode(title);
+                    }
+                }
+
 
                 // Phase 1: Smart Image Scraper
                 // Chia làm 2 nhóm: ảnh bìa chính (priority) và ảnh phụ (extra)
                 var priorityCoverUrls = new List<string>(); // og:image, twitter:image, JSON-LD, video poster
                 var extraUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                // 0. Ảnh từ Site Adapter (ưu tiên cao nhất — YouTube maxresdefault, Vimeo thumbnail, etc.)
+                if (siteMeta != null)
+                {
+                    if (!string.IsNullOrEmpty(siteMeta.CoverImageUrl))
+                        priorityCoverUrls.Add(siteMeta.CoverImageUrl);
+                    foreach (var extra in siteMeta.ExtraImageUrls)
+                    {
+                        if (!string.IsNullOrEmpty(extra) && !priorityCoverUrls.Contains(extra, StringComparer.OrdinalIgnoreCase))
+                            priorityCoverUrls.Add(extra);
+                    }
+                }
                 
                 // 1. og:image (most reliable if present)
                 var ogImageNode = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
-                string? ogImageUrl = ogImageNode?.GetAttributeValue("content", null);
+                string? ogImageUrl = ogImageNode?.GetAttributeValue("content", "");
                 if (!string.IsNullOrEmpty(ogImageUrl)) priorityCoverUrls.Add(ogImageUrl);
 
                 // 2. twitter:image
                 var twitterImageNode = doc.DocumentNode.SelectSingleNode("//meta[@name='twitter:image'] | //meta[@property='twitter:image']");
-                string? twitterImageUrl = twitterImageNode?.GetAttributeValue("content", null);
+                string? twitterImageUrl = twitterImageNode?.GetAttributeValue("content", "");
                 if (!string.IsNullOrEmpty(twitterImageUrl) && !priorityCoverUrls.Contains(twitterImageUrl, StringComparer.OrdinalIgnoreCase)) 
                     priorityCoverUrls.Add(twitterImageUrl);
 
@@ -446,7 +513,7 @@ namespace Person_Movie_Management.Forms
                         {
                             finalUrl = imgUrl; // Giữ nguyên URL tuyệt đối, không qua Uri.TryCreate (tránh lỗi encode)
                         }
-                        else if (Uri.TryCreate(baseUri, imgUrl, out Uri absoluteUri))
+                        else if (Uri.TryCreate(baseUri, imgUrl, out Uri? absoluteUri) && absoluteUri != null)
                         {
                             finalUrl = absoluteUri.ToString();
                         }
@@ -584,7 +651,7 @@ namespace Person_Movie_Management.Forms
                     txtNote.Text += $"\n\nPhát hành: {movieInfo.ReleaseDate}";
                 }
                 
-                int userId = SessionManager.CurrentUser.Id;
+                int userId = SessionManager.CurrentUser?.Id ?? 0;
                 var allTags = _tagRepo.GetAllByUser(userId);
                 foreach (var genre in movieInfo.Genres)
                 {
@@ -595,8 +662,11 @@ namespace Person_Movie_Management.Forms
                     }
                     else
                     {
-                        int newTagId = _tagRepo.Insert(new Tag { TagName = genre, ColorHex = "#8b5cf6" }); // default purple
-                        _currentTagIds.Add(newTagId);
+                        int newTagId = _tagRepo.Insert(new Tag { UserId = userId, TagName = genre, ColorHex = "#8b5cf6" }); // default purple
+                        if (newTagId > 0)
+                        {
+                            _currentTagIds.Add(newTagId);
+                        }
                     }
                 }
                 RenderTags();

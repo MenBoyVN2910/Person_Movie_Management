@@ -11,14 +11,14 @@ namespace Person_Movie_Management.UserControls
 {
     public partial class UcAudioCard : UserControl
     {
-        private Audio _audio;
+        private Audio _audio = null!;
         private bool _isHovered = false;
         private int _hoverRating = 0;
         private Rectangle _starsRect;
         private Rectangle _infoRect;
         private Image? _coverImage;
         private int _currentLoadId = 0;
-        private int _boundAudioId = -1; // Track để skip bind nếu cùng audio
+        private int _boundAudioId = -1;
         
         public event EventHandler<Audio>? AudioClicked;
         public event EventHandler<Audio>? FavoriteToggled;
@@ -35,6 +35,7 @@ namespace Person_Movie_Management.UserControls
             this.BackColor = UIHelper.BgCard;
             
             menuEdit.Image = UIHelper.CreateIcon("\uE70F", 12f);
+            menuDownload.Image = UIHelper.CreateIcon("\uE896", 12f); // Download icon
             menuDelete.Image = UIHelper.CreateIcon("\uE74D", 12f);
             menuAddToPlaylist.Image = UIHelper.CreateIcon("\uE710", 12f);
             
@@ -43,40 +44,61 @@ namespace Person_Movie_Management.UserControls
 
         public void BindData(Audio audio)
         {
-            // SKIP hoàn toàn nếu đang hiển thị cùng audio (cuộn lên rồi xuống lại)
-            if (_boundAudioId == audio.Id && _audio != null && _audio.Rating == audio.Rating && _audio.IsFavorite == audio.IsFavorite)
+            if (_boundAudioId == audio.Id && _audio != null && _audio.AudioCode == audio.AudioCode && _audio.Rating == audio.Rating && _audio.IsFavorite == audio.IsFavorite && _audio.WatchProgress == audio.WatchProgress && _audio.CoverImage == audio.CoverImage)
             {
-                _audio = audio; // Cập nhật reference nhưng không bind lại UI
+                _audio = audio;
                 return;
             }
 
             _audio = audio;
             _boundAudioId = audio.Id;
-            _coverImage = null; // Clear old image
-            LoadCoverImage();
-            this.Invalidate();
-        }
 
-        private async void LoadCoverImage()
-        {
-            int loadId = ++_currentLoadId;
+            int targetW = this.Width > 0 ? this.Width - 12 : 348;
+            int targetH = 190;
+
             if (!string.IsNullOrEmpty(_audio.CoverImage))
             {
                 string fullPath = FileHelper.GetFullPath(_audio.CoverImage);
-                if (System.IO.File.Exists(fullPath))
+                if (ImageCache.TryGetThumbnailFromMemory(fullPath, targetW, targetH, out var memImg) && memImg != null)
                 {
-                    try
-                    {
-                        // Dùng ImageCache.GetAsync trực tiếp (check cache trước, nếu hit thì không tạo Task)
-                        var img = await ImageCache.GetAsync(fullPath);
-                        if (img != null && !this.IsDisposed && _currentLoadId == loadId)
-                        {
-                            _coverImage = img;
-                            this.Invalidate();
-                        }
-                    }
-                    catch { }
+                    _coverImage = memImg;
                 }
+                else
+                {
+                    _coverImage = null;
+                    LoadCoverImage(fullPath, targetW, targetH);
+                }
+            }
+            else
+            {
+                _coverImage = null;
+            }
+
+            this.Invalidate();
+        }
+
+        private async void LoadCoverImage(string? fullPath = null, int targetW = 0, int targetH = 0)
+        {
+            int loadId = ++_currentLoadId;
+            if (string.IsNullOrEmpty(fullPath) && !string.IsNullOrEmpty(_audio?.CoverImage))
+            {
+                fullPath = FileHelper.GetFullPath(_audio.CoverImage);
+            }
+            if (targetW <= 0) targetW = this.Width > 0 ? this.Width - 12 : 348;
+            if (targetH <= 0) targetH = 190;
+
+            if (!string.IsNullOrEmpty(fullPath) && System.IO.File.Exists(fullPath))
+            {
+                try
+                {
+                    var img = await ImageCache.GetThumbnailAsync(fullPath, targetW, targetH);
+                    if (img != null && !this.IsDisposed && _currentLoadId == loadId)
+                    {
+                        _coverImage = img;
+                        this.Invalidate();
+                    }
+                }
+                catch { }
             }
         }
 
@@ -170,7 +192,7 @@ namespace Person_Movie_Management.UserControls
             g.SetClip(imgClip);
             g.FillRectangle(overlayBrush, gradientOverlay);
 
-            // ── Watch Progress Bar ──
+            // ── Listen / Watch Progress Bar ──
             if (_audio.WatchProgress > 0)
             {
                 int pgbHeight = 4;
@@ -178,7 +200,7 @@ namespace Person_Movie_Management.UserControls
                 using var pgbBgBrush = new SolidBrush(Color.FromArgb(100, 0, 0, 0));
                 g.FillRectangle(pgbBgBrush, pgbRect);
                 
-                int pgbWidth = (int)((_audio.WatchProgress / 100f) * imgRect.Width);
+                int pgbWidth = (int)((Math.Min(100, _audio.WatchProgress) / 100f) * imgRect.Width);
                 var pgbFillRect = new Rectangle(imgRect.X, imgRect.Bottom - pgbHeight, pgbWidth, pgbHeight);
                 using var pgbFillBrush = new SolidBrush(UIHelper.AccentPrimary);
                 g.FillRectangle(pgbFillBrush, pgbFillRect);
@@ -317,10 +339,11 @@ namespace Person_Movie_Management.UserControls
 
             if (e.X > this.Width - 45 && e.Y > 200)
             {
-                AppServices.AudioRepo.ToggleFavorite(_audio.Id);
-                DataCache.Invalidate();
+                if (_audio == null) return;
                 _audio.IsFavorite = !_audio.IsFavorite;
                 this.Invalidate();
+                AppServices.AudioRepo.ToggleFavorite(_audio.Id);
+                DataCache.Invalidate();
                 FavoriteToggled?.Invoke(this, _audio);
             }
         }
@@ -328,6 +351,34 @@ namespace Person_Movie_Management.UserControls
         private void menuEdit_Click(object sender, EventArgs e)
         {
             EditClicked?.Invoke(this, _audio);
+        }
+
+        private void menuDownload_Click(object sender, EventArgs e)
+        {
+            var fullAudio = AppServices.AudioRepo.GetById(_audio.Id, includeAudioData: true);
+            if (fullAudio?.AudioData == null || fullAudio.AudioData.Length == 0)
+            {
+                MessageBox.Show("Không tìm thấy dữ liệu file âm thanh để tải về.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var sfd = new SaveFileDialog();
+            sfd.Title = "Tải bài hát về máy";
+            sfd.FileName = $"{FileHelper.SanitizeFileName(_audio.AudioCode)}.mp3";
+            sfd.Filter = "File Âm Thanh (*.mp3)|*.mp3|Tất cả tệp (*.*)|*.*";
+            sfd.DefaultExt = "mp3";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    System.IO.File.WriteAllBytes(sfd.FileName, fullAudio.AudioData);
+                    MessageBox.Show("Đã tải bài hát về máy thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi khi lưu file: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void menuDelete_Click(object sender, EventArgs e)
@@ -340,22 +391,6 @@ namespace Person_Movie_Management.UserControls
             int userId = _audio.UserId;
             var frm = new Person_Movie_Management.Forms.FrmSelectPlaylist(userId, _audio.Id, Person_Movie_Management.Models.PlaylistItemType.Audio);
             frm.ShowDialog();
-        }
-
-        private void menuUpdateProgress_Click(object sender, EventArgs e)
-        {
-            string input = UIHelper.ShowInputBox("Cập nhật tiến độ", "Nhập phần trăm đã nghe (0-100):", _audio.WatchProgress.ToString());
-            if (int.TryParse(input, out int progress))
-            {
-                if (progress < 0) progress = 0;
-                if (progress > 100) progress = 100;
-
-                _audio.WatchProgress = progress;
-                AppServices.AudioRepo.UpdateProgress(_audio.Id, progress);
-                DataCache.Invalidate();
-                this.Invalidate();
-                BindData(_audio);
-            }
         }
     }
 }

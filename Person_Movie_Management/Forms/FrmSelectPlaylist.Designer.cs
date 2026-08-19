@@ -15,102 +15,121 @@ namespace Person_Movie_Management.Forms
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
-            this.guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(this.components);
-            this.pnlTop = new Guna.UI2.WinForms.Guna2Panel();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.btnClose = new Guna.UI2.WinForms.Guna2ControlBox();
-            this.flpPlaylists = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnNewPlaylist = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.pnlTop.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges5 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(components);
+            guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(components);
+            pnlTop = new Guna.UI2.WinForms.Guna2Panel();
+            lblTitle = new Label();
+            btnClose = new Guna.UI2.WinForms.Guna2ControlBox();
+            flpPlaylists = new FlowLayoutPanel();
+            btnNewPlaylist = new Guna.UI2.WinForms.Guna2GradientButton();
+            pnlTop.SuspendLayout();
+            SuspendLayout();
             // 
             // guna2Elipse1
             // 
-            this.guna2Elipse1.BorderRadius = 15;
-            this.guna2Elipse1.TargetControl = this;
+            guna2Elipse1.BorderRadius = 15;
+            guna2Elipse1.TargetControl = this;
             // 
             // guna2DragControl1
             // 
-            this.guna2DragControl1.TargetControl = this.pnlTop;
+            guna2DragControl1.DockIndicatorTransparencyValue = 0.6D;
+            guna2DragControl1.TargetControl = pnlTop;
+            guna2DragControl1.UseTransparentDrag = true;
             // 
             // pnlTop
             // 
-            this.pnlTop.Controls.Add(this.lblTitle);
-            this.pnlTop.Controls.Add(this.btnClose);
-            this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlTop.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            this.pnlTop.Location = new System.Drawing.Point(0, 0);
-            this.pnlTop.Name = "pnlTop";
-            this.pnlTop.Size = new System.Drawing.Size(380, 50);
-            this.pnlTop.TabIndex = 0;
+            pnlTop.Controls.Add(lblTitle);
+            pnlTop.Controls.Add(btnClose);
+            pnlTop.CustomizableEdges = customizableEdges5;
+            pnlTop.Dock = DockStyle.Top;
+            pnlTop.FillColor = Color.FromArgb(30, 41, 59);
+            pnlTop.Location = new Point(0, 0);
+            pnlTop.Margin = new Padding(3, 4, 3, 4);
+            pnlTop.Name = "pnlTop";
+            pnlTop.ShadowDecoration.CustomizableEdges = customizableEdges6;
+            pnlTop.Size = new Size(434, 67);
+            pnlTop.TabIndex = 0;
             // 
             // lblTitle
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.White;
-            this.lblTitle.Location = new System.Drawing.Point(15, 12);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(240, 25);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "📋 Thêm vào Playlist";
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Segoe UI", 13F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.White;
+            lblTitle.Location = new Point(17, 16);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(232, 30);
+            lblTitle.TabIndex = 0;
+            lblTitle.Text = "📋 Thêm vào Playlist";
             // 
             // btnClose
             // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.FillColor = System.Drawing.Color.Transparent;
-            this.btnClose.IconColor = System.Drawing.Color.White;
-            this.btnClose.Location = new System.Drawing.Point(340, 5);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(35, 35);
-            this.btnClose.TabIndex = 1;
+            btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClose.CustomizableEdges = customizableEdges3;
+            btnClose.FillColor = Color.Transparent;
+            btnClose.IconColor = Color.White;
+            btnClose.Location = new Point(389, 7);
+            btnClose.Margin = new Padding(3, 4, 3, 4);
+            btnClose.Name = "btnClose";
+            btnClose.ShadowDecoration.CustomizableEdges = customizableEdges4;
+            btnClose.Size = new Size(40, 47);
+            btnClose.TabIndex = 1;
             // 
             // flpPlaylists
             // 
-            this.flpPlaylists.AutoScroll = true;
-            this.flpPlaylists.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.flpPlaylists.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpPlaylists.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpPlaylists.WrapContents = false;
-            this.flpPlaylists.Location = new System.Drawing.Point(0, 50);
-            this.flpPlaylists.Name = "flpPlaylists";
-            this.flpPlaylists.Padding = new System.Windows.Forms.Padding(15, 10, 15, 10);
-            this.flpPlaylists.Size = new System.Drawing.Size(380, 320);
-            this.flpPlaylists.TabIndex = 1;
+            flpPlaylists.AutoScroll = true;
+            flpPlaylists.BackColor = Color.FromArgb(15, 23, 42);
+            flpPlaylists.Dock = DockStyle.Fill;
+            flpPlaylists.FlowDirection = FlowDirection.TopDown;
+            flpPlaylists.Location = new Point(0, 67);
+            flpPlaylists.Margin = new Padding(3, 4, 3, 4);
+            flpPlaylists.Name = "flpPlaylists";
+            flpPlaylists.Padding = new Padding(17, 13, 17, 13);
+            flpPlaylists.Size = new Size(434, 426);
+            flpPlaylists.TabIndex = 1;
+            flpPlaylists.WrapContents = false;
             // 
             // btnNewPlaylist
             // 
-            this.btnNewPlaylist.BorderRadius = 10;
-            this.btnNewPlaylist.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnNewPlaylist.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
-            this.btnNewPlaylist.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(165)))), ((int)(((byte)(250)))));
-            this.btnNewPlaylist.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnNewPlaylist.ForeColor = System.Drawing.Color.White;
-            this.btnNewPlaylist.Location = new System.Drawing.Point(0, 370);
-            this.btnNewPlaylist.Name = "btnNewPlaylist";
-            this.btnNewPlaylist.Size = new System.Drawing.Size(380, 45);
-            this.btnNewPlaylist.TabIndex = 2;
-            this.btnNewPlaylist.Text = "+ Tạo Playlist mới và thêm";
-            this.btnNewPlaylist.Click += new System.EventHandler(this.btnNewPlaylist_Click);
+            btnNewPlaylist.BorderRadius = 10;
+            btnNewPlaylist.CustomizableEdges = customizableEdges1;
+            btnNewPlaylist.Dock = DockStyle.Bottom;
+            btnNewPlaylist.FillColor = Color.FromArgb(59, 130, 246);
+            btnNewPlaylist.FillColor2 = Color.FromArgb(96, 165, 250);
+            btnNewPlaylist.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnNewPlaylist.ForeColor = Color.White;
+            btnNewPlaylist.Location = new Point(0, 493);
+            btnNewPlaylist.Margin = new Padding(3, 4, 3, 4);
+            btnNewPlaylist.Name = "btnNewPlaylist";
+            btnNewPlaylist.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            btnNewPlaylist.Size = new Size(434, 60);
+            btnNewPlaylist.TabIndex = 2;
+            btnNewPlaylist.Text = "+ Tạo Playlist mới và thêm";
+            btnNewPlaylist.Click += btnNewPlaylist_Click;
             // 
             // FrmSelectPlaylist
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.ClientSize = new System.Drawing.Size(380, 415);
-            this.Controls.Add(this.flpPlaylists);
-            this.Controls.Add(this.btnNewPlaylist);
-            this.Controls.Add(this.pnlTop);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "FrmSelectPlaylist";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Chọn Playlist";
-            this.pnlTop.ResumeLayout(false);
-            this.pnlTop.PerformLayout();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(15, 23, 42);
+            ClientSize = new Size(434, 553);
+            Controls.Add(flpPlaylists);
+            Controls.Add(btnNewPlaylist);
+            Controls.Add(pnlTop);
+            FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "FrmSelectPlaylist";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Chọn Playlist";
+            pnlTop.ResumeLayout(false);
+            pnlTop.PerformLayout();
+            ResumeLayout(false);
         }
 
         private Guna.UI2.WinForms.Guna2Elipse guna2Elipse1;

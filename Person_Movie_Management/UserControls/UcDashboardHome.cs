@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -19,13 +20,11 @@ namespace Person_Movie_Management.UserControls
         private int _totalOnline;
         
         // Tag Stats
-        private System.Collections.Generic.Dictionary<string, int> _tagDist;
+        private System.Collections.Generic.Dictionary<string, int> _tagDist = new();
 
-        // Hitboxes for instructions
-        private Rectangle _tip1Rect;
-        private Rectangle _tip2Rect;
-        private Rectangle _tip3Rect;
-        private Rectangle _tip4Rect;
+        // Hitboxes for guide cards
+        private readonly List<Rectangle> _guideCardRects = new List<Rectangle>();
+        private int _hoveredGuideCard = -1;
 
         private FlowLayoutPanel _pnlRecent;
         private FlowLayoutPanel _pnlContinue;
@@ -63,6 +62,22 @@ namespace Person_Movie_Management.UserControls
 
             LoadStats();
             LoadRecentMovies();
+
+            DataCache.DataInvalidated += OnDataInvalidated;
+            this.Disposed += (s, e) => { DataCache.DataInvalidated -= OnDataInvalidated; };
+        }
+
+        private void OnDataInvalidated()
+        {
+            if (this.IsHandleCreated && !this.IsDisposed)
+            {
+                this.BeginInvoke(() =>
+                {
+                    LoadStats();
+                    LoadRecentMovies();
+                    this.Invalidate();
+                });
+            }
         }
 
         // Enable WS_EX_COMPOSITED for ultra smooth 240Hz scrolling
@@ -103,7 +118,13 @@ namespace Person_Movie_Management.UserControls
                 .OrderByDescending(m => m.LastWatched)
                 .Take(2).ToList();
 
-            _pnlContinue.Controls.Clear();
+            while (_pnlContinue.Controls.Count > 0)
+            {
+                var oldCtrl = _pnlContinue.Controls[0];
+                _pnlContinue.Controls.RemoveAt(0);
+                oldCtrl.Dispose();
+            }
+
             if (continueMovies.Count == 0)
             {
                 var lbl = new Label { Text = "Chưa có phim nào đang xem dở.", ForeColor = UIHelper.TextMuted, Font = UIHelper.FontBody, AutoSize = true, Margin = new Padding(10) };
@@ -123,7 +144,13 @@ namespace Person_Movie_Management.UserControls
             // Recent Movies
             var recentMovies = allMovies.OrderByDescending(m => m.CreatedAt).Take(2).ToList();
 
-            _pnlRecent.Controls.Clear();
+            while (_pnlRecent.Controls.Count > 0)
+            {
+                var oldCtrl = _pnlRecent.Controls[0];
+                _pnlRecent.Controls.RemoveAt(0);
+                oldCtrl.Dispose();
+            }
+
             foreach (var movie in recentMovies)
             {
                 var card = new UcMovieCard(movie);
@@ -244,63 +271,191 @@ namespace Person_Movie_Management.UserControls
             g.DrawString("🔥 Phim mới thêm gần đây", h2Font, h2Brush, 40, 730);
         }
 
+        private struct GuideCardItem
+        {
+            public string Badge;
+            public string Title;
+            public string Desc;
+            public Color AccentColor;
+        }
+
         private void DrawTipsSection(Graphics g)
         {
             int startX = 40;
-            int startY = 1140; // Adjusted for two movie sections
+            int startY = 1140; // Adjusted for movie sections
 
             using var h2Font = new Font("Segoe UI Emoji", 16F, FontStyle.Bold);
             using var h2Brush = new SolidBrush(UIHelper.TextPrimary);
-            g.DrawString("💡 Hướng dẫn sử dụng", h2Font, h2Brush, startX, startY);
+            g.DrawString("💡 Hướng dẫn sử dụng theo từng trang", h2Font, h2Brush, startX, startY);
 
-            int currentY = startY + 50;
-            _tip1Rect = DrawTipItem(g, startX, currentY, "1. Thêm Phim Online", "Kéo thả link từ trình duyệt vào ô Thêm phim để nhanh chóng lưu phim Online.");
-            currentY += 80;
-            _tip2Rect = DrawTipItem(g, startX, currentY, "2. Quét Thư Mục", "Nhấn nút 'Quét thư mục' ở trang Phim Trên Máy để thêm hàng loạt phim.");
-            currentY += 80;
-            _tip3Rect = DrawTipItem(g, startX, currentY, "3. Quản lý Thẻ Phim", "Click chuột phải vào bất kỳ thẻ phim nào để sửa hoặc xóa phim.");
-            currentY += 80;
-            _tip4Rect = DrawTipItem(g, startX, currentY, "4. Đánh giá & Yêu thích", "Nhấn vào ngôi sao để đánh giá, nhấn trái tim để thêm vào danh sách Yêu thích.");
-            
-            // Set min auto scroll size based on content height
-            this.AutoScrollMinSize = new Size(0, currentY + 100);
+            using var subFont = new Font("Segoe UI", 9.5F);
+            using var subBrush = new SolidBrush(UIHelper.TextMuted);
+            g.DrawString("Nhấp vào bất kỳ thẻ nào để xem cẩm nang chi tiết từng tính năng, thao tác chuột và phím tắt.", subFont, subBrush, startX, startY + 32);
+
+            _guideCardRects.Clear();
+
+            var cards = new GuideCardItem[]
+            {
+                new GuideCardItem { Badge = "🌐", Title = "1. Trang Phim Online", Desc = "Lưu URL web, kéo thả link/ảnh, lọc tag/diễn viên/sao...", AccentColor = Color.FromArgb(99, 102, 241) },
+                new GuideCardItem { Badge = "📁", Title = "2. Trang Phim Trên Máy", Desc = "Quản lý video offline, quét thư mục tự động hàng loạt...", AccentColor = Color.FromArgb(59, 130, 246) },
+                new GuideCardItem { Badge = "🎵", Title = "3. Trang Âm Thanh", Desc = "Phát nhạc nền toàn cục, phím tắt Space/Mũi tên, quản lý OST...", AccentColor = Color.FromArgb(236, 72, 153) },
+                new GuideCardItem { Badge = "👥", Title = "4. Trang Diễn Viên", Desc = "Hồ sơ nghệ sĩ, album ảnh chi tiết, xem phim đã tham gia...", AccentColor = Color.FromArgb(245, 158, 11) },
+                new GuideCardItem { Badge = "📑", Title = "5. Trang Danh Sách Phát", Desc = "Tạo playlist kết hợp phim + nhạc, tùy chỉnh thứ tự phát...", AccentColor = Color.FromArgb(168, 85, 247) },
+                new GuideCardItem { Badge = "🗑️", Title = "6. Trang Thùng Rác", Desc = "Xóa an toàn Soft-Delete, khôi phục nguyên trạng, dọn sạch...", AccentColor = Color.FromArgb(239, 68, 68) },
+                new GuideCardItem { Badge = "💾", Title = "7. Trang Sao Lưu & Khôi Phục", Desc = "Đa thư mục sao lưu, tự động backup, phục hồi 1-click...", AccentColor = Color.FromArgb(16, 185, 129) },
+                new GuideCardItem { Badge = "⚡", Title = "8. Tiện Ích & Phím Tắt", Desc = "Drop Widget ngoài Desktop, Omnibox Ctrl+K, phím tắt media...", AccentColor = Color.FromArgb(6, 182, 212) }
+            };
+
+            // Responsive 2-column layout with safe boundary
+            int totalContentWidth = Math.Max(this.ClientSize.Width - 80, 900);
+            int gapX = 24;
+            int gapY = 16;
+            int colWidth = Math.Max(430, (totalContentWidth - gapX) / 2);
+            int colHeight = 86;
+            int baseTop = startY + 68;
+
+            for (int i = 0; i < cards.Length; i++)
+            {
+                int col = i % 2;
+                int row = i / 2;
+
+                int x = startX + col * (colWidth + gapX);
+                int y = baseTop + row * (colHeight + gapY);
+
+                bool isHovered = (_hoveredGuideCard == i);
+                var rect = DrawGuideCard(g, x, y, colWidth, colHeight, cards[i], isHovered);
+                _guideCardRects.Add(rect);
+            }
+
+            int totalBottom = baseTop + ((cards.Length + 1) / 2) * (colHeight + gapY) + 60;
+            this.AutoScrollMinSize = new Size(0, totalBottom);
         }
 
-        private Rectangle DrawTipItem(Graphics g, int x, int y, string title, string desc)
+        private Rectangle DrawGuideCard(Graphics g, int x, int y, int w, int h, GuideCardItem item, bool isHovered)
         {
-            var rect = new Rectangle(x, y, 700, 70);
-            using var path = CreateRoundedRectPath(rect, 12);
-            using var brush = new SolidBrush(UIHelper.BgCard);
+            var rect = new Rectangle(x, y, w, h);
+            using var path = CreateRoundedRectPath(rect, 14);
+
+            // Card background
+            Color bg = isHovered ? Color.FromArgb(26, 36, 58) : UIHelper.BgCard;
+            using var brush = new SolidBrush(bg);
             g.FillPath(brush, path);
 
-            // Glass border
-            using var glassPen = new Pen(Color.FromArgb(15, 255, 255, 255), 1f);
+            // Glass border with hover glow
+            Color borderColor = isHovered ? item.AccentColor : Color.FromArgb(25, 255, 255, 255);
+            using var glassPen = new Pen(borderColor, isHovered ? 1.5f : 1f);
             g.DrawPath(glassPen, path);
 
-            // Left accent bar (gradient indigo -> pink)
-            var accentRect = new Rectangle(x, y + 10, 4, 50);
+            // Left accent bar
+            var accentRect = new Rectangle(x, y + 10, 4, h - 20);
             using var accentPath = CreateRoundedRectPath(accentRect, 2);
-            using var accentBrush = new LinearGradientBrush(accentRect, UIHelper.AccentPrimary, UIHelper.AccentTertiary, 90f);
+            using var accentBrush = new SolidBrush(item.AccentColor);
             g.FillPath(accentBrush, accentPath);
 
-            // Icon background
-            var iconRect = new Rectangle(x + 15, y + 15, 40, 40);
-            using var iconBgPath = CreateRoundedRectPath(iconRect, 8);
-            using var iconBgBrush = new SolidBrush(Color.FromArgb(25, UIHelper.AccentPrimary));
+            // Left Icon Badge Box
+            int iconBoxSize = 54;
+            var iconRect = new Rectangle(x + 14, y + (h - iconBoxSize) / 2, iconBoxSize, iconBoxSize);
+            using var iconBgPath = CreateRoundedRectPath(iconRect, 12);
+            using var iconBgBrush = new SolidBrush(Color.FromArgb(isHovered ? 50 : 25, item.AccentColor));
             g.FillPath(iconBgBrush, iconBgPath);
 
-            using var checkFont = new Font("Segoe UI", 12F, FontStyle.Bold);
-            using var checkBrush = new SolidBrush(UIHelper.AccentSecondary);
-            g.DrawString("✓", checkFont, checkBrush, x + 25, y + 25);
+            // Left Icon Emoji
+            using var iconFont = new Font("Segoe UI Emoji", 20F);
+            using var sfCenter = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+            g.DrawString(item.Badge, iconFont, Brushes.White, iconRect, sfCenter);
 
-            using var titleBrush2 = new SolidBrush(UIHelper.TextPrimary);
-            g.DrawString(title, UIHelper.FontBody, titleBrush2, x + 70, y + 15);
-            using var descBrush = new SolidBrush(UIHelper.TextMuted);
-            g.DrawString(desc, UIHelper.FontCaption, descBrush, x + 70, y + 40);
-            
+            // Text Content Boundaries (Strictly bounded so it NEVER overflows)
+            float textStartX = x + 78;
+            float textAvailableWidth = w - 78 - 50; // Leave 50px for circular arrow on right
+
+            // Title
+            var titleRect = new RectangleF(textStartX, y + 16, textAvailableWidth, 24);
+            using var titleFont = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+            using var titleBrush = new SolidBrush(isHovered ? Color.White : UIHelper.TextPrimary);
+            using var titleSf = new StringFormat
+            {
+                Trimming = StringTrimming.EllipsisCharacter,
+                FormatFlags = StringFormatFlags.NoWrap,
+                LineAlignment = StringAlignment.Center
+            };
+            g.DrawString(item.Title, titleFont, titleBrush, titleRect, titleSf);
+
+            // Description (Wrapped with clean word trimming)
+            var descRect = new RectangleF(textStartX, y + 42, textAvailableWidth, 34);
+            using var descFont = new Font("Segoe UI", 9F);
+            using var descBrush = new SolidBrush(isHovered ? Color.FromArgb(203, 213, 225) : UIHelper.TextMuted);
+            using var descSf = new StringFormat
+            {
+                Trimming = StringTrimming.EllipsisWord,
+                LineAlignment = StringAlignment.Near
+            };
+            g.DrawString(item.Desc, descFont, descBrush, descRect, descSf);
+
+            // Right Circular Chevron Button
+            int btnSize = 32;
+            int btnX = x + w - btnSize - 14;
+            int btnY = y + (h - btnSize) / 2;
+            var btnCircleRect = new Rectangle(btnX, btnY, btnSize, btnSize);
+
+            using var circlePath = new GraphicsPath();
+            circlePath.AddEllipse(btnCircleRect);
+
+            if (isHovered)
+            {
+                using var circleBrush = new SolidBrush(item.AccentColor);
+                g.FillPath(circleBrush, circlePath);
+            }
+            else
+            {
+                using var circleBrush = new SolidBrush(Color.FromArgb(18, 255, 255, 255));
+                g.FillPath(circleBrush, circlePath);
+            }
+
+            using var chevronFont = new Font("Segoe UI", 12F, FontStyle.Bold);
+            using var chevronBrush = new SolidBrush(isHovered ? Color.White : Color.FromArgb(148, 163, 184));
+            g.DrawString("›", chevronFont, chevronBrush, btnCircleRect, sfCenter);
+
             return rect;
         }
 
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            var p = new Point(e.X - this.AutoScrollPosition.X, e.Y - this.AutoScrollPosition.Y);
+            int newHovered = -1;
+
+            for (int i = 0; i < _guideCardRects.Count; i++)
+            {
+                if (_guideCardRects[i].Contains(p))
+                {
+                    newHovered = i;
+                    break;
+                }
+            }
+
+            if (newHovered != _hoveredGuideCard)
+            {
+                _hoveredGuideCard = newHovered;
+                this.Cursor = (_hoveredGuideCard != -1) ? Cursors.Hand : Cursors.Default;
+                this.Invalidate();
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            if (_hoveredGuideCard != -1)
+            {
+                _hoveredGuideCard = -1;
+                this.Cursor = Cursors.Default;
+                this.Invalidate();
+            }
+        }
 
         protected override void OnMouseClick(MouseEventArgs e)
         {
@@ -308,40 +463,15 @@ namespace Person_Movie_Management.UserControls
             
             // Translate mouse coordinates based on scroll position
             var p = new Point(e.X - this.AutoScrollPosition.X, e.Y - this.AutoScrollPosition.Y);
-            
-            if (_tip1Rect.Contains(p))
+
+            for (int i = 0; i < _guideCardRects.Count; i++)
             {
-                new Forms.FrmDetailDialog("Thêm Phim Online", 
-                    "Bạn có thể vào mục Phim Online, nhấn nút Thêm Phim.\r\n\r\n" +
-                    "Bạn có thể copy URL của phim hoặc website, dán vào ô Media URL. " +
-                    "Khi click đúp vào thẻ phim, ứng dụng sẽ tự động mở trình duyệt và truy cập vào trang phim này.").ShowDialog();
-            }
-            else if (_tip2Rect.Contains(p))
-            {
-                new Forms.FrmDetailDialog("Quét Thư Mục Tự Động", 
-                    "Thay vì thêm từng phim thủ công, bạn vào mục Phim Trên Máy, nhấn Quét Thư Mục.\r\n\r\n" +
-                    "Chọn một thư mục chứa phim trên máy tính, hệ thống sẽ tự động lọc ra các định dạng video (mp4, mkv, avi...) " +
-                    "và tạo từng thẻ phim riêng biệt cho bạn.").ShowDialog();
-            }
-            else if (_tip3Rect.Contains(p))
-            {
-                new Forms.FrmDetailDialog("Quản lý Thẻ Phim", 
-                    "Mỗi thẻ phim đều có các tương tác nhanh:\r\n\r\n" +
-                    "- Click chuột phải: Mở menu để Chỉnh sửa hoặc Xóa phim.\r\n" +
-                    "- Click đúp (2 lần): Mở phim hoặc trang web chứa phim.\r\n" +
-                    "- Nút 'i' góc trên: Xem chi tiết phim.\r\n").ShowDialog();
-            }
-            else if (_tip4Rect.Contains(p))
-            {
-                new Forms.FrmDetailDialog("Đánh giá & Yêu thích", 
-                    "Tính năng tương tác trực tiếp trên Thẻ phim:\r\n\r\n" +
-                    "⭐ Đánh giá sao:\r\n" +
-                    "Rẽ chuột (hover) vào các ngôi sao trên thẻ phim, số sao sẽ sáng lên.\r\n" +
-                    "Nhấn chuột để lưu đánh giá 1-5 sao của bạn cho bộ phim đó.\r\n\r\n" +
-                    "❤️ Phim Yêu thích:\r\n" +
-                    "Nhấn vào biểu tượng trái tim ở góc dưới bên phải thẻ phim.\r\n" +
-                    "Khi tim chuyển sang màu trắng/đỏ nghĩa là phim đã được lưu vào Danh sách Yêu Thích.\r\n" +
-                    "Bạn có thể xem lại toàn bộ phim yêu thích bằng cách chọn mục 'Yêu Thích' ở menu bên trái.").ShowDialog();
+                if (_guideCardRects[i].Contains(p))
+                {
+                    var topic = (Forms.GuideTopic)i;
+                    new Forms.FrmGuideDetail(topic).ShowDialog(this);
+                    return;
+                }
             }
         }
 

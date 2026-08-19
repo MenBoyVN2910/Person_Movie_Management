@@ -9,7 +9,7 @@ namespace Person_Movie_Management.Data
     {
         public static string AppDataFolder => Path.Combine(Application.StartupPath, "App_Data");
         public static string DbPath => Path.Combine(AppDataFolder, "AppDatabase.db");
-        public static string ConnectionString => $"Data Source={DbPath};";
+        public static string ConnectionString => $"Data Source={DbPath};Foreign Keys=True;";
 
         public static void Initialize()
         {
@@ -21,9 +21,9 @@ namespace Person_Movie_Management.Data
             using var connection = new SqliteConnection(ConnectionString);
             connection.Open();
 
-            // Enable WAL mode for better concurrency and performance
+            // Enable WAL mode and memory cache for highest concurrency and performance
             using var pragmaCmd = connection.CreateCommand();
-            pragmaCmd.CommandText = "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA cache_size=-8000;";
+            pragmaCmd.CommandText = "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL; PRAGMA cache_size=-16000; PRAGMA temp_store=MEMORY;";
             pragmaCmd.ExecuteNonQuery();
 
             using var command = connection.CreateCommand();
@@ -212,11 +212,28 @@ namespace Person_Movie_Management.Data
             ";
             command.ExecuteNonQuery();
 
+            // Nationalities Table
+            command.CommandText = @"
+                CREATE TABLE IF NOT EXISTS Nationalities (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    UserId INTEGER NOT NULL,
+                    Name TEXT NOT NULL,
+                    CreatedAt TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+                    FOREIGN KEY (UserId) REFERENCES Users(Id),
+                    UNIQUE(UserId, Name)
+                );
+            ";
+            command.ExecuteNonQuery();
+
             // Migrations for Soft Delete
             AddColumnIfNotExists(connection, "Movies", "IsDeleted", "INTEGER DEFAULT 0");
             AddColumnIfNotExists(connection, "Audios", "IsDeleted", "INTEGER DEFAULT 0");
             AddColumnIfNotExists(connection, "Movies", "DeletedAt", "TEXT");
             AddColumnIfNotExists(connection, "Audios", "DeletedAt", "TEXT");
+
+            // Migrations for Playlist Enhancement
+            AddColumnIfNotExists(connection, "Playlists", "CoverImage", "TEXT");
+            AddColumnIfNotExists(connection, "Playlists", "IsPrivate", "INTEGER DEFAULT 0");
 
             // Migrations for Feature 3: Watch History & Progress
             AddColumnIfNotExists(connection, "Movies", "WatchProgress", "INTEGER DEFAULT 0");
@@ -235,8 +252,27 @@ namespace Person_Movie_Management.Data
                 CREATE INDEX IF NOT EXISTS idx_movietags_tag ON MovieTags(TagId);
                 CREATE INDEX IF NOT EXISTS idx_audiotags_audio ON AudioTags(AudioId);
                 CREATE INDEX IF NOT EXISTS idx_playlistitems_playlist ON PlaylistItems(PlaylistId);
+                CREATE INDEX IF NOT EXISTS idx_actors_user ON Actors(UserId);
+                CREATE INDEX IF NOT EXISTS idx_actorimages_actor ON ActorImages(ActorId);
+                CREATE INDEX IF NOT EXISTS idx_movieactors_actor ON MovieActors(ActorId);
+                CREATE INDEX IF NOT EXISTS idx_playlists_user ON Playlists(UserId);
             ";
             command.ExecuteNonQuery();
+
+            // Auto-heal any local movie records that were mistakenly marked as SourceType = 0
+            try
+            {
+                using var fixSourceCmd = connection.CreateCommand();
+                fixSourceCmd.CommandText = @"
+                    UPDATE Movies 
+                    SET SourceType = 1 
+                    WHERE SourceType = 0 
+                      AND MediaUrl IS NOT NULL 
+                      AND (MediaUrl LIKE '%\%' OR MediaUrl LIKE '%:\%' OR (MediaUrl NOT LIKE 'http://%' AND MediaUrl NOT LIKE 'https://%'));
+                ";
+                fixSourceCmd.ExecuteNonQuery();
+            }
+            catch { }
         }
 
         private static void AddColumnIfNotExists(SqliteConnection connection, string tableName, string columnName, string columnDefinition)

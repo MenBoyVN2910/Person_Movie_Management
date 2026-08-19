@@ -91,7 +91,7 @@ namespace Person_Movie_Management.UserControls
             // pnlBase
             // 
             this.pnlBase.BorderRadius = 12;
-            this.pnlBase.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(14)))), ((int)(((byte)(29)))));
+            this.pnlBase.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.pnlBase.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(28)))), ((int)(((byte)(56)))));
             this.pnlBase.Controls.Add(this.picCover);
             this.pnlBase.Controls.Add(this.lblTitle);
@@ -210,7 +210,7 @@ namespace Person_Movie_Management.UserControls
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.BackColor = System.Drawing.Color.Transparent;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.ContextMenuStrip = this.contextMenu;
             this.Controls.Add(this.pnlBase);
             this.Margin = new System.Windows.Forms.Padding(12);

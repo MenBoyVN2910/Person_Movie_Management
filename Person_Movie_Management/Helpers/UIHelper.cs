@@ -112,39 +112,60 @@ namespace Person_Movie_Management.Helpers
         public static readonly Color GradSky1    = Color.FromArgb(56, 189, 248);   // sky-400
         public static readonly Color GradSky2    = Color.FromArgb(125, 211, 252);  // sky-300
 
-        public static Image CropToFill(Image original, int targetWidth, int targetHeight)
+        public static Image? CropToFill(Image? original, int targetWidth, int targetHeight)
         {
             if (original == null) return null;
             
-            float targetAspect = (float)targetWidth / targetHeight;
-            float originalAspect = (float)original.Width / original.Height;
-
-            int cropWidth = original.Width;
-            int cropHeight = original.Height;
-            int cropX = 0;
-            int cropY = 0;
-
-            if (originalAspect > targetAspect)
+            try
             {
-                cropWidth = (int)(original.Height * targetAspect);
-                cropX = (original.Width - cropWidth) / 2;
-            }
-            else
-            {
-                cropHeight = (int)(original.Width / targetAspect);
-                cropY = (original.Height - cropHeight) / 2;
-            }
+                // Clone ảnh dưới lock ngắn → giải phóng original cho các luồng khác
+                Bitmap clone;
+                int origW, origH;
+                lock (original)
+                {
+                    origW = original.Width;
+                    origH = original.Height;
+                    clone = new Bitmap(original);
+                }
 
-            var bmp = new Bitmap(targetWidth, targetHeight);
-            using (var g = Graphics.FromImage(bmp))
-            {
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.SmoothingMode = SmoothingMode.HighQuality;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.DrawImage(original, new Rectangle(0, 0, targetWidth, targetHeight), 
-                            new Rectangle(cropX, cropY, cropWidth, cropHeight), GraphicsUnit.Pixel);
+                float targetAspect = (float)targetWidth / targetHeight;
+                float originalAspect = (float)origW / origH;
+
+                int cropWidth = origW;
+                int cropHeight = origH;
+                int cropX = 0;
+                int cropY = 0;
+
+                if (originalAspect > targetAspect)
+                {
+                    cropWidth = (int)(origH * targetAspect);
+                    cropX = (origW - cropWidth) / 2;
+                }
+                else
+                {
+                    cropHeight = (int)(origW / targetAspect);
+                    cropY = (origH - cropHeight) / 2;
+                }
+
+                // Crop clone (không lock) → các luồng chạy song song
+                var bmp = new Bitmap(targetWidth, targetHeight);
+                using (var g = Graphics.FromImage(bmp))
+                {
+                    // Bilinear nhanh gấp 2x Bicubic, chênh lệch chất lượng không nhận thấy ở thumbnail
+                    g.InterpolationMode = InterpolationMode.Bilinear;
+                    g.SmoothingMode = SmoothingMode.HighSpeed;
+                    g.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+                    g.DrawImage(clone, new Rectangle(0, 0, targetWidth, targetHeight), 
+                                new Rectangle(cropX, cropY, cropWidth, cropHeight), GraphicsUnit.Pixel);
+                }
+                clone.Dispose();
+                return bmp;
             }
-            return bmp;
+            catch
+            {
+                return null;
+            }
         }
 
         // ═══════════════════════════════════════════════
@@ -201,49 +222,6 @@ namespace Person_Movie_Management.Helpers
             
             g.DrawString(symbol, font, brush, new RectangleF(0, 0, 24, 24), format);
             return bmp;
-        }
-
-        public static string ShowInputBox(string title, string promptText, string defaultValue = "")
-        {
-            var form = new Form
-            {
-                Width = 400,
-                Height = 200,
-                FormBorderStyle = FormBorderStyle.FixedDialog,
-                Text = title,
-                StartPosition = FormStartPosition.CenterParent,
-                BackColor = BgDark,
-                ForeColor = TextPrimary,
-                MaximizeBox = false,
-                MinimizeBox = false
-            };
-            
-            var label = new Label { Left = 20, Top = 20, Width = 340, Text = promptText, Font = FontBody };
-            var textBox = new TextBox { Left = 20, Top = 55, Width = 340, Text = defaultValue, Font = FontBody, BackColor = BgPanel, ForeColor = TextPrimary };
-            
-            var confirmation = new Button 
-            { 
-                Text = "OK", Left = 160, Width = 90, Top = 100, DialogResult = DialogResult.OK,
-                BackColor = AccentPrimary, ForeColor = Color.White, FlatStyle = FlatStyle.Flat 
-            };
-            confirmation.FlatAppearance.BorderSize = 0;
-            
-            var cancel = new Button 
-            { 
-                Text = "Hủy", Left = 270, Width = 90, Top = 100, DialogResult = DialogResult.Cancel,
-                BackColor = BgPanel, ForeColor = TextPrimary, FlatStyle = FlatStyle.Flat 
-            };
-            cancel.FlatAppearance.BorderSize = 1;
-            cancel.FlatAppearance.BorderColor = Border;
-
-            form.Controls.Add(label);
-            form.Controls.Add(textBox);
-            form.Controls.Add(confirmation);
-            form.Controls.Add(cancel);
-            form.AcceptButton = confirmation;
-            form.CancelButton = cancel;
-
-            return form.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
     }
 }

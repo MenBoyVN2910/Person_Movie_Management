@@ -20,9 +20,9 @@ namespace Person_Movie_Management.UserControls
             this.components = new System.ComponentModel.Container();
             this.contextMenu = new Guna.UI2.WinForms.Guna2ContextMenuStrip();
             this.menuEdit = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuDownload = new System.Windows.Forms.ToolStripMenuItem();
             this.menuAddToPlaylist = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuUpdateProgress = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -42,23 +42,23 @@ namespace Person_Movie_Management.UserControls
             this.contextMenu.Size = new System.Drawing.Size(180, 100);
             this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuEdit,
-            this.menuUpdateProgress,
+            this.menuDownload,
             this.menuAddToPlaylist,
             this.menuDelete});
             // 
             // menuEdit
             // 
             this.menuEdit.Name = "menuEdit";
-            this.menuEdit.Size = new System.Drawing.Size(139, 24);
+            this.menuEdit.Size = new System.Drawing.Size(180, 24);
             this.menuEdit.Text = "Sửa Audio";
             this.menuEdit.Click += new System.EventHandler(this.menuEdit_Click);
             // 
-            // menuDelete
+            // menuDownload
             // 
-            this.menuDelete.Name = "menuDelete";
-            this.menuDelete.Size = new System.Drawing.Size(139, 24);
-            this.menuDelete.Text = "Xóa Audio";
-            this.menuDelete.Click += new System.EventHandler(this.menuDelete_Click);
+            this.menuDownload.Name = "menuDownload";
+            this.menuDownload.Size = new System.Drawing.Size(180, 24);
+            this.menuDownload.Text = "Tải về máy";
+            this.menuDownload.Click += new System.EventHandler(this.menuDownload_Click);
             // 
             // menuAddToPlaylist
             // 
@@ -67,12 +67,12 @@ namespace Person_Movie_Management.UserControls
             this.menuAddToPlaylist.Text = "Thêm vào Playlist";
             this.menuAddToPlaylist.Click += new System.EventHandler(this.menuAddToPlaylist_Click);
             // 
-            // menuUpdateProgress
+            // menuDelete
             // 
-            this.menuUpdateProgress.Name = "menuUpdateProgress";
-            this.menuUpdateProgress.Size = new System.Drawing.Size(180, 24);
-            this.menuUpdateProgress.Text = "Cập nhật tiến độ (%)";
-            this.menuUpdateProgress.Click += new System.EventHandler(this.menuUpdateProgress_Click);
+            this.menuDelete.Name = "menuDelete";
+            this.menuDelete.Size = new System.Drawing.Size(180, 24);
+            this.menuDelete.Text = "Xóa Audio";
+            this.menuDelete.Click += new System.EventHandler(this.menuDelete_Click);
             // 
             // UcAudioCard
             // 
@@ -92,8 +92,8 @@ namespace Person_Movie_Management.UserControls
 
         private Guna.UI2.WinForms.Guna2ContextMenuStrip contextMenu;
         private System.Windows.Forms.ToolStripMenuItem menuEdit;
-        private System.Windows.Forms.ToolStripMenuItem menuDelete;
+        private System.Windows.Forms.ToolStripMenuItem menuDownload;
         private System.Windows.Forms.ToolStripMenuItem menuAddToPlaylist;
-        private System.Windows.Forms.ToolStripMenuItem menuUpdateProgress;
+        private System.Windows.Forms.ToolStripMenuItem menuDelete;
     }
 }

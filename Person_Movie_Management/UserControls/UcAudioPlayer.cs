@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows.Forms;
 using NAudio.Wave;
 using Person_Movie_Management.Helpers;
+using Person_Movie_Management.Services;
 
 namespace Person_Movie_Management.UserControls
 {
@@ -20,6 +21,8 @@ namespace Person_Movie_Management.UserControls
         private bool _isHoveringProgress = false;
         private bool _isHoveringVolume = false;
         private int _hoverProgressX = 0;
+        private int _currentAudioId = 0;
+        private int _lastSavedProgress = 0;
 
         // Layout constants
         private const int PLAYER_HEIGHT = 110; // Taller audio bar
@@ -41,19 +44,22 @@ namespace Person_Movie_Management.UserControls
         private static readonly Color TextMuted = Color.FromArgb(120, 135, 155);
         private static readonly Color BtnPlay = Color.FromArgb(139, 92, 246);
         private static readonly Color BtnPlayHover = Color.FromArgb(160, 120, 255);
-        private static readonly Color BtnStop = Color.FromArgb(220, 60, 60);
-        private static readonly Color BtnStopHover = Color.FromArgb(240, 85, 85);
+        private static readonly Color BtnSecondary = Color.FromArgb(30, 38, 65);
+        private static readonly Color BtnSecondaryHover = Color.FromArgb(55, 68, 110);
+        private static readonly Color BtnSecondaryBorder = Color.FromArgb(65, 80, 125);
         private static readonly Color SeparatorLine = Color.FromArgb(30, 38, 60);
 
         // Hover states for buttons
         private bool _hoverPlay = false;
-        private bool _hoverStop = false;
+        private bool _hoverRewind = false;
+        private bool _hoverForward = false;
         private bool _hoverClose = false;
 
         // Rectangles for hit testing
         private RectangleF _progressBarRect;
+        private RectangleF _rewindBtnRect;
         private RectangleF _playBtnRect;
-        private RectangleF _stopBtnRect;
+        private RectangleF _forwardBtnRect;
         private RectangleF _volumeIconRect;
         private RectangleF _volumeBarRect;
         private RectangleF _closeBtnRect;
@@ -190,8 +196,36 @@ namespace Person_Movie_Management.UserControls
             int centerX = w / 2;
             int btnY = 35;
 
-            // Play/Pause button
-            float playX = centerX - BTN_SIZE - 8;
+            // ── Rewind 10s button ──
+            float rewX = centerX - 70;
+            _rewindBtnRect = new RectangleF(rewX, 39, 36, 36);
+            var rewBg = _hoverRewind ? BtnSecondaryHover : BtnSecondary;
+            using (var rewBrush = new SolidBrush(rewBg))
+            {
+                g.FillEllipse(rewBrush, _rewindBtnRect);
+            }
+            using (var rewPen = new Pen(_hoverRewind ? BtnPlay : BtnSecondaryBorder, 1.2f))
+            {
+                g.DrawEllipse(rewPen, _rewindBtnRect);
+            }
+            
+            // Draw Rewind Icons (Double left arrow + "10")
+            float rcx = _rewindBtnRect.X + _rewindBtnRect.Width / 2f;
+            float rcy = _rewindBtnRect.Y + _rewindBtnRect.Height / 2f;
+            using (var arrowBrush = new SolidBrush(_hoverRewind ? Color.White : Color.FromArgb(220, 225, 240)))
+            {
+                var rTri1 = new PointF[] { new PointF(rcx - 5, rcy - 4), new PointF(rcx - 1, rcy - 8), new PointF(rcx - 1, rcy) };
+                var rTri2 = new PointF[] { new PointF(rcx, rcy - 4), new PointF(rcx + 4, rcy - 8), new PointF(rcx + 4, rcy) };
+                g.FillPolygon(arrowBrush, rTri1);
+                g.FillPolygon(arrowBrush, rTri2);
+                
+                using var font10 = new Font("Segoe UI", 7.5F, FontStyle.Bold);
+                var size10 = g.MeasureString("10", font10);
+                g.DrawString("10", font10, arrowBrush, rcx - size10.Width / 2f + 0.5f, rcy + 1);
+            }
+
+            // ── Play/Pause button (Center) ──
+            float playX = centerX - 22;
             _playBtnRect = new RectangleF(playX, btnY, BTN_SIZE, BTN_SIZE);
             var playColor = _hoverPlay ? BtnPlayHover : BtnPlay;
             using var playBrush = new SolidBrush(playColor);
@@ -226,18 +260,33 @@ namespace Person_Movie_Management.UserControls
                 g.FillPolygon(triBrush, triangle);
             }
 
-            // Stop button
-            float stopX = centerX + 8;
-            _stopBtnRect = new RectangleF(stopX, btnY, BTN_SIZE, BTN_SIZE);
-            var stopColor = _hoverStop ? BtnStopHover : BtnStop;
-            using var stopBrush = new SolidBrush(stopColor);
-            g.FillEllipse(stopBrush, _stopBtnRect);
-
-            // Stop icon (square)
-            using var stopIconBrush = new SolidBrush(Color.White);
-            float sx = _stopBtnRect.X + _stopBtnRect.Width / 2 - 6;
-            float sy = _stopBtnRect.Y + _stopBtnRect.Height / 2 - 6;
-            g.FillRectangle(stopIconBrush, sx, sy, 12, 12);
+            // ── Forward 10s button ──
+            float fwdX = centerX + 34;
+            _forwardBtnRect = new RectangleF(fwdX, 39, 36, 36);
+            var fwdBg = _hoverForward ? BtnSecondaryHover : BtnSecondary;
+            using (var fwdBrush = new SolidBrush(fwdBg))
+            {
+                g.FillEllipse(fwdBrush, _forwardBtnRect);
+            }
+            using (var fwdPen = new Pen(_hoverForward ? BtnPlay : BtnSecondaryBorder, 1.2f))
+            {
+                g.DrawEllipse(fwdPen, _forwardBtnRect);
+            }
+            
+            // Draw Forward Icons (Double right arrow + "10")
+            float fcx = _forwardBtnRect.X + _forwardBtnRect.Width / 2f;
+            float fcy = _forwardBtnRect.Y + _forwardBtnRect.Height / 2f;
+            using (var arrowBrush = new SolidBrush(_hoverForward ? Color.White : Color.FromArgb(220, 225, 240)))
+            {
+                var fTri1 = new PointF[] { new PointF(fcx + 5, fcy - 4), new PointF(fcx + 1, fcy - 8), new PointF(fcx + 1, fcy) };
+                var fTri2 = new PointF[] { new PointF(fcx, fcy - 4), new PointF(fcx - 4, fcy - 8), new PointF(fcx - 4, fcy) };
+                g.FillPolygon(arrowBrush, fTri1);
+                g.FillPolygon(arrowBrush, fTri2);
+                
+                using var font10 = new Font("Segoe UI", 7.5F, FontStyle.Bold);
+                var size10 = g.MeasureString("10", font10);
+                g.DrawString("10", font10, arrowBrush, fcx - size10.Width / 2f + 0.5f, fcy + 1);
+            }
         }
 
         private void DrawTimeDisplay(Graphics g, int w)
@@ -259,7 +308,7 @@ namespace Person_Movie_Management.UserControls
             using var font = new Font("Segoe UI", 9.5F);
             using var brush = new SolidBrush(TextMuted);
             var size = g.MeasureString(text, font);
-            float x = w / 2f + BTN_SIZE + 30;
+            float x = w / 2f + 85;
             g.DrawString(text, font, brush, x, 50);
         }
 
@@ -353,7 +402,7 @@ namespace Person_Movie_Management.UserControls
             else
             {
                 // Muted X
-                using var mutePen = new Pen(BtnStop, 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
+                using var mutePen = new Pen(Color.FromArgb(248, 113, 113), 2f) { StartCap = LineCap.Round, EndCap = LineCap.Round };
                 g.DrawLine(mutePen, x + 15, y + 2, x + 21, y + 10);
                 g.DrawLine(mutePen, x + 21, y + 2, x + 15, y + 10);
             }
@@ -417,13 +466,17 @@ namespace Person_Movie_Management.UserControls
             _isHoveringVolume = _volumeIconRect.Contains(e.Location) || _volumeBarRect.Contains(e.Location);
             if (wasHoverVolume != _isHoveringVolume) needsRepaint = true;
 
+            bool wasHoverRewind = _hoverRewind;
+            _hoverRewind = _rewindBtnRect.Contains(e.Location);
+            if (wasHoverRewind != _hoverRewind) needsRepaint = true;
+
             bool wasHoverPlay = _hoverPlay;
             _hoverPlay = _playBtnRect.Contains(e.Location);
             if (wasHoverPlay != _hoverPlay) needsRepaint = true;
 
-            bool wasHoverStop = _hoverStop;
-            _hoverStop = _stopBtnRect.Contains(e.Location);
-            if (wasHoverStop != _hoverStop) needsRepaint = true;
+            bool wasHoverForward = _hoverForward;
+            _hoverForward = _forwardBtnRect.Contains(e.Location);
+            if (wasHoverForward != _hoverForward) needsRepaint = true;
 
             bool wasHoverClose = _hoverClose;
             _hoverClose = _closeBtnRect.Contains(e.Location);
@@ -442,7 +495,7 @@ namespace Person_Movie_Management.UserControls
                 needsRepaint = true;
             }
 
-            this.Cursor = (_isHoveringProgress || _isHoveringVolume || _hoverPlay || _hoverStop || _hoverClose)
+            this.Cursor = (_isHoveringProgress || _isHoveringVolume || _hoverPlay || _hoverRewind || _hoverForward || _hoverClose)
                 ? Cursors.Hand : Cursors.Default;
 
             if (needsRepaint) this.Invalidate();
@@ -487,15 +540,21 @@ namespace Person_Movie_Management.UserControls
                 return;
             }
 
+            if (_rewindBtnRect.Contains(e.Location))
+            {
+                SeekRelative(-10);
+                return;
+            }
+
             if (_playBtnRect.Contains(e.Location))
             {
                 TogglePlayPause();
                 return;
             }
 
-            if (_stopBtnRect.Contains(e.Location))
+            if (_forwardBtnRect.Contains(e.Location))
             {
-                StopPlayback();
+                SeekRelative(10);
                 return;
             }
 
@@ -531,11 +590,12 @@ namespace Person_Movie_Management.UserControls
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            bool needsRepaint = _isHoveringProgress || _isHoveringVolume || _hoverPlay || _hoverStop || _hoverClose;
+            bool needsRepaint = _isHoveringProgress || _isHoveringVolume || _hoverPlay || _hoverRewind || _hoverForward || _hoverClose;
             _isHoveringProgress = false;
             _isHoveringVolume = false;
             _hoverPlay = false;
-            _hoverStop = false;
+            _hoverRewind = false;
+            _hoverForward = false;
             _hoverClose = false;
             this.Cursor = Cursors.Default;
             if (needsRepaint) this.Invalidate();
@@ -552,18 +612,35 @@ namespace Person_Movie_Management.UserControls
                 case Keys.Space:
                     TogglePlayPause();
                     return true;
-                case Keys.Right:
-                    _volume = Math.Min(1f, _volume + VOL_STEP);
-                    ApplyVolume();
-                    this.Invalidate();
-                    return true;
                 case Keys.Left:
-                    _volume = Math.Max(0f, _volume - VOL_STEP);
-                    ApplyVolume();
-                    this.Invalidate();
+                    SeekRelative(-10);
+                    return true;
+                case Keys.Right:
+                    SeekRelative(10);
+                    return true;
+                case Keys.Up:
+                    AdjustVolume(VOL_STEP);
+                    return true;
+                case Keys.Down:
+                    AdjustVolume(-VOL_STEP);
                     return true;
             }
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        public void SeekRelative(double seconds)
+        {
+            if (_audioFile == null) return;
+            try
+            {
+                double currentSec = _audioFile.CurrentTime.TotalSeconds;
+                double totalSec = _audioFile.TotalTime.TotalSeconds;
+                double targetSec = Math.Max(0, Math.Min(totalSec, currentSec + seconds));
+                _audioFile.CurrentTime = TimeSpan.FromSeconds(targetSec);
+                SaveProgressIfNeeded(true);
+                this.Invalidate();
+            }
+            catch { }
         }
 
         private void ApplyVolume()
@@ -573,12 +650,14 @@ namespace Person_Movie_Management.UserControls
 
         // ── Playback Logic ──
 
-        public void Play(byte[] audioData, string title)
+        public void Play(byte[] audioData, string title, int audioId = 0)
         {
             CleanUp();
             if (audioData == null || audioData.Length == 0) return;
 
             _songTitle = title;
+            _currentAudioId = audioId;
+            _lastSavedProgress = 0;
 
             try
             {
@@ -610,6 +689,7 @@ namespace Person_Movie_Management.UserControls
             {
                 _outputDevice.Pause();
                 timerPlayback.Stop();
+                SaveProgressIfNeeded(true);
             }
             else if (_outputDevice.PlaybackState == PlaybackState.Paused)
             {
@@ -628,8 +708,40 @@ namespace Person_Movie_Management.UserControls
 
         public bool IsActive => _outputDevice != null && this.Visible;
 
+        private void SaveProgressIfNeeded(bool force = false)
+        {
+            if (_currentAudioId <= 0 || _audioFile == null || _audioFile.TotalTime.TotalSeconds <= 0) return;
+
+            int currentPct = (int)((_audioFile.CurrentTime.TotalSeconds / _audioFile.TotalTime.TotalSeconds) * 100);
+            currentPct = Math.Max(0, Math.Min(100, currentPct));
+
+            if (force || currentPct >= _lastSavedProgress + 2 || currentPct == 100)
+            {
+                if (currentPct != _lastSavedProgress || force)
+                {
+                    _lastSavedProgress = currentPct;
+                    AppServices.AudioRepo.UpdateProgress(_currentAudioId, currentPct);
+                    DataCache.Invalidate();
+                }
+            }
+        }
+
         private void OnPlaybackStopped(object? sender, StoppedEventArgs args)
         {
+            if (_currentAudioId > 0 && _audioFile != null && _audioFile.TotalTime.TotalSeconds > 0)
+            {
+                if (_audioFile.CurrentTime >= _audioFile.TotalTime - TimeSpan.FromSeconds(1.5))
+                {
+                    _lastSavedProgress = 100;
+                    AppServices.AudioRepo.UpdateProgress(_currentAudioId, 100);
+                    DataCache.Invalidate();
+                }
+                else
+                {
+                    SaveProgressIfNeeded(true);
+                }
+            }
+
             if (InvokeRequired)
                 BeginInvoke(new Action(() => StopPlayback()));
             else
@@ -638,6 +750,7 @@ namespace Person_Movie_Management.UserControls
 
         private void StopPlayback()
         {
+            SaveProgressIfNeeded(true);
             _outputDevice?.Stop();
             timerPlayback.Stop();
             if (_audioFile != null) _audioFile.CurrentTime = TimeSpan.Zero;
@@ -649,11 +762,13 @@ namespace Person_Movie_Management.UserControls
             if (_audioFile != null && !_isDraggingProgress)
             {
                 this.Invalidate();
+                SaveProgressIfNeeded(false);
             }
         }
 
         public void CleanUp()
         {
+            SaveProgressIfNeeded(true);
             timerPlayback.Stop();
             if (_outputDevice != null)
             {
@@ -670,6 +785,8 @@ namespace Person_Movie_Management.UserControls
                 try { File.Delete(_tempFilePath); } catch { }
             }
             _songTitle = "";
+            _currentAudioId = 0;
+            _lastSavedProgress = 0;
             this.Invalidate();
         }
     }

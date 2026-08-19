@@ -26,6 +26,7 @@ namespace Person_Movie_Management.Forms
             this.btnChooseAudio = new Guna.UI2.WinForms.Guna2Button();
             this.lblSelectedAudio = new System.Windows.Forms.Label();
             this.txtNote = new Guna.UI2.WinForms.Guna2TextBox();
+            this.lblCharCount = new System.Windows.Forms.Label();
             this.btnSave = new Guna.UI2.WinForms.Guna2GradientButton();
             this.btnCancel = new Guna.UI2.WinForms.Guna2Button();
             this.pnlMain.SuspendLayout();
@@ -50,6 +51,7 @@ namespace Person_Movie_Management.Forms
             this.pnlMain.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(28)))), ((int)(((byte)(56)))));
             this.pnlMain.Controls.Add(this.btnCancel);
             this.pnlMain.Controls.Add(this.btnSave);
+            this.pnlMain.Controls.Add(this.lblCharCount);
             this.pnlMain.Controls.Add(this.txtNote);
             this.pnlMain.Controls.Add(this.btnChooseAudio);
             this.pnlMain.Controls.Add(this.lblSelectedAudio);
@@ -156,14 +158,27 @@ namespace Person_Movie_Management.Forms
             this.txtNote.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.txtNote.Location = new System.Drawing.Point(280, 200);
             this.txtNote.Margin = new System.Windows.Forms.Padding(4);
+            this.txtNote.MaxLength = 500;
             this.txtNote.Multiline = true;
             this.txtNote.Name = "txtNote";
             this.txtNote.PasswordChar = '\0';
-            this.txtNote.PlaceholderText = "📝  Ghi chú...";
+            this.txtNote.PlaceholderText = "📝  Ghi chú (Tối đa 500 ký tự)...";
             this.txtNote.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.txtNote.SelectedText = "";
-            this.txtNote.Size = new System.Drawing.Size(430, 250);
+            this.txtNote.Size = new System.Drawing.Size(430, 240);
             this.txtNote.TabIndex = 6;
+            // 
+            // lblCharCount
+            // 
+            this.lblCharCount.BackColor = System.Drawing.Color.Transparent;
+            this.lblCharCount.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblCharCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
+            this.lblCharCount.Location = new System.Drawing.Point(280, 445);
+            this.lblCharCount.Name = "lblCharCount";
+            this.lblCharCount.Size = new System.Drawing.Size(430, 20);
+            this.lblCharCount.TabIndex = 9;
+            this.lblCharCount.Text = "0 / 500 ký tự";
+            this.lblCharCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // btnSave
             // 
@@ -172,7 +187,7 @@ namespace Person_Movie_Management.Forms
             this.btnSave.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(211)))), ((int)(((byte)(153)))));
             this.btnSave.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnSave.ForeColor = System.Drawing.Color.White;
-            this.btnSave.Location = new System.Drawing.Point(530, 475);
+            this.btnSave.Location = new System.Drawing.Point(530, 480);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(180, 45);
             this.btnSave.TabIndex = 7;
@@ -187,7 +202,7 @@ namespace Person_Movie_Management.Forms
             this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
             this.btnCancel.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(113)))), ((int)(((byte)(113)))));
             this.btnCancel.HoverState.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(330, 475);
+            this.btnCancel.Location = new System.Drawing.Point(330, 480);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(180, 45);
             this.btnCancel.TabIndex = 8;
@@ -222,6 +237,7 @@ namespace Person_Movie_Management.Forms
         private Guna.UI2.WinForms.Guna2Button btnChooseAudio;
         private System.Windows.Forms.Label lblSelectedAudio;
         private Guna.UI2.WinForms.Guna2TextBox txtNote;
+        private System.Windows.Forms.Label lblCharCount;
         private Guna.UI2.WinForms.Guna2GradientButton btnSave;
         private Guna.UI2.WinForms.Guna2Button btnCancel;
     }

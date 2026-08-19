@@ -99,6 +99,25 @@ namespace Person_Movie_Management.Repositories
             return null;
         }
 
+        public Movie? GetByMediaUrl(int userId, string mediaUrl)
+        {
+            if (string.IsNullOrWhiteSpace(mediaUrl)) return null;
+
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT * FROM Movies WHERE UserId = @UserId AND MediaUrl = @MediaUrl AND IsDeleted = 0 LIMIT 1";
+            command.Parameters.AddWithValue("@UserId", userId);
+            command.Parameters.AddWithValue("@MediaUrl", mediaUrl);
+
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return MapMovie(reader);
+            }
+            return null;
+        }
+
         public List<Movie> Search(int userId, string keyword, int? sourceType = null)
         {
             var movies = new List<Movie>();
@@ -248,6 +267,34 @@ namespace Person_Movie_Management.Repositories
                 sql += " AND SourceType = @SourceType";
             }
             command.CommandText = sql;
+            command.Parameters.AddWithValue("@UserId", userId);
+            if (sourceType.HasValue)
+            {
+                command.Parameters.AddWithValue("@SourceType", sourceType.Value);
+            }
+            
+            command.ExecuteNonQuery();
+        }
+
+        
+        public void HardDeleteAll(int userId, int? sourceType = null)
+        {
+            using var connection = new SqliteConnection(DatabaseHelper.ConnectionString);
+            connection.Open();
+            using var command = connection.CreateCommand();
+            
+            string subquery = "SELECT Id FROM Movies WHERE UserId = @UserId";
+            if (sourceType.HasValue)
+            {
+                subquery += " AND SourceType = @SourceType";
+            }
+
+            command.CommandText = $@"
+                DELETE FROM MovieTags WHERE MovieId IN ({subquery});
+                DELETE FROM MovieImages WHERE MovieId IN ({subquery});
+                DELETE FROM PlaylistItems WHERE ItemType = 0 AND ItemId IN ({subquery});
+                DELETE FROM Movies WHERE UserId = @UserId {(sourceType.HasValue ? "AND SourceType = @SourceType" : "")};
+            ";
             command.Parameters.AddWithValue("@UserId", userId);
             if (sourceType.HasValue)
             {

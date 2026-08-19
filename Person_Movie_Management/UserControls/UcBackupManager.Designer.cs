@@ -6,12 +6,21 @@ namespace Person_Movie_Management.UserControls
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                // Huỷ đăng ký event để tránh memory leak
+                if (Services.AppServices.BackupSvc != null)
+                {
+                    Services.AppServices.BackupSvc.ProgressChanged -= OnBackupProgress;
+                }
+                if (components != null)
+                {
+                    components.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
+
 
         private void InitializeComponent()
         {

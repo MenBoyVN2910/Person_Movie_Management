@@ -33,7 +33,7 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(0),
                     UserId = reader.GetInt32(1),
                     TagName = reader.GetString(2),
-                    ColorHex = reader.IsDBNull(3) ? null : reader.GetString(3)
+                    ColorHex = reader.IsDBNull(3) ? "#8b5cf6" : reader.GetString(3)
                 });
             }
 
@@ -57,43 +57,103 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(0),
                     UserId = reader.GetInt32(1),
                     TagName = reader.GetString(2),
-                    ColorHex = reader.IsDBNull(3) ? null : reader.GetString(3)
+                    ColorHex = reader.IsDBNull(3) ? "#8b5cf6" : reader.GetString(3)
                 };
             }
             return null;
         }
 
-        public int Insert(Tag tag)
+        public Tag? GetByName(int userId, string tagName, int excludeId = 0)
         {
+            if (string.IsNullOrWhiteSpace(tagName)) return null;
+
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
             using var command = connection.CreateCommand();
-            command.CommandText = @"
-                INSERT INTO Tags (UserId, TagName, ColorHex)
-                VALUES (@UserId, @TagName, @ColorHex);
-                SELECT last_insert_rowid();
-            ";
-            command.Parameters.AddWithValue("@UserId", tag.UserId);
-            command.Parameters.AddWithValue("@TagName", tag.TagName);
-            command.Parameters.AddWithValue("@ColorHex", tag.ColorHex ?? (object)DBNull.Value);
+            command.CommandText = "SELECT Id, UserId, TagName, ColorHex FROM Tags WHERE UserId = @UserId AND TRIM(TagName) = @TagName COLLATE NOCASE AND Id != @ExcludeId LIMIT 1";
+            command.Parameters.AddWithValue("@UserId", userId);
+            command.Parameters.AddWithValue("@TagName", tagName.Trim());
+            command.Parameters.AddWithValue("@ExcludeId", excludeId);
 
-            var newId = command.ExecuteScalar();
-            return newId != null ? Convert.ToInt32(newId) : 0;
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new Tag
+                {
+                    Id = reader.GetInt32(0),
+                    UserId = reader.GetInt32(1),
+                    TagName = reader.GetString(2),
+                    ColorHex = reader.IsDBNull(3) ? "#8b5cf6" : reader.GetString(3)
+                };
+            }
+            return null;
+        }
+
+        public bool Exists(int userId, string tagName, int excludeId = 0)
+        {
+            if (string.IsNullOrWhiteSpace(tagName)) return false;
+
+            using var connection = new SqliteConnection(_connectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT 1 FROM Tags WHERE UserId = @UserId AND TRIM(TagName) = @TagName COLLATE NOCASE AND Id != @ExcludeId LIMIT 1";
+            command.Parameters.AddWithValue("@UserId", userId);
+            command.Parameters.AddWithValue("@TagName", tagName.Trim());
+            command.Parameters.AddWithValue("@ExcludeId", excludeId);
+
+            var result = command.ExecuteScalar();
+            return result != null;
+        }
+
+        public int Insert(Tag tag)
+        {
+            try
+            {
+                using var connection = new SqliteConnection(_connectionString);
+                connection.Open();
+
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO Tags (UserId, TagName, ColorHex)
+                    VALUES (@UserId, @TagName, @ColorHex);
+                    SELECT last_insert_rowid();
+                ";
+                command.Parameters.AddWithValue("@UserId", tag.UserId);
+                command.Parameters.AddWithValue("@TagName", tag.TagName.Trim());
+                command.Parameters.AddWithValue("@ColorHex", tag.ColorHex ?? (object)DBNull.Value);
+
+                var newId = command.ExecuteScalar();
+                return newId != null ? Convert.ToInt32(newId) : 0;
+            }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+                // Unique constraint failed: (UserId, TagName) already exists
+                return -1;
+            }
         }
 
         public bool Update(Tag tag)
         {
-            using var connection = new SqliteConnection(_connectionString);
-            connection.Open();
+            try
+            {
+                using var connection = new SqliteConnection(_connectionString);
+                connection.Open();
 
-            using var command = connection.CreateCommand();
-            command.CommandText = "UPDATE Tags SET TagName = @TagName, ColorHex = @ColorHex WHERE Id = @Id";
-            command.Parameters.AddWithValue("@Id", tag.Id);
-            command.Parameters.AddWithValue("@TagName", tag.TagName);
-            command.Parameters.AddWithValue("@ColorHex", tag.ColorHex ?? (object)DBNull.Value);
+                using var command = connection.CreateCommand();
+                command.CommandText = "UPDATE Tags SET TagName = @TagName, ColorHex = @ColorHex WHERE Id = @Id";
+                command.Parameters.AddWithValue("@Id", tag.Id);
+                command.Parameters.AddWithValue("@TagName", tag.TagName.Trim());
+                command.Parameters.AddWithValue("@ColorHex", tag.ColorHex ?? (object)DBNull.Value);
 
-            return command.ExecuteNonQuery() > 0;
+                return command.ExecuteNonQuery() > 0;
+            }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+                // Unique constraint failed
+                return false;
+            }
         }
 
         public bool Delete(int id)
@@ -158,7 +218,7 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(0),
                     UserId = reader.GetInt32(1),
                     TagName = reader.GetString(2),
-                    ColorHex = reader.IsDBNull(3) ? null : reader.GetString(3)
+                    ColorHex = reader.IsDBNull(3) ? "#8b5cf6" : reader.GetString(3)
                 });
             }
             return tags;
@@ -192,7 +252,7 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(1),
                     UserId = reader.GetInt32(2),
                     TagName = reader.GetString(3),
-                    ColorHex = reader.IsDBNull(4) ? null : reader.GetString(4)
+                    ColorHex = reader.IsDBNull(4) ? "#8b5cf6" : reader.GetString(4)
                 });
             }
 
@@ -227,7 +287,7 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(1),
                     UserId = reader.GetInt32(2),
                     TagName = reader.GetString(3),
-                    ColorHex = reader.IsDBNull(4) ? null : reader.GetString(4)
+                    ColorHex = reader.IsDBNull(4) ? "#8b5cf6" : reader.GetString(4)
                 });
             }
 
@@ -294,7 +354,7 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(0),
                     UserId = reader.GetInt32(1),
                     TagName = reader.GetString(2),
-                    ColorHex = reader.IsDBNull(3) ? null : reader.GetString(3)
+                    ColorHex = reader.IsDBNull(3) ? "#8b5cf6" : reader.GetString(3)
                 });
             }
 
@@ -329,7 +389,7 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(1),
                     UserId = reader.GetInt32(2),
                     TagName = reader.GetString(3),
-                    ColorHex = reader.IsDBNull(4) ? null : reader.GetString(4)
+                    ColorHex = reader.IsDBNull(4) ? "#8b5cf6" : reader.GetString(4)
                 });
             }
 
@@ -364,7 +424,7 @@ namespace Person_Movie_Management.Repositories
                     Id = reader.GetInt32(1),
                     UserId = reader.GetInt32(2),
                     TagName = reader.GetString(3),
-                    ColorHex = reader.IsDBNull(4) ? null : reader.GetString(4)
+                    ColorHex = reader.IsDBNull(4) ? "#8b5cf6" : reader.GetString(4)
                 });
             }
 

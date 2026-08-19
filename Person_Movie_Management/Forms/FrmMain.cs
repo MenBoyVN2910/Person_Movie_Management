@@ -8,9 +8,9 @@ namespace Person_Movie_Management.Forms
 {
     public partial class FrmMain : Form
     {
-        private UcSidebar _sidebar;
-        private FrmDropWidget _dropWidget;
-        private Services.FolderWatcherService _folderWatcher;
+        private UcSidebar _sidebar = null!;
+        private FrmDropWidget? _dropWidget;
+        private Services.FolderWatcherService? _folderWatcher;
         private bool _isClosing = false;
 
         public FrmMain()
@@ -63,7 +63,7 @@ namespace Person_Movie_Management.Forms
                 if (SessionManager.IsLoggedIn)
                 {
                     _folderWatcher = new Services.FolderWatcherService(SessionManager.CurrentUser!.Id, this);
-                    Services.AppServices.BackupSvc.Start(SessionManager.CurrentUser!.Id);
+                    Services.AppServices.BackupSvc.Start(); // Backup là toàn hệ thống, không cần userId
                 }
             };
         }
@@ -71,11 +71,11 @@ namespace Person_Movie_Management.Forms
 
         private UcAudioPlayer _audioPlayer;
 
-        public void PlayGlobalAudio(byte[] audioData, string title)
+        public void PlayGlobalAudio(byte[] audioData, string title, int audioId = 0)
         {
             if (audioData == null || audioData.Length == 0) return;
             _audioPlayer.Visible = true;
-            _audioPlayer.Play(audioData, title);
+            _audioPlayer.Play(audioData, title, audioId);
             _audioPlayer.Focus();
         }
 
@@ -90,6 +90,34 @@ namespace Person_Movie_Management.Forms
             }
         }
 
+        public void ToggleFolderWatcher(bool enable)
+        {
+            if (enable)
+            {
+                if (_folderWatcher == null && SessionManager.IsLoggedIn)
+                {
+                    _folderWatcher = new Services.FolderWatcherService(SessionManager.CurrentUser!.Id, this);
+                }
+                else
+                {
+                    _folderWatcher?.Start();
+                }
+            }
+            else
+            {
+                _folderWatcher?.Stop();
+            }
+        }
+
+        public void AddWatchFolder(string folderPath)
+        {
+            if (_folderWatcher == null && SessionManager.IsLoggedIn)
+            {
+                _folderWatcher = new Services.FolderWatcherService(SessionManager.CurrentUser!.Id, this);
+            }
+            _folderWatcher?.AddWatchPath(folderPath);
+        }
+
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (_audioPlayer != null && _audioPlayer.IsActive)
@@ -99,10 +127,16 @@ namespace Person_Movie_Management.Forms
                     case Keys.Space:
                         _audioPlayer.TogglePlayPause();
                         return true;
+                    case Keys.Left:
+                        _audioPlayer.SeekRelative(-10);
+                        return true;
                     case Keys.Right:
+                        _audioPlayer.SeekRelative(10);
+                        return true;
+                    case Keys.Up:
                         _audioPlayer.AdjustVolume(0.05f);
                         return true;
-                    case Keys.Left:
+                    case Keys.Down:
                         _audioPlayer.AdjustVolume(-0.05f);
                         return true;
                 }
@@ -148,16 +182,17 @@ namespace Person_Movie_Management.Forms
             omnibox.ShowDialog(this);
         }
 
+        private bool _isLoggingOut = false;
+
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        protected override async void OnFormClosing(FormClosingEventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (!_isClosing)
             {
-                e.Cancel = true;
                 _isClosing = true;
                 
                 // Hide the main form immediately to give the user the impression it's closed
@@ -168,26 +203,33 @@ namespace Person_Movie_Management.Forms
                 
                 if (Services.AppServices.BackupSvc != null)
                 {
-                    await Services.AppServices.BackupSvc.PerformBackupAsync();
+                    Services.AppServices.BackupSvc.PerformBackupSync();
                     Services.AppServices.BackupSvc.Stop();
                 }
-
-                Application.Exit();
             }
             base.OnFormClosing(e);
         }
 
-
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            if (!_isLoggingOut)
+            {
+                Application.Exit();
+            }
+        }
 
         private void Sidebar_MenuItemClicked(object? sender, string pageName)
         {
             if (pageName == "Logout")
             {
-                Services.AppServices.BackupSvc.Stop();
+                _isLoggingOut = true;
+                _folderWatcher?.Stop();
+                Services.AppServices.BackupSvc?.Stop();
                 SessionManager.Logout();
                 FrmLogin login = new FrmLogin();
                 login.Show();
-                this.Hide();
+                this.Close();
                 return;
             }
 
@@ -196,8 +238,15 @@ namespace Person_Movie_Management.Forms
 
         private void LoadPage(string pageName)
         {
-            pnlContent.Controls.Clear();
-            UserControl uc = null;
+            while (pnlContent.Controls.Count > 0)
+            {
+                var oldCtrl = pnlContent.Controls[0];
+                pnlContent.Controls.RemoveAt(0);
+                oldCtrl.Dispose();
+            }
+
+            UserControl? uc = null;
+            int currentUserId = SessionManager.CurrentUser?.Id ?? 0;
 
             switch (pageName)
             {
@@ -217,10 +266,10 @@ namespace Person_Movie_Management.Forms
                     uc = new Person_Movie_Management.UserControls.UcMovieList(Person_Movie_Management.UserControls.MovieListMode.Favorites);
                     break;
                 case "Playlist":
-                    uc = new Person_Movie_Management.UserControls.UcPlaylist(SessionManager.CurrentUser.Id);
+                    uc = new Person_Movie_Management.UserControls.UcPlaylist(currentUserId);
                     break;
                 case "RecycleBin":
-                    uc = new Person_Movie_Management.UserControls.UcRecycleBin(SessionManager.CurrentUser.Id);
+                    uc = new Person_Movie_Management.UserControls.UcRecycleBin(currentUserId);
                     break;
                 case "Profile":
                     uc = new Person_Movie_Management.UserControls.UcUserProfile();

@@ -19,8 +19,9 @@ namespace Person_Movie_Management.UserControls
             this.lblTitle = new System.Windows.Forms.Label();
             this.cmbSort = new Guna.UI2.WinForms.Guna2ComboBox();
             this.txtSearch = new Guna.UI2.WinForms.Guna2TextBox();
-            this.flpMovies = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnRestoreAll = new Guna.UI2.WinForms.Guna2Button();
             this.btnEmptyTrash = new Guna.UI2.WinForms.Guna2Button();
+            this.flpMovies = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlTop.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -30,6 +31,7 @@ namespace Person_Movie_Management.UserControls
             this.pnlTop.Controls.Add(this.lblTitle);
             this.pnlTop.Controls.Add(this.cmbSort);
             this.pnlTop.Controls.Add(this.txtSearch);
+            this.pnlTop.Controls.Add(this.btnRestoreAll);
             this.pnlTop.Controls.Add(this.btnEmptyTrash);
             this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop.Location = new System.Drawing.Point(0, 0);
@@ -61,11 +63,12 @@ namespace Person_Movie_Management.UserControls
             this.cmbSort.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.cmbSort.ItemHeight = 30;
             this.cmbSort.Items.AddRange(new object[] {
+            "Tất cả (All)",
             "Phim (Movies)",
             "Âm thanh (Audios)"});
-            this.cmbSort.Location = new System.Drawing.Point(650, 22);
+            this.cmbSort.Location = new System.Drawing.Point(540, 22);
             this.cmbSort.Name = "cmbSort";
-            this.cmbSort.Size = new System.Drawing.Size(200, 36);
+            this.cmbSort.Size = new System.Drawing.Size(170, 36);
             this.cmbSort.StartIndex = 0;
             this.cmbSort.TabIndex = 1;
             this.cmbSort.SelectedIndexChanged += new System.EventHandler(this.cmbSort_SelectedIndexChanged);
@@ -79,26 +82,43 @@ namespace Person_Movie_Management.UserControls
             this.txtSearch.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
             this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.txtSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtSearch.Location = new System.Drawing.Point(300, 22);
+            this.txtSearch.Location = new System.Drawing.Point(260, 22);
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.PasswordChar = '\0';
             this.txtSearch.PlaceholderText = "Tìm kiếm...";
             this.txtSearch.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
             this.txtSearch.SelectedText = "";
-            this.txtSearch.Size = new System.Drawing.Size(300, 36);
+            this.txtSearch.Size = new System.Drawing.Size(260, 36);
             this.txtSearch.TabIndex = 2;
             this.txtSearch.TextChanged += new System.EventHandler(this.txtSearch_TextChanged);
+            // 
+            // btnRestoreAll
+            // 
+            this.btnRestoreAll.BorderRadius = 8;
+            this.btnRestoreAll.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRestoreAll.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(99)))), ((int)(((byte)(102)))), ((int)(((byte)(241)))));
+            this.btnRestoreAll.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnRestoreAll.ForeColor = System.Drawing.Color.White;
+            this.btnRestoreAll.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(129)))), ((int)(((byte)(140)))), ((int)(((byte)(248)))));
+            this.btnRestoreAll.Location = new System.Drawing.Point(720, 22);
+            this.btnRestoreAll.Name = "btnRestoreAll";
+            this.btnRestoreAll.Size = new System.Drawing.Size(150, 36);
+            this.btnRestoreAll.TabIndex = 3;
+            this.btnRestoreAll.Text = "🔄 Khôi Phục Hết";
+            this.btnRestoreAll.Click += new System.EventHandler(this.btnRestoreAll_Click);
             // 
             // btnEmptyTrash
             // 
             this.btnEmptyTrash.BorderRadius = 8;
+            this.btnEmptyTrash.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnEmptyTrash.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(68)))), ((int)(((byte)(68)))));
             this.btnEmptyTrash.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnEmptyTrash.ForeColor = System.Drawing.Color.White;
-            this.btnEmptyTrash.Location = new System.Drawing.Point(850, 22);
+            this.btnEmptyTrash.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
+            this.btnEmptyTrash.Location = new System.Drawing.Point(880, 22);
             this.btnEmptyTrash.Name = "btnEmptyTrash";
-            this.btnEmptyTrash.Size = new System.Drawing.Size(120, 36);
-            this.btnEmptyTrash.TabIndex = 3;
+            this.btnEmptyTrash.Size = new System.Drawing.Size(100, 36);
+            this.btnEmptyTrash.TabIndex = 4;
             this.btnEmptyTrash.Text = "Xóa Hết";
             this.btnEmptyTrash.Click += new System.EventHandler(this.btnEmptyTrash_Click);
             // 
@@ -133,7 +153,8 @@ namespace Person_Movie_Management.UserControls
         private System.Windows.Forms.Label lblTitle;
         private Guna.UI2.WinForms.Guna2ComboBox cmbSort;
         private Guna.UI2.WinForms.Guna2TextBox txtSearch;
-        private System.Windows.Forms.FlowLayoutPanel flpMovies;
+        private Guna.UI2.WinForms.Guna2Button btnRestoreAll;
         private Guna.UI2.WinForms.Guna2Button btnEmptyTrash;
+        private System.Windows.Forms.FlowLayoutPanel flpMovies;
     }
 }

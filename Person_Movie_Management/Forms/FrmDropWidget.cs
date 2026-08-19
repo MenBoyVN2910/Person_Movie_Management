@@ -14,8 +14,8 @@ namespace Person_Movie_Management.Forms
         private Point _dragCursorPoint;
         private Point _dragFormPoint;
         private bool _dragging;
-        private MovieRepository _movieRepo;
-        private System.Windows.Forms.Timer _fadeTimer;
+        private readonly MovieRepository _movieRepo;
+        private readonly System.Windows.Forms.Timer _fadeTimer;
         private double _targetOpacity = 0.3;
         private bool _isHovered = false;
 
@@ -29,12 +29,12 @@ namespace Person_Movie_Management.Forms
             this.AllowDrop = true;
             this.ShowInTaskbar = false;
             
-            // Set size to a perfect circle (60x60)
+            // Set size to a perfect circle (70x70)
             this.Size = new Size(70, 70);
             this.StartPosition = FormStartPosition.Manual;
             this.Opacity = 0.3;
             
-            var screen = Screen.PrimaryScreen.WorkingArea;
+            var screen = Screen.PrimaryScreen?.WorkingArea ?? Screen.GetWorkingArea(this);
             this.Location = new Point(screen.Right - this.Width - 20, screen.Bottom - this.Height - 20);
 
             this.BackColor = Color.Magenta; // Will be set to transparent
@@ -44,6 +44,25 @@ namespace Person_Movie_Management.Forms
             System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
             path.AddEllipse(0, 0, 70, 70);
             this.Region = new Region(path);
+
+            // Setup Fade Timer
+            _fadeTimer = new System.Windows.Forms.Timer { Interval = 15 };
+            _fadeTimer.Tick += (s, e) =>
+            {
+                if (Math.Abs(this.Opacity - _targetOpacity) < 0.05)
+                {
+                    this.Opacity = _targetOpacity;
+                    _fadeTimer.Stop();
+                }
+                else if (this.Opacity < _targetOpacity)
+                {
+                    this.Opacity += 0.05;
+                }
+                else
+                {
+                    this.Opacity -= 0.05;
+                }
+            };
 
             SetupUI();
         }
@@ -77,28 +96,9 @@ namespace Person_Movie_Management.Forms
             // Allow Drop
             this.DragEnter += FrmDropWidget_DragEnter;
             this.DragDrop += FrmDropWidget_DragDrop;
-            
-            // Setup Fade Timer
-            _fadeTimer = new System.Windows.Forms.Timer { Interval = 15 };
-            _fadeTimer.Tick += (s, e) =>
-            {
-                if (Math.Abs(this.Opacity - _targetOpacity) < 0.05)
-                {
-                    this.Opacity = _targetOpacity;
-                    _fadeTimer.Stop();
-                }
-                else if (this.Opacity < _targetOpacity)
-                {
-                    this.Opacity += 0.05;
-                }
-                else
-                {
-                    this.Opacity -= 0.05;
-                }
-            };
         }
         
-        private void FrmDropWidget_MouseEnter(object sender, EventArgs e)
+        private void FrmDropWidget_MouseEnter(object? sender, EventArgs e)
         {
             _isHovered = true;
             _targetOpacity = 1.0;
@@ -106,7 +106,7 @@ namespace Person_Movie_Management.Forms
             this.Invalidate();
         }
         
-        private void FrmDropWidget_MouseLeave(object sender, EventArgs e)
+        private void FrmDropWidget_MouseLeave(object? sender, EventArgs e)
         {
             // Verify mouse is actually outside (MouseLeave can fire if mouse moves over border)
             Point clientMouse = this.PointToClient(Cursor.Position);
@@ -119,7 +119,7 @@ namespace Person_Movie_Management.Forms
             }
         }
         
-        private void FrmDropWidget_Paint(object sender, PaintEventArgs e)
+        private void FrmDropWidget_Paint(object? sender, PaintEventArgs e)
         {
             var g = e.Graphics;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
@@ -153,24 +153,24 @@ namespace Person_Movie_Management.Forms
             }
         }
 
-        private void FrmDropWidget_DragEnter(object sender, DragEventArgs e)
+        private void FrmDropWidget_DragEnter(object? sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.Text))
+            if (e.Data != null && (e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.Text)))
             {
                 e.Effect = DragDropEffects.Copy;
             }
         }
 
-        private async void FrmDropWidget_DragDrop(object sender, DragEventArgs e)
+        private void FrmDropWidget_DragDrop(object? sender, DragEventArgs e)
         {
-            if (!SessionManager.IsLoggedIn) return;
-            int userId = SessionManager.CurrentUser!.Id;
+            if (!SessionManager.IsLoggedIn || SessionManager.CurrentUser == null || e.Data == null) return;
+            int userId = SessionManager.CurrentUser.Id;
 
             // Handle Text/URL
             if (e.Data.GetDataPresent(DataFormats.Text))
             {
-                string text = (string)e.Data.GetData(DataFormats.Text);
-                if (text.StartsWith("http://") || text.StartsWith("https://"))
+                string? text = e.Data.GetData(DataFormats.Text) as string;
+                if (!string.IsNullOrEmpty(text) && (text.StartsWith("http://") || text.StartsWith("https://")))
                 {
                     var frm = new FrmMovieDetail(null, text);
                     frm.TopMost = true; // Make sure it shows on top of browser
@@ -183,11 +183,14 @@ namespace Person_Movie_Management.Forms
             // Handle Files
             else if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                string[]? files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                if (files == null) return;
                 int added = 0;
                 foreach (string file in files)
                 {
-                    if (File.Exists(file) && (file.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || file.EndsWith(".mkv", StringComparison.OrdinalIgnoreCase)))
+                    string ext = Path.GetExtension(file).ToLowerInvariant();
+                    string[] videoExtensions = { ".mp4", ".mkv", ".avi", ".wmv", ".mov", ".flv", ".webm", ".m4v" };
+                    if (File.Exists(file) && videoExtensions.Contains(ext))
                     {
                         string fileName = Path.GetFileNameWithoutExtension(file);
                         if (_movieRepo.GetByCode(userId, fileName) == null)

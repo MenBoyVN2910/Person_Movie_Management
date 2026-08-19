@@ -15,6 +15,8 @@ namespace Person_Movie_Management.UserControls
         private readonly AuthService _authService;
         private readonly UserRepository _userRepo;
         private string? _selectedAvatarPath = null;
+        private Label lblToggleWatcher = null!;
+        private CheckBox tglWatcher = null!;
 
         public UcUserProfile()
         {
@@ -59,6 +61,29 @@ namespace Person_Movie_Management.UserControls
             // Initialize toggle
             tglWidget.Checked = SessionManager.IsDropWidgetEnabled;
 
+            // Initialize Folder Watcher toggle
+            lblToggleWatcher = new Label
+            {
+                Text = "Tự động quét Videos",
+                Font = new Font("Segoe UI", 11F, FontStyle.Regular),
+                ForeColor = Color.FromArgb(241, 245, 249),
+                Location = new Point(350, 58),
+                Size = new Size(200, 21),
+                BackColor = Color.Transparent,
+                AutoSize = true
+            };
+            tglWatcher = new CheckBox
+            {
+                Location = new Point(520, 61),
+                Size = new Size(15, 14),
+                Checked = SessionManager.IsFolderWatcherEnabled,
+                AutoSize = true,
+                UseVisualStyleBackColor = true
+            };
+            tglWatcher.CheckedChanged += TglWatcher_CheckedChanged;
+            pnlInfo.Controls.Add(lblToggleWatcher);
+            pnlInfo.Controls.Add(tglWatcher);
+
             LoadData();
         }
 
@@ -95,8 +120,12 @@ namespace Person_Movie_Management.UserControls
                         try 
                         {
                             var img = FileHelper.LoadImageSafe(fullPath);
-                            picAvatar.Image = new Bitmap(img); // Clone to prevent file lock
-                            img.Dispose();
+                            if (img != null)
+                            {
+                                picAvatar.Image?.Dispose();
+                                picAvatar.Image = new Bitmap(img); // Clone to prevent file lock
+                                img.Dispose();
+                            }
                         }
                         catch { }
                     }
@@ -115,9 +144,13 @@ namespace Person_Movie_Management.UserControls
                 try
                 {
                     var img = FileHelper.LoadImageSafe(ofd.FileName);
-                    picAvatar.Image = new Bitmap(img);
-                    img.Dispose();
-                    _selectedAvatarPath = ofd.FileName;
+                    if (img != null)
+                    {
+                        picAvatar.Image?.Dispose();
+                        picAvatar.Image = new Bitmap(img);
+                        img.Dispose();
+                        _selectedAvatarPath = ofd.FileName;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -203,6 +236,16 @@ namespace Person_Movie_Management.UserControls
             if (frmMain != null)
             {
                 frmMain.ToggleDropWidget(tglWidget.Checked);
+            }
+        }
+
+        private void TglWatcher_CheckedChanged(object? sender, EventArgs e)
+        {
+            SessionManager.IsFolderWatcherEnabled = tglWatcher.Checked;
+            var frmMain = this.FindForm() as Forms.FrmMain;
+            if (frmMain != null)
+            {
+                frmMain.ToggleFolderWatcher(tglWatcher.Checked);
             }
         }
     }

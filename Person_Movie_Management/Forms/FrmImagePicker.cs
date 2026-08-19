@@ -121,7 +121,7 @@ namespace Person_Movie_Management.Forms
             string tempImagePath = Path.Combine(Path.GetTempPath(), $"temp_preview_{Guid.NewGuid()}.jpg");
             try
             {
-                byte[] data = null;
+                byte[]? data = null;
                 try
                 {
                     // Add Referer specifically for the request

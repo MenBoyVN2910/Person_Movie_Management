@@ -17,119 +17,148 @@ namespace Person_Movie_Management.Forms
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
-            this.guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(this.components);
-            this.pnlTitleBar = new System.Windows.Forms.Panel();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.btnClose = new Guna.UI2.WinForms.Guna2ControlBox();
-            this.btnMaximize = new Guna.UI2.WinForms.Guna2ControlBox();
-            this.btnMinimize = new Guna.UI2.WinForms.Guna2ControlBox();
-
-            this.pnlContent = new System.Windows.Forms.Panel();
-            this.pnlTitleBar.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges5 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(components);
+            guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(components);
+            pnlTitleBar = new Panel();
+            lblTitle = new Label();
+            btnMinimize = new Guna.UI2.WinForms.Guna2ControlBox();
+            btnMaximize = new Guna.UI2.WinForms.Guna2ControlBox();
+            btnClose = new Guna.UI2.WinForms.Guna2ControlBox();
+            pnlContent = new Panel();
+            label1 = new Label();
+            pnlTitleBar.SuspendLayout();
+            SuspendLayout();
             // 
             // guna2Elipse1
             // 
-            this.guna2Elipse1.TargetControl = this;
-            this.guna2Elipse1.BorderRadius = 0;
+            guna2Elipse1.BorderRadius = 0;
+            guna2Elipse1.TargetControl = this;
             // 
             // guna2DragControl1
             // 
-            this.guna2DragControl1.DockIndicatorTransparencyValue = 0.6D;
-            this.guna2DragControl1.TargetControl = this.pnlTitleBar;
-            this.guna2DragControl1.UseTransparentDrag = true;
+            guna2DragControl1.DockIndicatorTransparencyValue = 0.6D;
+            guna2DragControl1.TargetControl = pnlTitleBar;
+            guna2DragControl1.UseTransparentDrag = true;
             // 
             // pnlTitleBar
             // 
-            this.pnlTitleBar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(21)))), ((int)(((byte)(42)))));
-            this.pnlTitleBar.Controls.Add(this.lblTitle);
-            this.pnlTitleBar.Controls.Add(this.btnMinimize);
-            this.pnlTitleBar.Controls.Add(this.btnMaximize);
-            this.pnlTitleBar.Controls.Add(this.btnClose);
-            this.pnlTitleBar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlTitleBar.Location = new System.Drawing.Point(230, 0);
-            this.pnlTitleBar.Name = "pnlTitleBar";
-            this.pnlTitleBar.Size = new System.Drawing.Size(970, 38);
-            this.pnlTitleBar.TabIndex = 0;
+            pnlTitleBar.BackColor = Color.FromArgb(17, 21, 42);
+            pnlTitleBar.Controls.Add(label1);
+            pnlTitleBar.Controls.Add(lblTitle);
+            pnlTitleBar.Controls.Add(btnMinimize);
+            pnlTitleBar.Controls.Add(btnMaximize);
+            pnlTitleBar.Controls.Add(btnClose);
+            pnlTitleBar.Dock = DockStyle.Top;
+            pnlTitleBar.Location = new Point(0, 0);
+            pnlTitleBar.Margin = new Padding(3, 4, 3, 4);
+            pnlTitleBar.Name = "pnlTitleBar";
+            pnlTitleBar.Size = new Size(1371, 51);
+            pnlTitleBar.TabIndex = 0;
             // 
             // lblTitle
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.lblTitle.Location = new System.Drawing.Point(15, 9);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(107, 19);
-            this.lblTitle.TabIndex = 3;
-            this.lblTitle.Text = "🎬 Movie Vault";
-            // 
-            // btnClose
-            // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.FillColor = System.Drawing.Color.Transparent;
-            this.btnClose.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.btnClose.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(113)))), ((int)(((byte)(113)))));
-            this.btnClose.HoverState.IconColor = System.Drawing.Color.White;
-            this.btnClose.Location = new System.Drawing.Point(925, 4);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(40, 30);
-            this.btnClose.TabIndex = 0;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
-            // 
-            // btnMaximize
-            // 
-            this.btnMaximize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMaximize.ControlBoxType = Guna.UI2.WinForms.Enums.ControlBoxType.MaximizeBox;
-            this.btnMaximize.FillColor = System.Drawing.Color.Transparent;
-            this.btnMaximize.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.btnMaximize.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.btnMaximize.HoverState.IconColor = System.Drawing.Color.White;
-            this.btnMaximize.Location = new System.Drawing.Point(880, 4);
-            this.btnMaximize.Name = "btnMaximize";
-            this.btnMaximize.Size = new System.Drawing.Size(40, 30);
-            this.btnMaximize.TabIndex = 1;
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(148, 163, 184);
+            lblTitle.Location = new Point(17, 12);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(134, 23);
+            lblTitle.TabIndex = 3;
+            lblTitle.Text = "🎬 Movie Vault";
             // 
             // btnMinimize
             // 
-            this.btnMinimize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnMinimize.ControlBoxType = Guna.UI2.WinForms.Enums.ControlBoxType.MinimizeBox;
-            this.btnMinimize.FillColor = System.Drawing.Color.Transparent;
-            this.btnMinimize.IconColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.btnMinimize.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.btnMinimize.HoverState.IconColor = System.Drawing.Color.White;
-            this.btnMinimize.Location = new System.Drawing.Point(835, 4);
-            this.btnMinimize.Name = "btnMinimize";
-            this.btnMinimize.Size = new System.Drawing.Size(40, 30);
-            this.btnMinimize.TabIndex = 2;
-
+            btnMinimize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnMinimize.ControlBoxType = Guna.UI2.WinForms.Enums.ControlBoxType.MinimizeBox;
+            btnMinimize.CustomizableEdges = customizableEdges1;
+            btnMinimize.FillColor = Color.Transparent;
+            btnMinimize.HoverState.FillColor = Color.FromArgb(30, 139, 92, 246);
+            btnMinimize.HoverState.IconColor = Color.White;
+            btnMinimize.IconColor = Color.FromArgb(148, 163, 184);
+            btnMinimize.Location = new Point(1216, 5);
+            btnMinimize.Margin = new Padding(3, 4, 3, 4);
+            btnMinimize.Name = "btnMinimize";
+            btnMinimize.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            btnMinimize.Size = new Size(46, 40);
+            btnMinimize.TabIndex = 2;
+            // 
+            // btnMaximize
+            // 
+            btnMaximize.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnMaximize.ControlBoxType = Guna.UI2.WinForms.Enums.ControlBoxType.MaximizeBox;
+            btnMaximize.CustomizableEdges = customizableEdges3;
+            btnMaximize.FillColor = Color.Transparent;
+            btnMaximize.HoverState.FillColor = Color.FromArgb(30, 139, 92, 246);
+            btnMaximize.HoverState.IconColor = Color.White;
+            btnMaximize.IconColor = Color.FromArgb(148, 163, 184);
+            btnMaximize.Location = new Point(1268, 5);
+            btnMaximize.Margin = new Padding(3, 4, 3, 4);
+            btnMaximize.Name = "btnMaximize";
+            btnMaximize.ShadowDecoration.CustomizableEdges = customizableEdges4;
+            btnMaximize.Size = new Size(46, 40);
+            btnMaximize.TabIndex = 1;
+            // 
+            // btnClose
+            // 
+            btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClose.CustomizableEdges = customizableEdges5;
+            btnClose.FillColor = Color.Transparent;
+            btnClose.HoverState.FillColor = Color.FromArgb(248, 113, 113);
+            btnClose.HoverState.IconColor = Color.White;
+            btnClose.IconColor = Color.FromArgb(148, 163, 184);
+            btnClose.Location = new Point(1319, 5);
+            btnClose.Margin = new Padding(3, 4, 3, 4);
+            btnClose.Name = "btnClose";
+            btnClose.ShadowDecoration.CustomizableEdges = customizableEdges6;
+            btnClose.Size = new Size(46, 40);
+            btnClose.TabIndex = 0;
+            btnClose.Click += btnClose_Click;
             // 
             // pnlContent
             // 
-            this.pnlContent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(14)))), ((int)(((byte)(29)))));
-            this.pnlContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlContent.Location = new System.Drawing.Point(230, 38);
-            this.pnlContent.Name = "pnlContent";
-            this.pnlContent.Size = new System.Drawing.Size(970, 712);
-            this.pnlContent.TabIndex = 1;
+            pnlContent.BackColor = Color.FromArgb(12, 14, 29);
+            pnlContent.Dock = DockStyle.Fill;
+            pnlContent.Location = new Point(0, 51);
+            pnlContent.Margin = new Padding(3, 4, 3, 4);
+            pnlContent.Name = "pnlContent";
+            pnlContent.Size = new Size(1371, 949);
+            pnlContent.TabIndex = 1;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            label1.ForeColor = Color.FromArgb(255, 128, 128);
+            label1.Location = new Point(157, 12);
+            label1.Name = "label1";
+            label1.Size = new Size(98, 23);
+            label1.TabIndex = 4;
+            label1.Text = "Version 3.0";
             // 
             // FrmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(14)))), ((int)(((byte)(29)))));
-            this.ClientSize = new System.Drawing.Size(1200, 750);
-            this.Controls.Add(this.pnlContent);
-            this.Controls.Add(this.pnlTitleBar);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "FrmMain";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Movie Vault";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.pnlTitleBar.ResumeLayout(false);
-            this.pnlTitleBar.PerformLayout();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(12, 14, 29);
+            ClientSize = new Size(1371, 1000);
+            Controls.Add(pnlContent);
+            Controls.Add(pnlTitleBar);
+            FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "FrmMain";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Movie Vault";
+            WindowState = FormWindowState.Maximized;
+            pnlTitleBar.ResumeLayout(false);
+            pnlTitleBar.PerformLayout();
+            ResumeLayout(false);
 
         }
 
@@ -144,5 +173,6 @@ namespace Person_Movie_Management.Forms
 
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Panel pnlContent;
+        private Label label1;
     }
 }

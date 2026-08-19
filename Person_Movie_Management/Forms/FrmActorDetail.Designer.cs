@@ -23,10 +23,12 @@ namespace Person_Movie_Management.Forms
             this.picAvatar = new System.Windows.Forms.PictureBox();
             this.lblAvatarHint = new System.Windows.Forms.Label();
             this.txtName = new Guna.UI2.WinForms.Guna2TextBox();
-            this.txtDateOfBirth = new Guna.UI2.WinForms.Guna2TextBox();
-            this.txtNationality = new Guna.UI2.WinForms.Guna2TextBox();
+            this.dtpDateOfBirth = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            this.cboNationality = new Guna.UI2.WinForms.Guna2ComboBox();
+            this.btnManageNationality = new Guna.UI2.WinForms.Guna2Button();
             this.pnlBioContainer = new Guna.UI2.WinForms.Guna2Panel();
             this.txtBio = new System.Windows.Forms.RichTextBox();
+            this.lblCharCount = new System.Windows.Forms.Label();
             this.btnSave = new Guna.UI2.WinForms.Guna2GradientButton();
             this.btnCancel = new Guna.UI2.WinForms.Guna2Button();
             this.btnDelete = new Guna.UI2.WinForms.Guna2Button();
@@ -57,9 +59,11 @@ namespace Person_Movie_Management.Forms
             this.pnlMain.Controls.Add(this.btnDelete);
             this.pnlMain.Controls.Add(this.btnCancel);
             this.pnlMain.Controls.Add(this.btnSave);
+            this.pnlMain.Controls.Add(this.lblCharCount);
             this.pnlMain.Controls.Add(this.pnlBioContainer);
-            this.pnlMain.Controls.Add(this.txtNationality);
-            this.pnlMain.Controls.Add(this.txtDateOfBirth);
+            this.pnlMain.Controls.Add(this.btnManageNationality);
+            this.pnlMain.Controls.Add(this.cboNationality);
+            this.pnlMain.Controls.Add(this.dtpDateOfBirth);
             this.pnlMain.Controls.Add(this.txtName);
             this.pnlMain.Controls.Add(this.btnAddGalleryImage);
             this.pnlMain.Controls.Add(this.pnlGallery);
@@ -129,43 +133,61 @@ namespace Person_Movie_Management.Forms
             this.txtName.Size = new System.Drawing.Size(435, 45);
             this.txtName.TabIndex = 3;
             // 
-            // txtDateOfBirth
+            // dtpDateOfBirth
             // 
-            this.txtDateOfBirth.BorderRadius = 10;
-            this.txtDateOfBirth.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtDateOfBirth.DefaultText = "";
-            this.txtDateOfBirth.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.txtDateOfBirth.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.txtDateOfBirth.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtDateOfBirth.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtDateOfBirth.Location = new System.Drawing.Point(280, 140);
-            this.txtDateOfBirth.Margin = new System.Windows.Forms.Padding(4);
-            this.txtDateOfBirth.Name = "txtDateOfBirth";
-            this.txtDateOfBirth.PasswordChar = '\0';
-            this.txtDateOfBirth.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.txtDateOfBirth.PlaceholderText = "Ngày sinh (VD: 1990-01-01)";
-            this.txtDateOfBirth.SelectedText = "";
-            this.txtDateOfBirth.Size = new System.Drawing.Size(205, 40);
-            this.txtDateOfBirth.TabIndex = 4;
+            this.dtpDateOfBirth.BorderRadius = 10;
+            this.dtpDateOfBirth.BorderThickness = 1;
+            this.dtpDateOfBirth.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(75)))), ((int)(((byte)(115)))));
+            this.dtpDateOfBirth.Checked = false;
+            this.dtpDateOfBirth.CustomFormat = "yyyy-MM-dd";
+            this.dtpDateOfBirth.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
+            this.dtpDateOfBirth.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.dtpDateOfBirth.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.dtpDateOfBirth.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpDateOfBirth.Location = new System.Drawing.Point(280, 140);
+            this.dtpDateOfBirth.MaxDate = new System.DateTime(9998, 12, 31, 0, 0, 0, 0);
+            this.dtpDateOfBirth.MinDate = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
+            this.dtpDateOfBirth.Name = "dtpDateOfBirth";
+            this.dtpDateOfBirth.ShowCheckBox = true;
+            this.dtpDateOfBirth.Size = new System.Drawing.Size(205, 40);
+            this.dtpDateOfBirth.TabIndex = 4;
+            this.dtpDateOfBirth.Value = new System.DateTime(1990, 1, 1, 0, 0, 0, 0);
             // 
-            // txtNationality
+            // cboNationality
             // 
-            this.txtNationality.BorderRadius = 10;
-            this.txtNationality.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtNationality.DefaultText = "";
-            this.txtNationality.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.txtNationality.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.txtNationality.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtNationality.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtNationality.Location = new System.Drawing.Point(500, 140);
-            this.txtNationality.Margin = new System.Windows.Forms.Padding(4);
-            this.txtNationality.Name = "txtNationality";
-            this.txtNationality.PasswordChar = '\0';
-            this.txtNationality.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.txtNationality.PlaceholderText = "Quốc tịch";
-            this.txtNationality.SelectedText = "";
-            this.txtNationality.Size = new System.Drawing.Size(215, 40);
-            this.txtNationality.TabIndex = 5;
+            this.cboNationality.BackColor = System.Drawing.Color.Transparent;
+            this.cboNationality.BorderRadius = 10;
+            this.cboNationality.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(75)))), ((int)(((byte)(115)))));
+            this.cboNationality.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.cboNationality.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
+            this.cboNationality.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
+            this.cboNationality.FocusedColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
+            this.cboNationality.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
+            this.cboNationality.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.cboNationality.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.cboNationality.ItemHeight = 34;
+            this.cboNationality.Location = new System.Drawing.Point(500, 140);
+            this.cboNationality.Name = "cboNationality";
+            this.cboNationality.Size = new System.Drawing.Size(165, 40);
+            this.cboNationality.TabIndex = 5;
+            // 
+            // btnManageNationality
+            // 
+            this.btnManageNationality.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(75)))), ((int)(((byte)(115)))));
+            this.btnManageNationality.BorderRadius = 10;
+            this.btnManageNationality.BorderThickness = 1;
+            this.btnManageNationality.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnManageNationality.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(42)))), ((int)(((byte)(78)))));
+            this.btnManageNationality.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnManageNationality.ForeColor = System.Drawing.Color.White;
+            this.btnManageNationality.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
+            this.btnManageNationality.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
+            this.btnManageNationality.Location = new System.Drawing.Point(670, 140);
+            this.btnManageNationality.Name = "btnManageNationality";
+            this.btnManageNationality.Size = new System.Drawing.Size(45, 40);
+            this.btnManageNationality.TabIndex = 14;
+            this.btnManageNationality.Text = "⚙️";
+            this.btnManageNationality.Click += new System.EventHandler(this.btnManageNationality_Click);
             // 
             // pnlBioContainer
             // 
@@ -174,10 +196,10 @@ namespace Person_Movie_Management.Forms
             this.pnlBioContainer.BorderThickness = 1;
             this.pnlBioContainer.Controls.Add(this.txtBio);
             this.pnlBioContainer.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.pnlBioContainer.Location = new System.Drawing.Point(280, 200);
+            this.pnlBioContainer.Location = new System.Drawing.Point(280, 195);
             this.pnlBioContainer.Name = "pnlBioContainer";
             this.pnlBioContainer.Padding = new System.Windows.Forms.Padding(10);
-            this.pnlBioContainer.Size = new System.Drawing.Size(435, 120);
+            this.pnlBioContainer.Size = new System.Drawing.Size(435, 115);
             this.pnlBioContainer.TabIndex = 6;
             // 
             // txtBio
@@ -188,10 +210,23 @@ namespace Person_Movie_Management.Forms
             this.txtBio.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.txtBio.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.txtBio.Location = new System.Drawing.Point(10, 10);
+            this.txtBio.MaxLength = 500;
             this.txtBio.Name = "txtBio";
-            this.txtBio.Size = new System.Drawing.Size(415, 100);
+            this.txtBio.Size = new System.Drawing.Size(415, 95);
             this.txtBio.TabIndex = 0;
             this.txtBio.Text = "";
+            // 
+            // lblCharCount
+            // 
+            this.lblCharCount.BackColor = System.Drawing.Color.Transparent;
+            this.lblCharCount.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblCharCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
+            this.lblCharCount.Location = new System.Drawing.Point(565, 313);
+            this.lblCharCount.Name = "lblCharCount";
+            this.lblCharCount.Size = new System.Drawing.Size(150, 18);
+            this.lblCharCount.TabIndex = 13;
+            this.lblCharCount.Text = "0 / 500 ký tự";
+            this.lblCharCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // lblGalleryTitle
             // 
@@ -293,10 +328,12 @@ namespace Person_Movie_Management.Forms
         private System.Windows.Forms.PictureBox picAvatar;
         private System.Windows.Forms.Label lblAvatarHint;
         private Guna.UI2.WinForms.Guna2TextBox txtName;
-        private Guna.UI2.WinForms.Guna2TextBox txtDateOfBirth;
-        private Guna.UI2.WinForms.Guna2TextBox txtNationality;
+        private Guna.UI2.WinForms.Guna2DateTimePicker dtpDateOfBirth;
+        private Guna.UI2.WinForms.Guna2ComboBox cboNationality;
+        private Guna.UI2.WinForms.Guna2Button btnManageNationality;
         private Guna.UI2.WinForms.Guna2Panel pnlBioContainer;
         private System.Windows.Forms.RichTextBox txtBio;
+        private System.Windows.Forms.Label lblCharCount;
         private Guna.UI2.WinForms.Guna2GradientButton btnSave;
         private Guna.UI2.WinForms.Guna2Button btnCancel;
         private Guna.UI2.WinForms.Guna2Button btnDelete;

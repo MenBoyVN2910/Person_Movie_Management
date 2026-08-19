@@ -16,7 +16,7 @@ namespace Person_Movie_Management.Forms
         private readonly PlaylistRepository _playlistRepo;
         private System.Windows.Forms.Timer _debounceTimer;
 
-        public event EventHandler<object> ItemSelected; // object = Movie or Audio or Playlist
+        public event EventHandler<object>? ItemSelected; // object = Movie or Audio or Playlist
 
         public FrmOmnibox()
         {
@@ -48,7 +48,7 @@ namespace Person_Movie_Management.Forms
             _debounceTimer.Start();
         }
 
-        private void DebounceTimer_Tick(object sender, EventArgs e)
+        private void DebounceTimer_Tick(object? sender, EventArgs e)
         {
             _debounceTimer.Stop();
             PerformSearch();

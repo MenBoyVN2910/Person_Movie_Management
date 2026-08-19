@@ -95,7 +95,20 @@ namespace Person_Movie_Management.UserControls
             
             LayoutButtons();
 
+            DataCache.DataInvalidated += DataCache_DataInvalidated;
+            this.Disposed += (s, e) => { DataCache.DataInvalidated -= DataCache_DataInvalidated; };
+
             LoadData();
+        }
+
+        private void DataCache_DataInvalidated()
+        {
+            if (this.IsHandleCreated && !this.IsDisposed)
+            {
+                this.Invoke((MethodInvoker)delegate {
+                    LoadData();
+                });
+            }
         }
 
         private void LayoutButtons()
@@ -153,15 +166,27 @@ namespace Person_Movie_Management.UserControls
                 return;
             }
 
-            using var inputDialog = new FrmInputBox("Xác nhận xóa", "Nhập 'delete' để xóa TẤT CẢ âm thanh:");
+            using var inputDialog = new FrmInputBox("Xác nhận xóa", "Nhập 'delete' để xóa TẤT CẢ âm thanh:", showHardDelete: true);
             if (inputDialog.ShowDialog() == DialogResult.OK)
             {
                 if (inputDialog.InputValue.Trim().ToLower() == "delete")
                 {
                     if (SessionManager.IsLoggedIn)
                     {
-                        AppServices.AudioRepo.DeleteAll(SessionManager.CurrentUser!.Id);
-                        MessageBox.Show("Đã xóa tất cả thành công. Các mục này đã được đưa vào Thùng Rác.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        int userId = SessionManager.CurrentUser!.Id;
+
+                        if (inputDialog.IsHardDelete)
+                        {
+                            AppServices.AudioRepo.HardDeleteAll(userId);
+                            MessageBox.Show("Đã xóa vĩnh viễn tất cả âm thanh thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        else
+                        {
+                            AppServices.AudioRepo.DeleteAll(userId);
+                            MessageBox.Show("Đã xóa tất cả thành công. Các mục này đã được đưa vào Thùng Rác.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+
+                        DataCache.Invalidate();
                         LoadData();
                     }
                 }
@@ -209,7 +234,7 @@ namespace Person_Movie_Management.UserControls
                 {
                     if (this.ParentForm is FrmMain mainForm)
                     {
-                        mainForm.PlayGlobalAudio(fullAudio.AudioData, audio.AudioCode);
+                        mainForm.PlayGlobalAudio(fullAudio.AudioData, audio.AudioCode, audio.Id);
                     }
                 }
                 catch (Exception ex)
@@ -242,9 +267,11 @@ namespace Person_Movie_Management.UserControls
 
         private void Card_DeleteClicked(object? sender, Audio audio)
         {
-            if (MessageBox.Show($"Bạn có chắc chắn muốn xóa '{audio.AudioCode}' không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            int audioId = audio.Id;
+            string audioCode = audio.AudioCode;
+            if (MessageBox.Show($"Bạn có chắc chắn muốn xóa âm thanh '{audioCode}' không?\r\n(Mục này sẽ được chuyển vào Thùng Rác)", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                if (AppServices.AudioRepo.Delete(audio.Id))
+                if (AppServices.AudioRepo.Delete(audioId))
                 {
                     DataCache.Invalidate();
                     LoadData();

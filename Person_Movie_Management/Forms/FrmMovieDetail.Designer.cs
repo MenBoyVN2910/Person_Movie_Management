@@ -13,308 +13,357 @@ namespace Person_Movie_Management.Forms
             base.Dispose(disposing);
         }
 
+        #region Windows Form Designer generated code
+
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
-            this.guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(this.components);
-            this.pnlMain = new Guna.UI2.WinForms.Guna2GradientPanel();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.picCover = new System.Windows.Forms.PictureBox();
-            this.lblCoverHint = new System.Windows.Forms.Label();
-            this.txtMovieCode = new Guna.UI2.WinForms.Guna2TextBox();
-            this.cboSourceType = new Guna.UI2.WinForms.Guna2ComboBox();
-            this.txtMediaUrl = new Guna.UI2.WinForms.Guna2TextBox();
-            this.btnFetchUrl = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.btnFetchTMDB = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.pnlNoteContainer = new Guna.UI2.WinForms.Guna2Panel();
-            this.txtNote = new System.Windows.Forms.RichTextBox();
-            this.btnSave = new Guna.UI2.WinForms.Guna2GradientButton();
-            this.btnCancel = new Guna.UI2.WinForms.Guna2Button();
-            this.btnManageTags = new Guna.UI2.WinForms.Guna2Button();
-            this.flpTags = new System.Windows.Forms.FlowLayoutPanel();
-            this.pnlGallery = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnAddGalleryImage = new Guna.UI2.WinForms.Guna2Button();
-            this.pnlMain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picCover)).BeginInit();
-            this.pnlNoteContainer.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges19 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges20 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges1 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges2 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges3 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges4 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges5 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges6 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges7 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges8 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges9 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges10 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges11 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges12 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges13 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges14 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges15 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges16 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges17 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            Guna.UI2.WinForms.Suite.CustomizableEdges customizableEdges18 = new Guna.UI2.WinForms.Suite.CustomizableEdges();
+            guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(components);
+            guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(components);
+            pnlMain = new Guna.UI2.WinForms.Guna2GradientPanel();
+            lblNoteCount = new Label();
+            btnCancel = new Guna.UI2.WinForms.Guna2Button();
+            btnSave = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnManageTags = new Guna.UI2.WinForms.Guna2Button();
+            flpTags = new FlowLayoutPanel();
+            pnlNoteContainer = new Guna.UI2.WinForms.Guna2Panel();
+            txtNote = new RichTextBox();
+            btnFetchTMDB = new Guna.UI2.WinForms.Guna2GradientButton();
+            btnFetchUrl = new Guna.UI2.WinForms.Guna2GradientButton();
+            txtMediaUrl = new Guna.UI2.WinForms.Guna2TextBox();
+            txtMovieCode = new Guna.UI2.WinForms.Guna2TextBox();
+            btnAddGalleryImage = new Guna.UI2.WinForms.Guna2Button();
+            pnlGallery = new FlowLayoutPanel();
+            lblCoverHint = new Label();
+            picCover = new PictureBox();
+            lblTitle = new Label();
+            pnlMain.SuspendLayout();
+            pnlNoteContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)picCover).BeginInit();
+            SuspendLayout();
             // 
             // guna2Elipse1
             // 
-            this.guna2Elipse1.TargetControl = this;
-            this.guna2Elipse1.BorderRadius = 16;
+            guna2Elipse1.BorderRadius = 16;
+            guna2Elipse1.TargetControl = this;
             // 
             // guna2DragControl1
             // 
-            this.guna2DragControl1.DockIndicatorTransparencyValue = 0.6D;
-            this.guna2DragControl1.TargetControl = this;
-            this.guna2DragControl1.UseTransparentDrag = true;
+            guna2DragControl1.DockIndicatorTransparencyValue = 0.6D;
+            guna2DragControl1.TargetControl = this;
+            guna2DragControl1.UseTransparentDrag = true;
             // 
             // pnlMain
             // 
-            this.pnlMain.BorderRadius = 16;
-            this.pnlMain.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(28)))), ((int)(((byte)(56)))));
-            this.pnlMain.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(28)))), ((int)(((byte)(56)))));
-            this.pnlMain.Controls.Add(this.btnCancel);
-            this.pnlMain.Controls.Add(this.btnSave);
-            this.pnlMain.Controls.Add(this.btnCancel);
-            this.pnlMain.Controls.Add(this.btnManageTags);
-            this.pnlMain.Controls.Add(this.flpTags);
-            this.pnlMain.Controls.Add(this.pnlNoteContainer);
-            this.pnlMain.Controls.Add(this.btnFetchTMDB);
-            this.pnlMain.Controls.Add(this.btnFetchUrl);
-            this.pnlMain.Controls.Add(this.txtMediaUrl);
-            this.pnlMain.Controls.Add(this.cboSourceType);
-            this.pnlMain.Controls.Add(this.txtMovieCode);
-            this.pnlMain.Controls.Add(this.btnAddGalleryImage);
-            this.pnlMain.Controls.Add(this.pnlGallery);
-            this.pnlMain.Controls.Add(this.lblCoverHint);
-            this.pnlMain.Controls.Add(this.picCover);
-            this.pnlMain.Controls.Add(this.lblTitle);
-            this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlMain.Location = new System.Drawing.Point(0, 0);
-            this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(750, 600);
-            this.pnlMain.TabIndex = 0;
+            pnlMain.BorderRadius = 16;
+            pnlMain.Controls.Add(lblNoteCount);
+            pnlMain.Controls.Add(btnCancel);
+            pnlMain.Controls.Add(btnSave);
+            pnlMain.Controls.Add(btnManageTags);
+            pnlMain.Controls.Add(flpTags);
+            pnlMain.Controls.Add(pnlNoteContainer);
+            pnlMain.Controls.Add(btnFetchTMDB);
+            pnlMain.Controls.Add(btnFetchUrl);
+            pnlMain.Controls.Add(txtMediaUrl);
+            pnlMain.Controls.Add(txtMovieCode);
+            pnlMain.Controls.Add(btnAddGalleryImage);
+            pnlMain.Controls.Add(pnlGallery);
+            pnlMain.Controls.Add(lblCoverHint);
+            pnlMain.Controls.Add(picCover);
+            pnlMain.Controls.Add(lblTitle);
+            pnlMain.CustomizableEdges = customizableEdges19;
+            pnlMain.Dock = DockStyle.Fill;
+            pnlMain.FillColor = Color.FromArgb(22, 28, 56);
+            pnlMain.FillColor2 = Color.FromArgb(22, 28, 56);
+            pnlMain.Location = new Point(0, 0);
+            pnlMain.Margin = new Padding(3, 4, 3, 4);
+            pnlMain.Name = "pnlMain";
+            pnlMain.ShadowDecoration.CustomizableEdges = customizableEdges20;
+            pnlMain.Size = new Size(857, 800);
+            pnlMain.TabIndex = 0;
             // 
-            // lblTitle
+            // lblNoteCount
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.BackColor = System.Drawing.Color.Transparent;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.lblTitle.Location = new System.Drawing.Point(25, 25);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(230, 32);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "🎬  Thêm Phim Mới";
-            // 
-            // picCover
-            // 
-            this.picCover.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(38)))), ((int)(((byte)(72)))));
-            this.picCover.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picCover.Location = new System.Drawing.Point(25, 80);
-            this.picCover.Name = "picCover";
-            this.picCover.Size = new System.Drawing.Size(220, 310);
-            this.picCover.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.picCover.TabIndex = 1;
-            this.picCover.TabStop = false;
-            this.picCover.Click += new System.EventHandler(this.picCover_Click);
-            // 
-            // lblCoverHint
-            // 
-            this.lblCoverHint.BackColor = System.Drawing.Color.Transparent;
-            this.lblCoverHint.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblCoverHint.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCoverHint.Location = new System.Drawing.Point(25, 395);
-            this.lblCoverHint.Name = "lblCoverHint";
-            this.lblCoverHint.Size = new System.Drawing.Size(220, 20);
-            this.lblCoverHint.TabIndex = 2;
-            this.lblCoverHint.Text = "📷 Click để chọn ảnh bìa";
-            this.lblCoverHint.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblCoverHint.Click += new System.EventHandler(this.picCover_Click);
-            // 
-            // pnlGallery
-            // 
-            this.pnlGallery.AutoScroll = true;
-            this.pnlGallery.BackColor = System.Drawing.Color.Transparent;
-            this.pnlGallery.Location = new System.Drawing.Point(25, 420);
-            this.pnlGallery.Name = "pnlGallery";
-            this.pnlGallery.Size = new System.Drawing.Size(220, 100);
-            this.pnlGallery.TabIndex = 10;
-            // 
-            // btnAddGalleryImage
-            // 
-            this.btnAddGalleryImage.BorderRadius = 8;
-            this.btnAddGalleryImage.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(38)))), ((int)(((byte)(72)))));
-            this.btnAddGalleryImage.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnAddGalleryImage.ForeColor = System.Drawing.Color.White;
-            this.btnAddGalleryImage.Location = new System.Drawing.Point(25, 530);
-            this.btnAddGalleryImage.Name = "btnAddGalleryImage";
-            this.btnAddGalleryImage.Size = new System.Drawing.Size(220, 30);
-            this.btnAddGalleryImage.TabIndex = 11;
-            this.btnAddGalleryImage.Text = "+ Thêm ảnh phụ";
-            this.btnAddGalleryImage.Click += new System.EventHandler(this.btnAddGalleryImage_Click);
-            // 
-            // txtMovieCode
-            // 
-            this.txtMovieCode.BorderRadius = 10;
-            this.txtMovieCode.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtMovieCode.DefaultText = "";
-            this.txtMovieCode.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.txtMovieCode.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.txtMovieCode.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtMovieCode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtMovieCode.Location = new System.Drawing.Point(280, 80);
-            this.txtMovieCode.Margin = new System.Windows.Forms.Padding(4);
-            this.txtMovieCode.Name = "txtMovieCode";
-            this.txtMovieCode.PasswordChar = '\0';
-            this.txtMovieCode.PlaceholderText = "🎞️  Mã/Tên phim (VD: Avengers)";
-            this.txtMovieCode.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.txtMovieCode.SelectedText = "";
-            this.txtMovieCode.Size = new System.Drawing.Size(290, 42);
-            this.txtMovieCode.TabIndex = 3;
-            // 
-            // btnFetchTMDB
-            // 
-            this.btnFetchTMDB.BorderRadius = 10;
-            this.btnFetchTMDB.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(72)))), ((int)(((byte)(153)))));
-            this.btnFetchTMDB.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(39)))), ((int)(((byte)(119)))));
-            this.btnFetchTMDB.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnFetchTMDB.ForeColor = System.Drawing.Color.White;
-            this.btnFetchTMDB.Location = new System.Drawing.Point(580, 80);
-            this.btnFetchTMDB.Name = "btnFetchTMDB";
-            this.btnFetchTMDB.Size = new System.Drawing.Size(130, 42);
-            this.btnFetchTMDB.TabIndex = 12;
-            this.btnFetchTMDB.Text = "🎬 TMDB API";
-            this.btnFetchTMDB.Click += new System.EventHandler(this.btnFetchTMDB_Click);
-            // 
-            // cboSourceType
-            // 
-            this.cboSourceType.BackColor = System.Drawing.Color.Transparent;
-            this.cboSourceType.BorderRadius = 10;
-            this.cboSourceType.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.cboSourceType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboSourceType.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.cboSourceType.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.cboSourceType.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.cboSourceType.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.cboSourceType.ItemHeight = 30;
-            this.cboSourceType.Items.AddRange(new object[] {
-            "🌐  Phim Online",
-            "📁  Phim Trên Máy (Local)"});
-            this.cboSourceType.Location = new System.Drawing.Point(280, 140);
-            this.cboSourceType.Name = "cboSourceType";
-            this.cboSourceType.Size = new System.Drawing.Size(430, 36);
-            this.cboSourceType.StartIndex = 0;
-            this.cboSourceType.TabIndex = 4;
-            // 
-            // txtMediaUrl
-            // 
-            this.txtMediaUrl.BorderRadius = 10;
-            this.txtMediaUrl.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtMediaUrl.DefaultText = "";
-            this.txtMediaUrl.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.txtMediaUrl.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.txtMediaUrl.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtMediaUrl.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtMediaUrl.Location = new System.Drawing.Point(280, 200);
-            this.txtMediaUrl.Margin = new System.Windows.Forms.Padding(4);
-            this.txtMediaUrl.Name = "txtMediaUrl";
-            this.txtMediaUrl.PasswordChar = '\0';
-            this.txtMediaUrl.PlaceholderText = "🔗  Đường dẫn File hoặc Link Web";
-            this.txtMediaUrl.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.txtMediaUrl.SelectedText = "";
-            this.txtMediaUrl.Size = new System.Drawing.Size(290, 42);
-            this.txtMediaUrl.TabIndex = 5;
-            // 
-            // btnFetchUrl
-            // 
-            this.btnFetchUrl.BorderRadius = 10;
-            this.btnFetchUrl.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
-            this.btnFetchUrl.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(165)))), ((int)(((byte)(250)))));
-            this.btnFetchUrl.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnFetchUrl.ForeColor = System.Drawing.Color.White;
-            this.btnFetchUrl.Location = new System.Drawing.Point(580, 200);
-            this.btnFetchUrl.Name = "btnFetchUrl";
-            this.btnFetchUrl.Size = new System.Drawing.Size(130, 42);
-            this.btnFetchUrl.TabIndex = 9;
-            this.btnFetchUrl.Text = "🔍 Lấy thông tin";
-            this.btnFetchUrl.Click += new System.EventHandler(this.btnFetchUrl_Click);
-            // 
-            // pnlNoteContainer
-            // 
-            this.pnlNoteContainer.BorderRadius = 10;
-            this.pnlNoteContainer.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.pnlNoteContainer.Location = new System.Drawing.Point(280, 260);
-            this.pnlNoteContainer.Name = "pnlNoteContainer";
-            this.pnlNoteContainer.Size = new System.Drawing.Size(430, 190);
-            this.pnlNoteContainer.TabIndex = 6;
-            this.pnlNoteContainer.Padding = new System.Windows.Forms.Padding(10);
-            this.pnlNoteContainer.Controls.Add(this.txtNote);
-            // 
-            // txtNote
-            // 
-            this.txtNote.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(62)))));
-            this.txtNote.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtNote.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtNote.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.txtNote.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.txtNote.Location = new System.Drawing.Point(10, 10);
-            this.txtNote.Name = "txtNote";
-            this.txtNote.Size = new System.Drawing.Size(410, 170);
-            this.txtNote.TabIndex = 0;
-            this.txtNote.Text = "";
-            // 
-            // 
-            // btnManageTags
-            // 
-            this.btnManageTags.BorderRadius = 8;
-            this.btnManageTags.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
-            this.btnManageTags.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnManageTags.ForeColor = System.Drawing.Color.White;
-            this.btnManageTags.Location = new System.Drawing.Point(280, 460);
-            this.btnManageTags.Name = "btnManageTags";
-            this.btnManageTags.Size = new System.Drawing.Size(120, 35);
-            this.btnManageTags.TabIndex = 10;
-            this.btnManageTags.Text = "+ Gắn Tag";
-            this.btnManageTags.Click += new System.EventHandler(this.btnManageTags_Click);
-            // 
-            // flpTags
-            // 
-            this.flpTags.AutoScroll = true;
-            this.flpTags.Location = new System.Drawing.Point(410, 460);
-            this.flpTags.Name = "flpTags";
-            this.flpTags.Size = new System.Drawing.Size(300, 35);
-            this.flpTags.TabIndex = 11;
-            // 
-            // btnSave
-            // 
-            this.btnSave.BorderRadius = 12;
-            this.btnSave.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.btnSave.FillColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(52)))), ((int)(((byte)(211)))), ((int)(((byte)(153)))));
-            this.btnSave.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnSave.ForeColor = System.Drawing.Color.White;
-            this.btnSave.Location = new System.Drawing.Point(530, 510);
-            this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(180, 45);
-            this.btnSave.TabIndex = 7;
-            this.btnSave.Text = "✓  LƯU LẠI";
-            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            lblNoteCount.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblNoteCount.BackColor = Color.Transparent;
+            lblNoteCount.Font = new Font("Segoe UI", 8.5F);
+            lblNoteCount.ForeColor = Color.FromArgb(148, 163, 184);
+            lblNoteCount.Location = new Point(697, 577);
+            lblNoteCount.Name = "lblNoteCount";
+            lblNoteCount.Size = new Size(114, 24);
+            lblNoteCount.TabIndex = 12;
+            lblNoteCount.Text = "(0/500)";
+            lblNoteCount.TextAlign = ContentAlignment.MiddleRight;
             // 
             // btnCancel
             // 
-            this.btnCancel.BorderRadius = 12;
-            this.btnCancel.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(48)))), ((int)(((byte)(82)))));
-            this.btnCancel.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnCancel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.btnCancel.HoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(113)))), ((int)(((byte)(113)))));
-            this.btnCancel.HoverState.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(280, 510);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(180, 45);
-            this.btnCancel.TabIndex = 8;
-            this.btnCancel.Text = "✕  HỦY";
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            btnCancel.BorderRadius = 12;
+            btnCancel.CustomizableEdges = customizableEdges1;
+            btnCancel.FillColor = Color.FromArgb(40, 48, 82);
+            btnCancel.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            btnCancel.ForeColor = Color.FromArgb(148, 163, 184);
+            btnCancel.HoverState.FillColor = Color.FromArgb(248, 113, 113);
+            btnCancel.HoverState.ForeColor = Color.White;
+            btnCancel.Location = new Point(320, 700);
+            btnCancel.Margin = new Padding(3, 4, 3, 4);
+            btnCancel.Name = "btnCancel";
+            btnCancel.ShadowDecoration.CustomizableEdges = customizableEdges2;
+            btnCancel.Size = new Size(206, 60);
+            btnCancel.TabIndex = 8;
+            btnCancel.Text = "✕  HỦY";
+            btnCancel.Click += btnCancel_Click;
+            // 
+            // btnSave
+            // 
+            btnSave.BorderRadius = 12;
+            btnSave.CustomizableEdges = customizableEdges3;
+            btnSave.FillColor = Color.FromArgb(139, 92, 246);
+            btnSave.FillColor2 = Color.FromArgb(52, 211, 153);
+            btnSave.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+            btnSave.ForeColor = Color.White;
+            btnSave.Location = new Point(606, 700);
+            btnSave.Margin = new Padding(3, 4, 3, 4);
+            btnSave.Name = "btnSave";
+            btnSave.ShadowDecoration.CustomizableEdges = customizableEdges4;
+            btnSave.Size = new Size(206, 60);
+            btnSave.TabIndex = 7;
+            btnSave.Text = "✓  LƯU LẠI";
+            btnSave.Click += btnSave_Click;
+            // 
+            // btnManageTags
+            // 
+            btnManageTags.BorderRadius = 8;
+            btnManageTags.CustomizableEdges = customizableEdges5;
+            btnManageTags.FillColor = Color.FromArgb(59, 130, 246);
+            btnManageTags.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnManageTags.ForeColor = Color.White;
+            btnManageTags.Location = new Point(320, 611);
+            btnManageTags.Margin = new Padding(3, 4, 3, 4);
+            btnManageTags.Name = "btnManageTags";
+            btnManageTags.ShadowDecoration.CustomizableEdges = customizableEdges6;
+            btnManageTags.Size = new Size(137, 56);
+            btnManageTags.TabIndex = 10;
+            btnManageTags.Text = "+ Gắn Tag";
+            btnManageTags.Click += btnManageTags_Click;
+            // 
+            // flpTags
+            // 
+            flpTags.AutoScroll = true;
+            flpTags.BackColor = Color.Transparent;
+            flpTags.Location = new Point(469, 603);
+            flpTags.Margin = new Padding(3, 4, 3, 4);
+            flpTags.Name = "flpTags";
+            flpTags.Size = new Size(343, 75);
+            flpTags.TabIndex = 11;
+            // 
+            // pnlNoteContainer
+            // 
+            pnlNoteContainer.BorderRadius = 10;
+            pnlNoteContainer.Controls.Add(txtNote);
+            pnlNoteContainer.CustomizableEdges = customizableEdges7;
+            pnlNoteContainer.FillColor = Color.FromArgb(26, 32, 62);
+            pnlNoteContainer.Location = new Point(320, 340);
+            pnlNoteContainer.Margin = new Padding(3, 4, 3, 4);
+            pnlNoteContainer.Name = "pnlNoteContainer";
+            pnlNoteContainer.Padding = new Padding(11, 13, 11, 13);
+            pnlNoteContainer.ShadowDecoration.CustomizableEdges = customizableEdges8;
+            pnlNoteContainer.Size = new Size(491, 233);
+            pnlNoteContainer.TabIndex = 6;
+            // 
+            // txtNote
+            // 
+            txtNote.BackColor = Color.FromArgb(26, 32, 62);
+            txtNote.BorderStyle = BorderStyle.None;
+            txtNote.Dock = DockStyle.Fill;
+            txtNote.Font = new Font("Segoe UI", 11F);
+            txtNote.ForeColor = Color.FromArgb(241, 245, 249);
+            txtNote.Location = new Point(11, 13);
+            txtNote.Margin = new Padding(3, 4, 3, 4);
+            txtNote.MaxLength = 500;
+            txtNote.Name = "txtNote";
+            txtNote.Size = new Size(469, 207);
+            txtNote.TabIndex = 0;
+            txtNote.Text = "";
+            // 
+            // btnFetchTMDB
+            // 
+            btnFetchTMDB.BorderRadius = 10;
+            btnFetchTMDB.CustomizableEdges = customizableEdges9;
+            btnFetchTMDB.FillColor = Color.FromArgb(236, 72, 153);
+            btnFetchTMDB.FillColor2 = Color.FromArgb(244, 114, 182);
+            btnFetchTMDB.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnFetchTMDB.ForeColor = Color.White;
+            btnFetchTMDB.Location = new Point(663, 107);
+            btnFetchTMDB.Margin = new Padding(3, 4, 3, 4);
+            btnFetchTMDB.Name = "btnFetchTMDB";
+            btnFetchTMDB.ShadowDecoration.CustomizableEdges = customizableEdges10;
+            btnFetchTMDB.Size = new Size(149, 56);
+            btnFetchTMDB.TabIndex = 8;
+            btnFetchTMDB.Text = "🎬 TMDB API";
+            btnFetchTMDB.Click += btnFetchTMDB_Click;
+            // 
+            // btnFetchUrl
+            // 
+            btnFetchUrl.BorderRadius = 10;
+            btnFetchUrl.CustomizableEdges = customizableEdges11;
+            btnFetchUrl.FillColor = Color.FromArgb(59, 130, 246);
+            btnFetchUrl.FillColor2 = Color.FromArgb(96, 165, 250);
+            btnFetchUrl.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnFetchUrl.ForeColor = Color.White;
+            btnFetchUrl.Location = new Point(659, 225);
+            btnFetchUrl.Margin = new Padding(3, 4, 3, 4);
+            btnFetchUrl.Name = "btnFetchUrl";
+            btnFetchUrl.ShadowDecoration.CustomizableEdges = customizableEdges12;
+            btnFetchUrl.Size = new Size(149, 56);
+            btnFetchUrl.TabIndex = 9;
+            btnFetchUrl.Text = "🔍 Lấy thông tin";
+            btnFetchUrl.Click += btnFetchUrl_Click;
+            // 
+            // txtMediaUrl
+            // 
+            txtMediaUrl.BorderRadius = 10;
+            txtMediaUrl.Cursor = Cursors.IBeam;
+            txtMediaUrl.CustomizableEdges = customizableEdges13;
+            txtMediaUrl.DefaultText = "";
+            txtMediaUrl.FillColor = Color.FromArgb(26, 32, 62);
+            txtMediaUrl.FocusedState.BorderColor = Color.FromArgb(139, 92, 246);
+            txtMediaUrl.Font = new Font("Segoe UI", 11F);
+            txtMediaUrl.ForeColor = Color.FromArgb(241, 245, 249);
+            txtMediaUrl.Location = new Point(320, 225);
+            txtMediaUrl.Margin = new Padding(5, 5, 5, 5);
+            txtMediaUrl.Name = "txtMediaUrl";
+            txtMediaUrl.PlaceholderForeColor = Color.FromArgb(100, 116, 139);
+            txtMediaUrl.PlaceholderText = "https://... hoặc C:\\Videos\\...";
+            txtMediaUrl.SelectedText = "";
+            txtMediaUrl.ShadowDecoration.CustomizableEdges = customizableEdges14;
+            txtMediaUrl.Size = new Size(331, 56);
+            txtMediaUrl.TabIndex = 5;
+            // 
+            // txtMovieCode
+            // 
+            txtMovieCode.BorderRadius = 10;
+            txtMovieCode.Cursor = Cursors.IBeam;
+            txtMovieCode.CustomizableEdges = customizableEdges15;
+            txtMovieCode.DefaultText = "";
+            txtMovieCode.FillColor = Color.FromArgb(26, 32, 62);
+            txtMovieCode.FocusedState.BorderColor = Color.FromArgb(139, 92, 246);
+            txtMovieCode.Font = new Font("Segoe UI", 11F);
+            txtMovieCode.ForeColor = Color.FromArgb(241, 245, 249);
+            txtMovieCode.Location = new Point(320, 107);
+            txtMovieCode.Margin = new Padding(5, 5, 5, 5);
+            txtMovieCode.Name = "txtMovieCode";
+            txtMovieCode.PlaceholderForeColor = Color.FromArgb(100, 116, 139);
+            txtMovieCode.PlaceholderText = "Nhập mã phim / Tên phim...";
+            txtMovieCode.SelectedText = "";
+            txtMovieCode.ShadowDecoration.CustomizableEdges = customizableEdges16;
+            txtMovieCode.Size = new Size(331, 56);
+            txtMovieCode.TabIndex = 3;
+            // 
+            // btnAddGalleryImage
+            // 
+            btnAddGalleryImage.BorderRadius = 8;
+            btnAddGalleryImage.CustomizableEdges = customizableEdges17;
+            btnAddGalleryImage.FillColor = Color.FromArgb(30, 38, 72);
+            btnAddGalleryImage.Font = new Font("Segoe UI", 9F);
+            btnAddGalleryImage.ForeColor = Color.White;
+            btnAddGalleryImage.Location = new Point(29, 700);
+            btnAddGalleryImage.Margin = new Padding(3, 4, 3, 4);
+            btnAddGalleryImage.Name = "btnAddGalleryImage";
+            btnAddGalleryImage.ShadowDecoration.CustomizableEdges = customizableEdges18;
+            btnAddGalleryImage.Size = new Size(251, 60);
+            btnAddGalleryImage.TabIndex = 11;
+            btnAddGalleryImage.Text = "+ Thêm ảnh phụ";
+            btnAddGalleryImage.Click += btnAddGalleryImage_Click;
+            // 
+            // pnlGallery
+            // 
+            pnlGallery.AutoScroll = true;
+            pnlGallery.BackColor = Color.Transparent;
+            pnlGallery.Location = new Point(29, 533);
+            pnlGallery.Margin = new Padding(3, 4, 3, 4);
+            pnlGallery.Name = "pnlGallery";
+            pnlGallery.Size = new Size(251, 153);
+            pnlGallery.TabIndex = 10;
+            // 
+            // lblCoverHint
+            // 
+            lblCoverHint.BackColor = Color.Transparent;
+            lblCoverHint.Font = new Font("Segoe UI", 9.5F, FontStyle.Italic);
+            lblCoverHint.ForeColor = Color.FromArgb(100, 116, 139);
+            lblCoverHint.Location = new Point(29, 500);
+            lblCoverHint.Name = "lblCoverHint";
+            lblCoverHint.Size = new Size(251, 27);
+            lblCoverHint.TabIndex = 2;
+            lblCoverHint.Text = "📷 Click để chọn ảnh bìa";
+            lblCoverHint.TextAlign = ContentAlignment.MiddleCenter;
+            lblCoverHint.Click += picCover_Click;
+            // 
+            // picCover
+            // 
+            picCover.BackColor = Color.FromArgb(30, 38, 72);
+            picCover.Cursor = Cursors.Hand;
+            picCover.Location = new Point(29, 107);
+            picCover.Margin = new Padding(3, 4, 3, 4);
+            picCover.Name = "picCover";
+            picCover.Size = new Size(251, 387);
+            picCover.SizeMode = PictureBoxSizeMode.Zoom;
+            picCover.TabIndex = 1;
+            picCover.TabStop = false;
+            picCover.Click += picCover_Click;
+            // 
+            // lblTitle
+            // 
+            lblTitle.AutoSize = true;
+            lblTitle.BackColor = Color.Transparent;
+            lblTitle.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(241, 245, 249);
+            lblTitle.Location = new Point(29, 33);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(300, 41);
+            lblTitle.TabIndex = 0;
+            lblTitle.Text = "🎬  Thêm Phim Mới";
             // 
             // FrmMovieDetail
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(12)))), ((int)(((byte)(14)))), ((int)(((byte)(29)))));
-            this.ClientSize = new System.Drawing.Size(750, 600);
-            this.Controls.Add(this.pnlMain);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Name = "FrmMovieDetail";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Movie Detail";
-            this.pnlMain.ResumeLayout(false);
-            this.pnlMain.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picCover)).EndInit();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(12, 14, 29);
+            ClientSize = new Size(857, 800);
+            Controls.Add(pnlMain);
+            FormBorderStyle = FormBorderStyle.None;
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "FrmMovieDetail";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Movie Detail";
+            pnlMain.ResumeLayout(false);
+            pnlMain.PerformLayout();
+            pnlNoteContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)picCover).EndInit();
+            ResumeLayout(false);
 
         }
+
+        #endregion
 
         private Guna.UI2.WinForms.Guna2Elipse guna2Elipse1;
         private Guna.UI2.WinForms.Guna2Button btnManageTags;
@@ -327,12 +376,12 @@ namespace Person_Movie_Management.Forms
         private System.Windows.Forms.FlowLayoutPanel pnlGallery;
         private Guna.UI2.WinForms.Guna2Button btnAddGalleryImage;
         private Guna.UI2.WinForms.Guna2TextBox txtMovieCode;
-        private Guna.UI2.WinForms.Guna2ComboBox cboSourceType;
         private Guna.UI2.WinForms.Guna2TextBox txtMediaUrl;
         private Guna.UI2.WinForms.Guna2GradientButton btnFetchTMDB;
         private Guna.UI2.WinForms.Guna2GradientButton btnFetchUrl;
         private Guna.UI2.WinForms.Guna2Panel pnlNoteContainer;
         private System.Windows.Forms.RichTextBox txtNote;
+        private System.Windows.Forms.Label lblNoteCount;
         private Guna.UI2.WinForms.Guna2GradientButton btnSave;
         private Guna.UI2.WinForms.Guna2Button btnCancel;
     }

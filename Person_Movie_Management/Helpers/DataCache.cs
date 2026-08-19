@@ -11,15 +11,17 @@ namespace Person_Movie_Management.Helpers
     /// </summary>
     public static class DataCache
     {
-        private static List<Movie> _cachedMovies = null;
-        private static List<Audio> _cachedAudios = null;
+        private static List<Movie>? _cachedMovies = null;
+        private static List<Audio>? _cachedAudios = null;
+        private static int _cachedUserId = -1;
         
-        public static event Action DataInvalidated;
+        public static event Action? DataInvalidated;
 
         public static async Task<List<Movie>> GetMoviesAsync(int userId, bool forceRefresh = false)
         {
-            if (_cachedMovies == null || forceRefresh)
+            if (_cachedMovies == null || _cachedUserId != userId || forceRefresh)
             {
+                _cachedUserId = userId;
                 _cachedMovies = await AppServices.MovieRepo.GetAllByUserAsync(userId);
             }
             return _cachedMovies;
@@ -33,8 +35,9 @@ namespace Person_Movie_Management.Helpers
 
         public static async Task<List<Audio>> GetFavoriteAudiosAsync(int userId, bool forceRefresh = false)
         {
-            if (_cachedAudios == null || forceRefresh)
+            if (_cachedAudios == null || _cachedUserId != userId || forceRefresh)
             {
+                _cachedUserId = userId;
                 _cachedAudios = await AppServices.AudioRepo.GetFavoritesAsync(userId);
             }
             return _cachedAudios; 
@@ -44,6 +47,7 @@ namespace Person_Movie_Management.Helpers
         {
             _cachedMovies = null;
             _cachedAudios = null;
+            _cachedUserId = -1;
             DataInvalidated?.Invoke();
         }
     }

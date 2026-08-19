@@ -22,7 +22,59 @@ namespace Person_Movie_Management.Forms
             InitializeComponent();
             _currentActor = actor;
             
+            txtName.MaxLength = 50; // Giới hạn tên diễn viên 50 ký tự
+            InitNationalities();
+            SetupBioCharCounter();
             LoadData();
+        }
+
+        private void InitNationalities()
+        {
+            string currentVal = cboNationality.Text;
+            cboNationality.Items.Clear();
+            var list = new List<string>();
+
+            // Load distinct custom nationalities from DB (không dùng danh sách mặc định cứng)
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
+            {
+                list = AppServices.ActorRepo.GetDistinctNationalities(SessionManager.CurrentUser.Id);
+            }
+
+            foreach (var item in list)
+            {
+                cboNationality.Items.Add(item);
+            }
+
+            if (!string.IsNullOrEmpty(currentVal))
+            {
+                cboNationality.Text = currentVal;
+            }
+        }
+
+        private void btnManageNationality_Click(object sender, EventArgs e)
+        {
+            if (!SessionManager.IsLoggedIn || SessionManager.CurrentUser == null) return;
+            var frm = new FrmNationalityManager(SessionManager.CurrentUser.Id);
+            frm.ShowDialog(this);
+            InitNationalities();
+        }
+
+        private void SetupBioCharCounter()
+        {
+            txtBio.MaxLength = 500;
+            txtBio.TextChanged += (s, e) =>
+            {
+                int count = txtBio.Text.Length;
+                lblCharCount.Text = $"{count} / 500 ký tự";
+                if (count > 500)
+                {
+                    lblCharCount.ForeColor = Color.FromArgb(239, 68, 68); // Red
+                }
+                else
+                {
+                    lblCharCount.ForeColor = Color.FromArgb(148, 163, 184); // Slate 400
+                }
+            };
         }
 
         private void LoadData()
@@ -33,9 +85,20 @@ namespace Person_Movie_Management.Forms
                 btnDelete.Visible = true;
                 
                 txtName.Text = _currentActor.Name;
-                txtDateOfBirth.Text = _currentActor.DateOfBirth;
-                txtNationality.Text = _currentActor.Nationality;
-                txtBio.Text = _currentActor.Bio;
+                
+                if (!string.IsNullOrWhiteSpace(_currentActor.DateOfBirth) && DateTime.TryParse(_currentActor.DateOfBirth, out var parsedDate))
+                {
+                    dtpDateOfBirth.Value = parsedDate;
+                    dtpDateOfBirth.Checked = true;
+                }
+                else
+                {
+                    dtpDateOfBirth.Checked = false;
+                }
+
+                cboNationality.Text = _currentActor.Nationality ?? string.Empty;
+                txtBio.Text = _currentActor.Bio ?? string.Empty;
+                lblCharCount.Text = $"{txtBio.Text.Length} / 500 ký tự";
                 
                 _avatarPath = _currentActor.AvatarPath;
                 if (!string.IsNullOrEmpty(_avatarPath))
@@ -54,6 +117,11 @@ namespace Person_Movie_Management.Forms
             {
                 lblTitle.Text = "💃 Thêm Diễn Viên Mới";
                 btnDelete.Visible = false;
+                dtpDateOfBirth.Checked = false;
+                cboNationality.SelectedIndex = -1;
+                cboNationality.Text = string.Empty;
+                txtBio.Text = string.Empty;
+                lblCharCount.Text = "0 / 500 ký tự";
             }
         }
 
@@ -65,8 +133,12 @@ namespace Person_Movie_Management.Forms
                 try
                 {
                     var img = FileHelper.LoadImageSafe(fullPath);
-                    picAvatar.Image = new Bitmap(img);
-                    img.Dispose();
+                    if (img != null)
+                    {
+                        picAvatar.Image?.Dispose();
+                        picAvatar.Image = new Bitmap(img);
+                        img.Dispose();
+                    }
                 }
                 catch { }
             }
@@ -95,8 +167,12 @@ namespace Person_Movie_Management.Forms
             try
             {
                 var img = FileHelper.LoadImageSafe(fullPath);
-                pic.Image = new Bitmap(img);
-                img.Dispose();
+                if (img != null)
+                {
+                    pic.Image = new Bitmap(img);
+                    img.Dispose();
+                }
+                else return;
             }
             catch { return; }
 
@@ -106,6 +182,8 @@ namespace Person_Movie_Management.Forms
                 if (MessageBox.Show("Bạn muốn xoá ảnh này?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     pnlGallery.Controls.Remove(pic);
+                    pic.Image?.Dispose();
+                    pic.Dispose();
                     if (existingId.HasValue)
                     {
                         _imagesToDelete.Add(existingId.Value);
@@ -130,8 +208,12 @@ namespace Person_Movie_Management.Forms
                 try
                 {
                     var img = FileHelper.LoadImageSafe(_avatarPath);
-                    picAvatar.Image = new Bitmap(img);
-                    img.Dispose();
+                    if (img != null)
+                    {
+                        picAvatar.Image?.Dispose();
+                        picAvatar.Image = new Bitmap(img);
+                        img.Dispose();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -157,9 +239,30 @@ namespace Person_Movie_Management.Forms
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtName.Text))
+            string trimmedName = txtName.Text.Trim();
+            if (string.IsNullOrWhiteSpace(trimmedName))
             {
-                MessageBox.Show("Vui lòng nhập tên diễn viên.");
+                MessageBox.Show("Vui lòng nhập tên diễn viên.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtName.Focus();
+                return;
+            }
+
+            int excludeId = _currentActor?.Id ?? 0;
+            if (SessionManager.IsLoggedIn && SessionManager.CurrentUser != null)
+            {
+                var duplicate = AppServices.ActorRepo.GetByName(SessionManager.CurrentUser.Id, trimmedName, excludeId);
+                if (duplicate != null)
+                {
+                    MessageBox.Show($"Diễn viên có tên '{trimmedName}' đã tồn tại trong danh sách của bạn. Vui lòng nhập tên khác.", "Trùng tên diễn viên", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtName.Focus();
+                    return;
+                }
+            }
+
+            if (txtBio.Text.Length > 500)
+            {
+                MessageBox.Show($"Ghi chú hiện tại có {txtBio.Text.Length} ký tự, đã vượt quá giới hạn 500 ký tự. Vui lòng rút gọn lại.", "Vượt quá giới hạn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtBio.Focus();
                 return;
             }
 
@@ -174,9 +277,9 @@ namespace Person_Movie_Management.Forms
             }
 
             _currentActor.Name = txtName.Text.Trim();
-            _currentActor.DateOfBirth = txtDateOfBirth.Text.Trim();
-            _currentActor.Nationality = txtNationality.Text.Trim();
-            _currentActor.Bio = txtBio.Text.Trim();
+            _currentActor.DateOfBirth = dtpDateOfBirth.Checked ? dtpDateOfBirth.Value.ToString("yyyy-MM-dd") : null;
+            _currentActor.Nationality = string.IsNullOrWhiteSpace(cboNationality.Text) ? null : cboNationality.Text.Trim();
+            _currentActor.Bio = string.IsNullOrWhiteSpace(txtBio.Text) ? null : txtBio.Text.Trim();
 
             // Save Avatar
             if (_avatarPath != null && Path.IsPathRooted(_avatarPath))

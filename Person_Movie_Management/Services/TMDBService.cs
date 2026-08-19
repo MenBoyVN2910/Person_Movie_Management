@@ -9,12 +9,12 @@ namespace Person_Movie_Management.Services
 {
     public class TMDBMovie
     {
-        public string Title { get; set; }
-        public string Overview { get; set; }
-        public string PosterUrl { get; set; }
+        public string Title { get; set; } = "";
+        public string Overview { get; set; } = "";
+        public string PosterUrl { get; set; } = "";
         public double Rating { get; set; }
-        public List<string> Genres { get; set; }
-        public string ReleaseDate { get; set; }
+        public List<string> Genres { get; set; } = new();
+        public string ReleaseDate { get; set; } = "";
     }
 
     public class TMDBService
@@ -78,7 +78,7 @@ namespace Person_Movie_Management.Services
                         
                         if (item.TryGetProperty("release_date", out var releaseProp))
                         {
-                            movie.ReleaseDate = releaseProp.GetString();
+                            movie.ReleaseDate = releaseProp.GetString() ?? "";
                         }
                         
                         movie.Genres = new List<string>();
@@ -132,7 +132,7 @@ namespace Person_Movie_Management.Services
                 { 37, "Miền Tây" }
             };
 
-            if (genres.TryGetValue(id, out string name))
+            if (genres.TryGetValue(id, out string? name) && name != null)
                 return name;
             
             return "";
